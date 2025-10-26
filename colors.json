@@ -1,0 +1,47 @@
+{
+  "themeName": "Luxe Minimal",
+  "description": "Refined Simplicity",
+  "colors": {
+    "primary": {
+      "white": "#FFFFFF",
+      "darkOrange": "#FF8C00",
+      "gold": "#FFD700",
+      "cream": "#FFFAF0"
+    },
+    "secondary": {
+      "lightGray": "#999999",
+      "textDark": "#333333"
+    },
+    "gradients": {
+      "headerBackground": {
+        "type": "linear-gradient",
+        "angle": "135deg",
+        "colors": ["#FFFAF0", "#FFFFFF"]
+      }
+    }
+  },
+  "colorRoles": {
+    "background": "#FFFFFF",
+    "headerBackground": "linear-gradient(135deg, #FFFAF0, #FFFFFF)",
+    "headingColor": "#FF8C00",
+    "accentText": "#FFD700",
+    "bodyText": "#333333",
+    "subtitleText": "#999999",
+    "buttonBackground": "#FF8C00",
+    "buttonText": "#FFFFFF",
+    "border": "#FFD700"
+  },
+  "usage": {
+    "bestFor": [
+      "Luxury brands",
+      "Professional services",
+      "High-end products"
+    ],
+    "characteristics": [
+      "Clean",
+      "Minimalist",
+      "Sophisticated",
+      "Premium"
+    ]
+  }
+}
