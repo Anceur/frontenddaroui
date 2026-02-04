@@ -8,6 +8,7 @@ export type MenuItem = {
   name: string;
   description?: string;
   price: number;
+  cost_price?: number;
   category: string;
   image?: string | null;
   featured?: boolean;
@@ -15,13 +16,40 @@ export type MenuItem = {
     id: number;
     size: string;
     price: number;
+    cost_price?: number;
   }>;
+};
+
+export type PromotionItem = {
+  id: number;
+  menu_item: number;
+  menu_item_size?: number | null;
+  menu_item_name: string;
+  size_label?: string;
+  quantity: number;
+};
+
+export type Promotion = {
+  id: number;
+  name: string;
+  description: string;
+  promotion_type: 'percentage' | 'fixed_amount' | 'combo_fixed_price';
+  value: number;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  status: string;
+  display_status: string;
+  applicable_items: number[];
+  applicable_sizes: number[];
+  combo_items: PromotionItem[];
 };
 
 export type CreateMenuItemData = {
   name: string;
   description?: string;
   price: number;
+  cost_price?: number;
   category: string;
   image?: File | string | null;
   featured?: boolean;
@@ -31,6 +59,7 @@ export type UpdateMenuItemData = {
   name?: string;
   description?: string;
   price?: number;
+  cost_price?: number;
   category?: string;
   image?: File | string | null;
   featured?: boolean;
@@ -74,6 +103,9 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
     formData.append('name', itemData.name);
     if (itemData.description) formData.append('description', itemData.description);
     formData.append('price', itemData.price.toString());
+    if (itemData.cost_price !== undefined) {
+      formData.append('cost_price', itemData.cost_price.toString());
+    }
     formData.append('category', itemData.category);
     if (itemData.image && itemData.image instanceof File) {
       formData.append('image', itemData.image);
@@ -93,10 +125,12 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
     console.error('Error creating menu item:', error);
     if (error.response) {
       const errorMessage = error.response.data?.error || 'Failed to create menu item';
-      const details = error.response.data?.details;
+      const details = error.response.data?.details || error.response.data?.detail;
       if (details) {
+        console.error('Validation errors:', details);
         throw new Error(`${errorMessage}: ${JSON.stringify(details)}`);
       }
+      console.error('Error response:', error.response.data);
       throw new Error(errorMessage);
     }
     throw new Error('Network error: Failed to create menu item');
@@ -110,6 +144,7 @@ export async function updateMenuItem(itemId: number, itemData: UpdateMenuItemDat
     if (itemData.name) formData.append('name', itemData.name);
     if (itemData.description !== undefined) formData.append('description', itemData.description);
     if (itemData.price !== undefined) formData.append('price', itemData.price.toString());
+    if (itemData.cost_price !== undefined) formData.append('cost_price', itemData.cost_price.toString());
     if (itemData.category) formData.append('category', itemData.category);
     if (itemData.image && itemData.image instanceof File) {
       formData.append('image', itemData.image);
@@ -149,6 +184,7 @@ export async function patchMenuItem(itemId: number, itemData: UpdateMenuItemData
     if (itemData.name) formData.append('name', itemData.name);
     if (itemData.description !== undefined) formData.append('description', itemData.description);
     if (itemData.price !== undefined) formData.append('price', itemData.price.toString());
+    if (itemData.cost_price !== undefined) formData.append('cost_price', itemData.cost_price.toString());
     if (itemData.category) formData.append('category', itemData.category);
     if (itemData.image && itemData.image instanceof File) {
       formData.append('image', itemData.image);
@@ -196,6 +232,20 @@ export async function deleteMenuItem(itemId: number): Promise<void> {
       throw new Error(error.response.data?.error || error.response.data?.detail || 'Failed to delete menu item');
     }
     throw new Error('Network error: Failed to delete menu item');
+  }
+}
+
+// Get live promotions
+export async function getPublicPromotions(): Promise<Promotion[]> {
+  try {
+    const response = await axios.get<Promotion[]>(`${API}/promotions/public/`, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching promotions:', error);
+    if (error.response) {
+      throw new Error(error.response.data?.error || error.response.data?.detail || 'Failed to fetch promotions');
+    }
+    throw new Error('Network error: Failed to fetch promotions');
   }
 }
 

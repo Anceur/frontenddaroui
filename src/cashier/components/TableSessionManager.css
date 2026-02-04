@@ -1,0 +1,245 @@
+.table-session-manager {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.manager-header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.refresh-btn {
+    padding: 12px 24px;
+    background: white;
+    color: #667eea;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.error-banner {
+    background: #e74c3c;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.manager-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.sessions-section,
+.tables-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sessions-section h2,
+.tables-section h2 {
+    margin: 0 0 20px;
+    color: #333;
+    font-size: 1.5rem;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.empty-message {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-size: 1.1rem;
+}
+
+.sessions-grid,
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.session-card,
+.table-card {
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.session-card:hover,
+.table-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.session-card.active {
+    border-color: #27ae60;
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.05) 0%, rgba(39, 174, 96, 0.1) 100%);
+}
+
+.session-card.expired {
+    border-color: #e74c3c;
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.05) 0%, rgba(231, 76, 60, 0.1) 100%);
+    opacity: 0.7;
+}
+
+.table-card.available {
+    border-color: #3498db;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(52, 152, 219, 0.1) 100%);
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.session-header h3,
+.table-card h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-badge.ordered {
+    background: #27ae60;
+    color: white;
+}
+
+.status-badge.browsing {
+    background: #f39c12;
+    color: white;
+}
+
+.status-badge.expired {
+    background: #e74c3c;
+    color: white;
+}
+
+.session-info {
+    margin-bottom: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row .label {
+    font-weight: 600;
+    color: #666;
+}
+
+.expires-time {
+    color: #e74c3c;
+    font-weight: 700;
+}
+
+.token {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #667eea;
+}
+
+.end-session-btn,
+.qr-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.end-session-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.end-session-btn:hover {
+    background: #c0392b;
+    transform: scale(1.02);
+}
+
+.qr-btn {
+    background: #3498db;
+    color: white;
+}
+
+.qr-btn:hover {
+    background: #2980b9;
+    transform: scale(1.02);
+}
+
+.table-info {
+    margin: 15px 0;
+    color: #666;
+}
+
+.table-info p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+
+    .sessions-grid,
+    .tables-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manager-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .manager-header h1 {
+        font-size: 1.5rem;
+    }
+}

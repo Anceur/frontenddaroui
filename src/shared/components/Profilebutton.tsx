@@ -44,7 +44,7 @@ export default function ProfileButton({ onLogoutClick }: ProfileButtonProps): JS
               Chef Marco
             </p>
             <p style={{ margin: 0, fontSize: '11px', color: '#999999' }}>
-              Head Chef
+              Chef de cuisine
             </p>
           </div>
         </button>

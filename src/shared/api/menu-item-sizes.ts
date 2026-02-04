@@ -8,20 +8,23 @@ export type MenuItemSize = {
   menu_item: number;
   menu_item_id?: number;
   menu_item_name?: string;
-  size: 'M' | 'L' | 'Mega';
+  size: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'Mega' | 'Family';
   price: number;
+  cost_price?: number;
 };
 
 export type CreateMenuItemSizeData = {
   menu_item_id: number;
-  size: 'M' | 'L' | 'Mega';
+  size: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'Mega' | 'Family';
   price: number;
+  cost_price?: number;
 };
 
 export type UpdateMenuItemSizeData = {
   menu_item_id?: number;
-  size?: 'M' | 'L' | 'Mega';
+  size?: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'Mega' | 'Family';
   price?: number;
+  cost_price?: number;
 };
 
 // Get all menu item sizes
@@ -69,10 +72,12 @@ export async function createMenuItemSize(sizeData: CreateMenuItemSizeData): Prom
     console.error('Error creating menu item size:', error);
     if (error.response) {
       const errorMessage = error.response.data?.error || 'Failed to create menu item size';
-      const details = error.response.data?.details;
+      const details = error.response.data?.details || error.response.data?.detail;
       if (details) {
+        console.error('Validation errors:', details);
         throw new Error(`${errorMessage}: ${JSON.stringify(details)}`);
       }
+      console.error('Error response:', error.response.data);
       throw new Error(errorMessage);
     }
     throw new Error('Network error: Failed to create menu item size');

@@ -94,16 +94,17 @@ useEffect(() => {
   const interval = setInterval(async () => {
     try {
       // Call your backend endpoint that verifies if the access token is still valid
-      setloading(true)
+      // Silent check - no loading state to avoid UI interruptions
       await axios.get(`${API}/is-authenticated`, { withCredentials: true })
-      setloading(false)// If valid → do nothing
+      // If valid → do nothing
     } catch (err) {
       console.warn("Access token expired or invalid.")
+      // Only set loading when actually logging out
       setloading(true)
       await handleLogout()
       setloading(false)
     }
-  }, 60000) // every 60 seconds
+  }, 300000) // every 5 minutes (increased from 60 seconds to reduce frequency)
 
   // Cleanup on component unmount
   return () => clearInterval(interval)

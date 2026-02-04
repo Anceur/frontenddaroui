@@ -9,6 +9,8 @@ export default function NotificationButton({ count }: NotificationButtonProps): 
   
     return (
       <button
+        aria-label={`Afficher les notifications (${count})`}
+        title="Afficher les notifications"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
@@ -47,4 +49,3 @@ export default function NotificationButton({ count }: NotificationButtonProps): 
       </button>
     );
   }
-  

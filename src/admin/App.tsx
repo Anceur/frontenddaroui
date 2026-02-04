@@ -4,7 +4,6 @@ import NostalgieSidebar from "../shared/components/Sidebar";
 import NostalgieNavbar from '../shared/components/Navbar';
 import NostalgieDashboard from './pages/Dashboard';
 import OrdersManagement from './pages/Orders';
-import KitchenDisplay from './pages/Kitchen';
 import MenuProducts from "./pages/Menu";
 import StaffManagement from "./pages/Staff";
 import SettingsPage from "./pages/Settings";
@@ -16,9 +15,16 @@ import IngredientTracesManagement from "./pages/IngredientTraces";
 import IngredientStockManagement from "./pages/IngredientStock";
 import TablesManagement from "./pages/Tables";
 import OfflineOrdersManagement from "./pages/OfflineOrders";
-import CustomersManagement from "./pages/Customers";
 import NotificationsPage from "./pages/Notifications";
+import SuppliersManagement from "./pages/Suppliers";
+import SupplierHistoryManagement from "./pages/SupplierHistory";
+import LoyalCustomersManagement from "./pages/LoyalCustomers";
+import MenuItemMovement from "./pages/MenuItemMovement";
+import ExpensesDashboard from "./pages/Expenses";
+import EarningsDashboard from "./pages/Earnings";
 
+import Promotions from "./pages/Promotions";
+import RestaurantHours from "./pages/RestaurantHours";
 function AdminApp() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
@@ -34,7 +40,7 @@ function AdminApp() {
 
   return (
     <div className="flex min-h-screen">
-      <NostalgieSidebar 
+      <NostalgieSidebar
         isMobileOpen={isMobileMenuOpen}
         onMobileClose={handleMenuClose}
       />
@@ -45,7 +51,6 @@ function AdminApp() {
           <Routes>
             <Route path="/" element={<NostalgieDashboard />} />
             <Route path="/orders" element={<OrdersManagement />} />
-            <Route path="/offline-orders" element={<OfflineOrdersManagement />} />
             <Route path="/tables" element={<TablesManagement />} />
             <Route path="menu" element={<MenuProducts />} />
             <Route path="menu-item-sizes" element={<MenuItemSizesManagement />} />
@@ -56,6 +61,14 @@ function AdminApp() {
             <Route path="analytics" element={<Analytics />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="suppliers" element={<SuppliersManagement />} />
+            <Route path="supplier-history" element={<SupplierHistoryManagement />} />
+            <Route path="loyal-customers" element={<LoyalCustomersManagement />} />
+            <Route path="movement" element={<MenuItemMovement />} />
+            <Route path="expenses" element={<ExpensesDashboard />} />
+            <Route path="earnings" element={<EarningsDashboard />} />
+            <Route path="promotions" element={<Promotions />} />
+            <Route path="restaurant-hours" element={<RestaurantHours />} />
             <Route path="/change-password" element={<ChangePasswordPage />} />
           </Routes>
         </div>

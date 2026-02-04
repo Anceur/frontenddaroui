@@ -84,13 +84,13 @@ export default function SettingsPage() {
   });
 
   const tabs = [
-    { id: 'General', icon: Store, label: 'General' },
-    { id: 'Account', icon: User, label: 'Account' },
+    { id: 'General', icon: Store, label: 'Général' },
+    { id: 'Account', icon: User, label: 'Compte' },
     { id: 'Notifications', icon: Bell, label: 'Notifications' },
-    { id: 'Orders', icon: CreditCard, label: 'Orders' },
-    { id: 'Payments', icon: CreditCard, label: 'Payments' },
-    { id: 'Security', icon: Shield, label: 'Security' },
-    { id: 'Appearance', icon: Palette, label: 'Appearance' }
+    { id: 'Orders', icon: CreditCard, label: 'Commandes' },
+    { id: 'Payments', icon: CreditCard, label: 'Paiements' },
+    { id: 'Security', icon: Shield, label: 'Sécurité' },
+    { id: 'Appearance', icon: Palette, label: 'Apparence' }
   ];
 
   const handleSave = () => {
@@ -98,7 +98,7 @@ export default function SettingsPage() {
     // Simulate save action
     setTimeout(() => {
       setIsSaving(false);
-      alert('Settings saved successfully!');
+      alert('Paramètres enregistrés avec succès !');
     }, 1000);
   };
 
@@ -128,18 +128,18 @@ export default function SettingsPage() {
   const renderGeneralSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Restaurant Information</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Informations sur le restaurant</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>
-              Restaurant Name *
+              Nom du restaurant *
             </label>
             <input
               type="text"
               value={generalSettings.restaurantName}
               onChange={(e) => handleInputChange(generalSettings, setGeneralSettings, 'restaurantName', e.target.value)}
               className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all"
-              style={{ borderColor: '#FFD700', color: '#333333', focusRing: '#FF8C00' }}
+              style={{ borderColor: '#FFD700', color: '#333333' }}
             />
           </div>
 
@@ -147,7 +147,7 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>
                 <Mail size={16} className="inline mr-1" style={{ color: '#999999' }} />
-                Email *
+                E-mail *
               </label>
               <input
                 type="email"
@@ -160,7 +160,7 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>
                 <Phone size={16} className="inline mr-1" style={{ color: '#999999' }} />
-                Phone *
+                Téléphone *
               </label>
               <input
                 type="tel"
@@ -175,7 +175,7 @@ export default function SettingsPage() {
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>
               <MapPin size={16} className="inline mr-1" style={{ color: '#999999' }} />
-              Address *
+              Adresse *
             </label>
             <input
               type="text"
@@ -188,7 +188,7 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>City</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Ville</label>
               <input
                 type="text"
                 value={generalSettings.city}
@@ -198,7 +198,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>State</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>État/Province</label>
               <input
                 type="text"
                 value={generalSettings.state}
@@ -208,7 +208,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Zip Code</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Code postal</label>
               <input
                 type="text"
                 value={generalSettings.zipCode}
@@ -223,7 +223,7 @@ export default function SettingsPage() {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>
                 <Globe size={16} className="inline mr-1" style={{ color: '#999999' }} />
-                Website
+                Site web
               </label>
               <input
                 type="text"
@@ -234,17 +234,17 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Timezone</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Fuseau horaire</label>
               <select
                 value={generalSettings.timezone}
                 onChange={(e) => handleInputChange(generalSettings, setGeneralSettings, 'timezone', e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all"
                 style={{ borderColor: '#FFD700', color: '#333333' }}
               >
-                <option value="America/New_York">Eastern Time (ET)</option>
-                <option value="America/Chicago">Central Time (CT)</option>
-                <option value="America/Denver">Mountain Time (MT)</option>
-                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                <option value="America/New_York">Heure de l'Est (ET)</option>
+                <option value="America/Chicago">Heure du Centre (CT)</option>
+                <option value="America/Denver">Heure des Montagnes (MT)</option>
+                <option value="America/Los_Angeles">Heure du Pacifique (PT)</option>
               </select>
             </div>
           </div>
@@ -256,11 +256,11 @@ export default function SettingsPage() {
   const renderAccountSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Profile Information</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Informations du profil</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Full Name *</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Nom complet *</label>
               <input
                 type="text"
                 value={accountSettings.fullName}
@@ -270,7 +270,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Username *</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Nom d'utilisateur *</label>
               <input
                 type="text"
                 value={accountSettings.username}
@@ -283,7 +283,7 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Email *</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>E-mail *</label>
               <input
                 type="email"
                 value={accountSettings.email}
@@ -293,7 +293,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Phone</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Téléphone</label>
               <input
                 type="tel"
                 value={accountSettings.phone}
@@ -306,21 +306,21 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Language</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Langue</label>
               <select
                 value={accountSettings.language}
                 onChange={(e) => handleInputChange(accountSettings, setAccountSettings, 'language', e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all"
                 style={{ borderColor: '#FFD700', color: '#333333' }}
               >
-                <option value="English">English</option>
-                <option value="Spanish">Spanish</option>
-                <option value="French">French</option>
-                <option value="German">German</option>
+                <option value="English">Anglais</option>
+                <option value="Spanish">Espagnol</option>
+                <option value="French">Français</option>
+                <option value="German">Allemand</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Date Format</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Format de date</label>
               <select
                 value={accountSettings.dateFormat}
                 onChange={(e) => handleInputChange(accountSettings, setAccountSettings, 'dateFormat', e.target.value)}
@@ -337,10 +337,10 @@ export default function SettingsPage() {
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Change Password</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Changer le mot de passe</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Current Password</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Mot de passe actuel</label>
             <input
               type="password"
               className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all"
@@ -348,7 +348,7 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>New Password</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Nouveau mot de passe</label>
             <input
               type="password"
               className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all"
@@ -356,7 +356,7 @@ export default function SettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Confirm New Password</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Confirmer le nouveau mot de passe</label>
             <input
               type="password"
               className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all"
@@ -371,20 +371,20 @@ export default function SettingsPage() {
   const renderNotificationSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Notification Preferences</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Préférences de notification</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           {Object.entries(notificationSettings).map(([key, value]) => {
             const labels: Record<string, string> = {
-              orderNotifications: 'New Order Notifications',
-              lowStockAlerts: 'Low Stock Alerts',
-              staffClockIn: 'Staff Clock In/Out',
-              customerReviews: 'New Customer Reviews',
-              emailNotifications: 'Email Notifications',
-              pushNotifications: 'Push Notifications',
-              smsNotifications: 'SMS Notifications',
-              soundEnabled: 'Sound Alerts'
+              orderNotifications: 'Notifications de nouvelles commandes',
+              lowStockAlerts: 'Alertes de stock faible',
+              staffClockIn: 'Pointage du personnel (entrée/sortie)',
+              customerReviews: 'Nouveaux avis clients',
+              emailNotifications: 'Notifications par e-mail',
+              pushNotifications: 'Notifications push',
+              smsNotifications: 'Notifications SMS',
+              soundEnabled: 'Alertes sonores'
             };
-            
+
             return (
               <div key={key} className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
                 <div className="flex items-center gap-3">
@@ -395,14 +395,12 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => toggleSwitch(notificationSettings, setNotificationSettings, key)}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${
-                    value ? 'bg-green-500' : 'bg-gray-300'
-                  }`}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${value ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      value ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${value ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -416,27 +414,25 @@ export default function SettingsPage() {
   const renderOrderSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Order Configuration</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Configuration des commandes</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
-            <span className="text-sm font-medium" style={{ color: '#333333' }}>Auto-accept Orders</span>
+            <span className="text-sm font-medium" style={{ color: '#333333' }}>Accepter automatiquement les commandes</span>
             <button
               onClick={() => toggleSwitch(orderSettings, setOrderSettings, 'autoAcceptOrders')}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                orderSettings.autoAcceptOrders ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${orderSettings.autoAcceptOrders ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  orderSettings.autoAcceptOrders ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${orderSettings.autoAcceptOrders ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>
-              Order Timeout (minutes)
+              Délai d'expiration des commandes (minutes)
             </label>
             <input
               type="number"
@@ -449,7 +445,7 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Minimum Order Amount ($)</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Montant minimum de commande (DZD)</label>
               <input
                 type="number"
                 step="0.01"
@@ -460,7 +456,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Delivery Fee ($)</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Frais de livraison (DZD)</label>
               <input
                 type="number"
                 step="0.01"
@@ -474,7 +470,7 @@ export default function SettingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Tax Rate (%)</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Taux de taxe (%)</label>
               <input
                 type="number"
                 step="0.1"
@@ -485,7 +481,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Default Tip Percentage (%)</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Pourcentage de pourboire par défaut (%)</label>
               <input
                 type="number"
                 value={orderSettings.defaultTipPercentage}
@@ -498,17 +494,15 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
-            <span className="text-sm font-medium" style={{ color: '#333333' }}>Allow Tips</span>
+            <span className="text-sm font-medium" style={{ color: '#333333' }}>Autoriser les pourboires</span>
             <button
               onClick={() => toggleSwitch(orderSettings, setOrderSettings, 'allowTips')}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                orderSettings.allowTips ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${orderSettings.allowTips ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  orderSettings.allowTips ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${orderSettings.allowTips ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
@@ -520,20 +514,20 @@ export default function SettingsPage() {
   const renderPaymentSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Payment Methods</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Méthodes de paiement</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           {Object.entries(paymentSettings).map(([key, value]) => {
             if (typeof value === 'string') return null;
-            
+
             const labels: Record<string, string> = {
-              acceptCash: 'Accept Cash',
-              acceptCreditCard: 'Accept Credit Cards',
-              acceptDebitCard: 'Accept Debit Cards',
-              acceptMobilePayments: 'Accept Mobile Payments',
-              acceptOnlinePayment: 'Accept Online Payments',
-              autoRefundCanceled: 'Auto-refund Canceled Orders'
+              acceptCash: 'Accepter les espèces',
+              acceptCreditCard: 'Accepter les cartes de crédit',
+              acceptDebitCard: 'Accepter les cartes de débit',
+              acceptMobilePayments: 'Accepter les paiements mobiles',
+              acceptOnlinePayment: 'Accepter les paiements en ligne',
+              autoRefundCanceled: 'Remboursement automatique des commandes annulées'
             };
-            
+
             return (
               <div key={key} className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
                 <span className="text-sm font-medium" style={{ color: '#333333' }}>
@@ -541,14 +535,12 @@ export default function SettingsPage() {
                 </span>
                 <button
                   onClick={() => toggleSwitch(paymentSettings, setPaymentSettings, key)}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${
-                    value ? 'bg-green-500' : 'bg-gray-300'
-                  }`}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${value ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
                 >
                   <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      value ? 'translate-x-5' : 'translate-x-0'
-                    }`}
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${value ? 'translate-x-5' : 'translate-x-0'
+                      }`}
                   />
                 </button>
               </div>
@@ -556,7 +548,7 @@ export default function SettingsPage() {
           })}
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Payment Provider</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Fournisseur de paiement</label>
             <select
               value={paymentSettings.paymentProvider}
               onChange={(e) => handleInputChange(paymentSettings, setPaymentSettings, 'paymentProvider', e.target.value)}
@@ -577,29 +569,27 @@ export default function SettingsPage() {
   const renderSecuritySettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Security Preferences</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Préférences de sécurité</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
             <div>
-              <span className="text-sm font-medium block" style={{ color: '#333333' }}>Two-Factor Authentication</span>
-              <span className="text-xs" style={{ color: '#999999' }}>Add an extra layer of security</span>
+              <span className="text-sm font-medium block" style={{ color: '#333333' }}>Authentification à deux facteurs</span>
+              <span className="text-xs" style={{ color: '#999999' }}>Ajoutez une couche de sécurité supplémentaire</span>
             </div>
             <button
               onClick={() => toggleSwitch(securitySettings, setSecuritySettings, 'twoFactorAuth')}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                securitySettings.twoFactorAuth ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${securitySettings.twoFactorAuth ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  securitySettings.twoFactorAuth ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${securitySettings.twoFactorAuth ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Session Timeout (minutes)</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Durée de session (minutes)</label>
             <input
               type="number"
               value={securitySettings.sessionTimeout}
@@ -611,45 +601,41 @@ export default function SettingsPage() {
 
           <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
             <div>
-              <span className="text-sm font-medium block" style={{ color: '#333333' }}>Login Alerts</span>
-              <span className="text-xs" style={{ color: '#999999' }}>Get notified of new logins</span>
+              <span className="text-sm font-medium block" style={{ color: '#333333' }}>Alertes de connexion</span>
+              <span className="text-xs" style={{ color: '#999999' }}>Recevez des notifications lors de nouvelles connexions</span>
             </div>
             <button
               onClick={() => toggleSwitch(securitySettings, setSecuritySettings, 'loginAlerts')}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                securitySettings.loginAlerts ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${securitySettings.loginAlerts ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  securitySettings.loginAlerts ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${securitySettings.loginAlerts ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
 
           <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
             <div>
-              <span className="text-sm font-medium block" style={{ color: '#333333' }}>Require Password Change</span>
-              <span className="text-xs" style={{ color: '#999999' }}>Force periodic password updates</span>
+              <span className="text-sm font-medium block" style={{ color: '#333333' }}>Exiger un changement de mot de passe</span>
+              <span className="text-xs" style={{ color: '#999999' }}>Forcer des mises à jour périodiques du mot de passe</span>
             </div>
             <button
               onClick={() => toggleSwitch(securitySettings, setSecuritySettings, 'requirePasswordChange')}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                securitySettings.requirePasswordChange ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${securitySettings.requirePasswordChange ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  securitySettings.requirePasswordChange ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${securitySettings.requirePasswordChange ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
 
           {securitySettings.requirePasswordChange && (
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Password Change Interval (days)</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Intervalle de changement de mot de passe (jours)</label>
               <input
                 type="number"
                 value={securitySettings.passwordChangeDays}
@@ -667,35 +653,33 @@ export default function SettingsPage() {
   const renderAppearanceSettings = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Theme & Display</h3>
+        <h3 className="text-lg font-semibold mb-4" style={{ color: '#333333' }}>Thème et affichage</h3>
         <div className="bg-white rounded-lg border p-6 space-y-4" style={{ borderColor: '#FFD700' }}>
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Theme</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Thème</label>
             <div className="flex gap-4">
               <button
                 onClick={() => handleInputChange(appearanceSettings, setAppearanceSettings, 'theme', 'light')}
-                className={`px-4 py-3 rounded-lg border-2 transition-all flex items-center gap-2 ${
-                  appearanceSettings.theme === 'light' ? 'border-orange-500' : 'border-gray-200'
-                }`}
+                className={`px-4 py-3 rounded-lg border-2 transition-all flex items-center gap-2 ${appearanceSettings.theme === 'light' ? 'border-orange-500' : 'border-gray-200'
+                  }`}
               >
                 <Sun size={20} style={{ color: appearanceSettings.theme === 'light' ? '#FF8C00' : '#999999' }} />
-                <span className="font-medium" style={{ color: '#333333' }}>Light</span>
+                <span className="font-medium" style={{ color: '#333333' }}>Clair</span>
               </button>
               <button
                 onClick={() => handleInputChange(appearanceSettings, setAppearanceSettings, 'theme', 'dark')}
-                className={`px-4 py-3 rounded-lg border-2 transition-all flex items-center gap-2 ${
-                  appearanceSettings.theme === 'dark' ? 'border-orange-500' : 'border-gray-200'
-                }`}
+                className={`px-4 py-3 rounded-lg border-2 transition-all flex items-center gap-2 ${appearanceSettings.theme === 'dark' ? 'border-orange-500' : 'border-gray-200'
+                  }`}
               >
                 <Moon size={20} style={{ color: appearanceSettings.theme === 'dark' ? '#FF8C00' : '#999999' }} />
-                <span className="font-medium" style={{ color: '#333333' }}>Dark</span>
+                <span className="font-medium" style={{ color: '#333333' }}>Sombre</span>
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Primary Color</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Couleur principale</label>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
@@ -714,7 +698,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Accent Color</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Couleur d'accentuation</label>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
@@ -735,31 +719,29 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Font Size</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#333333' }}>Taille de police</label>
             <select
               value={appearanceSettings.fontSize}
               onChange={(e) => handleInputChange(appearanceSettings, setAppearanceSettings, 'fontSize', e.target.value)}
               className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-all"
               style={{ borderColor: '#FFD700', color: '#333333' }}
             >
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
+              <option value="small">Petit</option>
+              <option value="medium">Moyen</option>
+              <option value="large">Grand</option>
             </select>
           </div>
 
           <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#FFFAF0' }}>
-            <span className="text-sm font-medium" style={{ color: '#333333' }}>Show Animations</span>
+            <span className="text-sm font-medium" style={{ color: '#333333' }}>Afficher les animations</span>
             <button
               onClick={() => toggleSwitch(appearanceSettings, setAppearanceSettings, 'showAnimations')}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                appearanceSettings.showAnimations ? 'bg-green-500' : 'bg-gray-300'
-              }`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${appearanceSettings.showAnimations ? 'bg-green-500' : 'bg-gray-300'
+                }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                  appearanceSettings.showAnimations ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${appearanceSettings.showAnimations ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
@@ -769,7 +751,7 @@ export default function SettingsPage() {
   );
 
   const renderContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'General': return renderGeneralSettings();
       case 'Account': return renderAccountSettings();
       case 'Notifications': return renderNotificationSettings();
@@ -786,9 +768,9 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="mb-6 lg:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#FF8C00' }}>
-          ⚙️ Settings
+          ⚙️ Paramètres
         </h1>
-        <p className="text-sm sm:text-base" style={{ color: '#999999' }}>Manage your restaurant settings and preferences</p>
+        <p className="text-sm sm:text-base" style={{ color: '#999999' }}>Gérez les paramètres et préférences de votre restaurant</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
@@ -803,9 +785,8 @@ export default function SettingsPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                      isActive ? 'font-semibold' : 'font-medium'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive ? 'font-semibold' : 'font-medium'
+                      }`}
                     style={{
                       backgroundColor: isActive ? '#FFFAF0' : 'transparent',
                       color: isActive ? '#FF8C00' : '#333333'
@@ -855,7 +836,7 @@ export default function SettingsPage() {
               }}
             >
               <Save size={18} />
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </button>
           </div>
         </div>
@@ -863,4 +844,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

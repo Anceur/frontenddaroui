@@ -22,17 +22,18 @@ export type OfflineOrderItem = {
 
 export type OfflineOrder = {
   id: number;
-  table: {
+  table?: {
     id: number;
     number: string;
     capacity: number;
     is_available: boolean;
     location: string;
-  };
+  } | null;
   total: number;
   status: 'Pending' | 'Preparing' | 'Ready' | 'Served' | 'Paid' | 'Canceled';
   notes: string;
   items: OfflineOrderItem[];
+  is_imported: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -48,7 +49,7 @@ export async function getOfflineOrders(filters?: OfflineOrderFilters): Promise<O
     const params = new URLSearchParams();
     if (filters?.status) params.append('status', filters.status);
     if (filters?.search) params.append('search', filters.search);
-    
+
     const url = `${API}/offline-orders/admin/${params.toString() ? '?' + params.toString() : ''}`;
     const response = await axios.get<OfflineOrder[]>(url, { withCredentials: true });
     return response.data;

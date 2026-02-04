@@ -14,6 +14,7 @@ export type IngredientStock = {
   ingredient_name?: string;
   ingredient_unit?: string;
   quantity: number;
+  reorder_level?: number;
   last_updated: string;
 };
 
@@ -24,7 +25,7 @@ export type CreateIngredientStockData = {
 
 export type UpdateIngredientStockData = {
   ingredient_id?: number;
-  quantity?: number;
+  reorder_level?: number;
 };
 
 // Get all ingredient stocks

@@ -141,13 +141,13 @@ export default function KitchenDisplay() {
   const getStatusBadgeStyle = (status: Order['status']) => {
     switch (status) {
       case 'new':
-        return { bg: '#FEF3C7', text: '#FF8C00', label: 'New Order' };
+        return { bg: '#FEF3C7', text: '#FF8C00', label: 'Nouvelle commande' };
       case 'preparing':
-        return { bg: '#DBEAFE', text: '#2563EB', label: 'Preparing' };
+        return { bg: '#DBEAFE', text: '#2563EB', label: 'En préparation' };
       case 'ready':
-        return { bg: '#D1FAE5', text: '#059669', label: 'Ready' };
+        return { bg: '#D1FAE5', text: '#059669', label: 'Prête' };
       case 'completed':
-        return { bg: '#E5E7EB', text: '#6B7280', label: 'Completed' };
+        return { bg: '#E5E7EB', text: '#6B7280', label: 'Terminée' };
       default:
         return { bg: '#F3F4F6', text: '#6B7280', label: status };
     }
@@ -184,10 +184,10 @@ export default function KitchenDisplay() {
               </div>
               <div className="min-w-0">
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-bold truncate" style={{ color: '#333333' }}>
-                  Kitchen Display System
+                  Système d'affichage cuisine
                 </h1>
                 <p className="text-xs sm:text-sm" style={{ color: '#999999' }}>
-                  Nostalgie Restaurant
+                  Restaurant Nostalgie
                 </p>
               </div>
             </div>
@@ -199,19 +199,19 @@ export default function KitchenDisplay() {
                   <div className="text-xl sm:text-2xl font-bold" style={{ color: '#FF8C00' }}>
                     {newOrders.length}
                   </div>
-                  <div className="text-xs" style={{ color: '#999999' }}>New</div>
+                  <div className="text-xs" style={{ color: '#999999' }}>Nouveau</div>
                 </div>
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold" style={{ color: '#2563EB' }}>
                     {preparingOrders.length}
                   </div>
-                  <div className="text-xs" style={{ color: '#999999' }}>Preparing</div>
+                  <div className="text-xs" style={{ color: '#999999' }}>En préparation</div>
                 </div>
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold" style={{ color: '#059669' }}>
                     {readyOrders.length}
                   </div>
-                  <div className="text-xs" style={{ color: '#999999' }}>Ready</div>
+                  <div className="text-xs" style={{ color: '#999999' }}>Prête</div>
                 </div>
               </div>
 
@@ -219,7 +219,7 @@ export default function KitchenDisplay() {
               <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg shrink-0" style={{ background: '#FFFAF0' }}>
                 <Clock size={16} className="sm:w-5 sm:h-5" style={{ color: '#FF8C00' }} />
                 <div className="text-sm sm:text-base lg:text-lg font-semibold whitespace-nowrap" style={{ color: '#333333' }}>
-                  {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </div>
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function KitchenDisplay() {
                       {order.priority === 'high' && (
                         <div className="flex items-center gap-1 px-2 py-0.5 rounded-full shrink-0" style={{ background: '#FEE2E2' }}>
                           <Flame size={12} style={{ color: '#DC2626' }} />
-                          <span className="text-xs font-semibold" style={{ color: '#DC2626' }}>Priority</span>
+                          <span className="text-xs font-semibold" style={{ color: '#DC2626' }}>Priorité</span>
                         </div>
                       )}
                     </div>
@@ -333,7 +333,7 @@ export default function KitchenDisplay() {
                               color: '#DC2626'
                             }}
                           >
-                            Note: {item.notes}
+                            Remarque : {item.notes}
                           </div>
                         )}
                       </div>
@@ -347,7 +347,7 @@ export default function KitchenDisplay() {
                   style={{ borderColor: '#E5E7EB' }}
                 >
                   <div className="text-xs sm:text-sm" style={{ color: '#999999' }}>
-                    Server: <span className="font-semibold" style={{ color: '#333333' }}>{order.server}</span>
+                    Serveur : <span className="font-semibold" style={{ color: '#333333' }}>{order.server}</span>
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto">
                     {order.status === 'new' && (
@@ -359,7 +359,7 @@ export default function KitchenDisplay() {
                           color: '#FFFFFF'
                         }}
                       >
-                        Start Preparing
+                        Démarrer la préparation
                       </button>
                     )}
                     {order.status === 'preparing' && (
@@ -371,7 +371,7 @@ export default function KitchenDisplay() {
                           color: '#FFFFFF'
                         }}
                       >
-                        Mark Ready
+                        Marquer prête
                       </button>
                     )}
                     {order.status === 'ready' && (
@@ -384,7 +384,7 @@ export default function KitchenDisplay() {
                         }}
                       >
                         <CheckCircle2 size={14} className="sm:w-4 sm:h-4" />
-                        Complete
+                        Terminer
                       </button>
                     )}
                   </div>
@@ -398,10 +398,10 @@ export default function KitchenDisplay() {
           <div className="text-center py-12 sm:py-20">
             <ChefHat size={48} className="sm:w-16 sm:h-16 mx-auto" style={{ color: '#E5E7EB' }} />
             <h2 className="text-xl sm:text-2xl font-bold mt-4" style={{ color: '#333333' }}>
-              No Active Orders
+              Aucune commande en cours
             </h2>
             <p className="text-sm sm:text-base px-4" style={{ color: '#999999' }}>
-              All orders are completed. Great job!
+              Toutes les commandes sont terminées. Beau travail !
             </p>
           </div>
         )}

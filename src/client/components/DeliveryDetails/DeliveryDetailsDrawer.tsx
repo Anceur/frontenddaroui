@@ -1,101 +1,111 @@
-"use client"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft } from "lucide-react"
-import { useState } from "react"
-import { useCart } from "../../context/CartContext"
-import { OrderService } from "../../services/orderService"
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
-
-interface DeliveryDetailsDrawerProps {
-  isOpen: boolean
-  onClose: () => void
-  onBack: () => void
-}
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, CheckCircle, AlertCircle, Loader2, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useCart } from "../../context/CartContext";
+import { OrderService } from "../../services/orderService";
+import { getUserLocation } from "../../utils/location";
 
 export default function DeliveryDetailsDrawer({
   isOpen,
   onClose,
   onBack,
 }: DeliveryDetailsDrawerProps) {
-  const { cartItems, clearCart } = useCart()
-  const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [address, setAddress] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<{ orderId: string; message: string } | null>(null)
+  const { cartItems, clearCart } = useCart();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [loyaltyNumber, setLoyaltyNumber] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<{ orderId: string; message: string } | null>(null);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
 
-  const calculateTotal = () => {
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    const tax = subtotal * 0.1
-    const total = subtotal + tax
-    // Round to 2 decimal places to avoid precision issues
-    return Math.round(total * 100) / 100
-  }
+  // 📍 Récupérer automatiquement l’adresse à l’ouverture du tiroir
+  useEffect(() => {
+    if (isOpen && !address) {
+      fetchAddressFromLocation();
+    }
+  }, [isOpen]);
+
+  const fetchAddressFromLocation = async () => {
+    setIsFetchingLocation(true);
+    const location = await getUserLocation();
+    if (location) {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${location.latitude}&lon=${location.longitude}`
+        );
+        const data = await res.json();
+        setAddress(data.display_name || "");
+      } catch (err) {
+        console.error("Échec de la récupération de l’adresse :", err);
+      }
+    }
+    setIsFetchingLocation(false);
+  };
+
+  const calculateSubtotal = () => {
+    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return Math.round(subtotal * 100) / 100;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setSuccess(null)
-    
-    // Validate cart
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
     if (cartItems.length === 0) {
-      setError("Your cart is empty. Please add items before placing an order.")
-      return
+      setError("Votre panier est vide.");
+      return;
     }
 
-    // Prepare order data
+    const subtotal = calculateSubtotal();
+    const taxAmount = 100;
+    const total = subtotal + taxAmount;
+
     const orderData = {
       customer: name.trim(),
       phone: phone.trim(),
       address: address.trim(),
-      items: cartItems.map(item => ({
-        id: item.id,
+      items: cartItems.map((item) => ({
+        id: item.id.toString(),
         name: item.name,
         price: item.price,
         quantity: item.quantity,
       })),
-      total: calculateTotal(),
-      orderType: 'delivery' as const,
-    }
+      subtotal,
+      tax_amount: taxAmount,
+      total,
+      orderType: "delivery" as const,
+      notes: notes.trim(),
+      ...(loyaltyNumber.trim() && { loyalty_number: loyaltyNumber.trim() }),
+    };
 
-    // Validate order data
-    const validation = OrderService.validateOrderData(orderData)
-    if (!validation.isValid) {
-      setError(validation.errors.join(", "))
-      return
-    }
-
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
-      const response = await OrderService.submitOrder(orderData)
-      
-      // Success - show confirmation
+      const response = await OrderService.submitOrder(orderData);
       setSuccess({
         orderId: response.order.id,
-        message: response.message || "Order placed successfully!"
-      })
-      
-      // Clear cart after successful order
-      clearCart()
-      
-      // Reset form
-      setName("")
-      setPhone("")
-      setAddress("")
-      
-      // Close drawer after 3 seconds
+        message: response.message || "Commande passée avec succès !",
+      });
+      clearCart();
+      setName("");
+      setPhone("");
+      setAddress("");
+      setNotes("");
+      setLoyaltyNumber("");
       setTimeout(() => {
-    onClose()
-        setSuccess(null)
-      }, 3000)
+        onClose();
+        setSuccess(null);
+      }, 3000);
     } catch (err: any) {
-      console.error("Error placing order:", err)
-      setError(err.message || "Failed to place order. Please try again.")
+      console.error("Erreur lors de la commande :", err);
+      setError(err.message || "Échec de la commande.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <AnimatePresence>
@@ -110,123 +120,152 @@ export default function DeliveryDetailsDrawer({
           />
 
           <motion.div
-            className="fixed top-0 right-0 h-full w-96 bg-white text-black shadow-lg z-50 p-6 flex flex-col"
+            className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white text-black shadow-lg z-50 p-6 flex flex-col"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 100, damping: 20 }}
           >
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-bold">Delivery Details</h2>
-              <button
-                onClick={onClose}
-                className="text-gray-500 hover:text-black text-2xl"
-              >
+            {/* En-tête */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Détails de livraison</h2>
+              <button onClick={onClose} className="text-gray-500 hover:text-black text-2xl">
                 &times;
               </button>
             </div>
 
-            {success ? (
-              <div className="flex-1 flex flex-col items-center justify-center space-y-4 p-8">
-                <CheckCircle className="w-16 h-16 text-green-500" />
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-green-700 mb-2">Order Placed Successfully!</h3>
-                  <p className="text-gray-600 mb-2">{success.message}</p>
-                  <p className="text-sm text-gray-500">Order ID: <span className="font-semibold">{success.orderId}</span></p>
-                  <p className="text-sm text-gray-500 mt-4">Redirecting...</p>
+            <div className="flex-1 overflow-y-auto pr-1">
+              {success ? (
+                <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center">
+                  <CheckCircle className="w-16 h-16 text-green-500" />
+                  <h3 className="text-xl font-bold text-green-700">Commande confirmée !</h3>
+                  <p className="text-gray-600">{success.message}</p>
+                  <p className="text-xs text-gray-500">ID de commande : {success.orderId}</p>
                 </div>
-              </div>
-            ) : (
-            <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-4">
-                {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-700">{error}</p>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">Nom complet *</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      disabled={isSubmitting}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      placeholder="Ahmed Benali"
+                    />
                   </div>
-                )}
 
-              <div>
-                <label className="block text-sm font-semibold mb-1">
-                    Full Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                    disabled={isSubmitting}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-black focus:ring-2 focus:ring-amber-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="e.g. Ahmed Benali"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-1">
-                    Phone Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                    disabled={isSubmitting}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white text-black focus:ring-2 focus:ring-amber-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="e.g. +213 555 123 456"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-1">
-                    Delivery Address <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  required
-                    disabled={isSubmitting}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 h-24 bg-white text-black focus:ring-2 focus:ring-amber-400 focus:outline-none resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="e.g. 12 Rue Didouche Mourad, Alger"
-                />
-              </div>
-
-                <div className="border-t pt-4 mt-auto">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Total:</span>
-                    <span className="font-bold text-lg">{calculateTotal().toFixed(2)} DA</span>
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">Numéro de téléphone *</label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      disabled={isSubmitting}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      placeholder="0555 123 456"
+                    />
                   </div>
-              <button
-                type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Placing Order...</span>
-                      </>
-                    ) : (
-                      "Confirm Delivery Order"
-                    )}
-              </button>
-                </div>
-            </form>
-            )}
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1 flex justify-between items-center">
+                      Adresse de livraison *
+                      <span className="text-sm text-gray-500">
+                        {isFetchingLocation ? "Localisation en cours..." : ""}
+                      </span>
+                    </label>
+                    <textarea
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      required
+                      disabled={isSubmitting}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none"
+                      rows={2}
+                      placeholder="Adresse détaillée..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">
+                      Numéro de fidélité (optionnel)
+                    </label>
+                    <input
+                      type="text"
+                      value={loyaltyNumber}
+                      onChange={(e) => setLoyaltyNumber(e.target.value)}
+                      disabled={isSubmitting}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      placeholder="Code à 8 chiffres"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">
+                      Notes / Instructions
+                    </label>
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      disabled={isSubmitting}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none"
+                      rows={2}
+                      placeholder="Ex : appeler avant d’arriver, pas épicé…"
+                    />
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-100">
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>Sous-total</span>
+                      <span>{calculateSubtotal().toFixed(2)} DA</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <span>Taxe</span>
+                      <span>100.00 DA</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg mb-4">
+                      <span>Total</span>
+                      <span className="text-amber-600">
+                        {(calculateSubtotal() + 100).toFixed(2)} DA
+                      </span>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || !name.trim() || !phone.trim() || !address.trim()}
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : null}
+                      Confirmer la livraison
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
 
             {!success && (
-            <div className="mt-auto pt-6">
-              <button
-                onClick={onBack}
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <button
+                  onClick={onBack}
                   disabled={isSubmitting}
-                  className="w-full border border-gray-300 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to Order Type</span>
-              </button>
-            </div>
+                  className="w-full flex items-center justify-center gap-2 text-gray-500 hover:text-gray-800 transition-colors py-2"
+                >
+                  <ArrowLeft size={16} />
+                  <span>Retour au panier</span>
+                </button>
+              </div>
             )}
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  )
+  );
 }

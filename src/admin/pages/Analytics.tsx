@@ -3,11 +3,11 @@ import { BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area, XAxis, 
 import { Calendar, Filter, Download, TrendingUp, Users, ShoppingBag, DollarSign, Clock, RefreshCw, Loader2, AlertCircle } from 'lucide-react';
 import { getAnalytics, type AnalyticsData } from '../../shared/api/analytics';
 
-// Helper functions to format data
+// Fonctions utilitaires pour formater les données
 const formatSalesData = (analyticsData: AnalyticsData | null) => {
   if (!analyticsData || !analyticsData.sales_by_date) return [];
   return analyticsData.sales_by_date.map(item => ({
-    name: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    name: new Date(item.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
     sales: item.total,
     count: item.count,
   }));
@@ -24,7 +24,7 @@ const formatCategoryData = (analyticsData: AnalyticsData | null) => {
 const formatHourlyData = (analyticsData: AnalyticsData | null) => {
   if (!analyticsData || !analyticsData.orders_by_hour) return [];
   return analyticsData.orders_by_hour.map(item => ({
-    time: new Date(item.hour).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    time: new Date(item.hour).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     customers: item.count,
   }));
 };
@@ -32,27 +32,27 @@ const formatHourlyData = (analyticsData: AnalyticsData | null) => {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 const Analytics: React.FC = () => {
-  const [dateRange, setDateRange] = useState('This Month');
+  const [dateRange, setDateRange] = useState('Ce mois-ci');
   const [activeTab, setActiveTab] = useState('overview');
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Map date range to days
+  // Correspondance entre plage de dates et nombre de jours
   const getDaysFromRange = (range: string): number => {
-    switch(range) {
-      case 'Today': return 1;
-      case 'Yesterday': return 1;
-      case 'Last 7 Days': return 7;
-      case 'This Month': return 30;
-      case 'Last Month': return 30;
-      case 'This Year': return 365;
+    switch (range) {
+      case 'Aujourd\'hui': return 0;
+      case 'Hier': return 1;
+      case '7 derniers jours': return 7;
+      case 'Ce mois-ci': return 30;
+      case 'Le mois dernier': return 30;
+      case 'Cette année': return 365;
       default: return 30;
     }
   };
 
-  // Fetch analytics data
+  // Récupérer les données analytiques
   const fetchAnalytics = useCallback(async () => {
     try {
       setError(null);
@@ -60,8 +60,8 @@ const Analytics: React.FC = () => {
       const data = await getAnalytics(days);
       setAnalyticsData(data);
     } catch (err: any) {
-      console.error('Error fetching analytics:', err);
-      setError(err.message || 'Failed to load analytics data');
+      console.error('Erreur lors de la récupération des analytics :', err);
+      setError(err.message || 'Impossible de charger les données analytiques');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -73,58 +73,58 @@ const Analytics: React.FC = () => {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
-  // Handle refresh
+  // Rafraîchir les données
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchAnalytics();
   };
 
   const summaryCards = analyticsData ? [
-    { title: 'Total Revenue', value: `${analyticsData.total_revenue.toFixed(2)} DA`, change: '', icon: <DollarSign className="text-green-500" />, trend: 'up' },
-    { title: 'Total Orders', value: analyticsData.total_orders.toString(), change: '', icon: <ShoppingBag className="text-blue-500" />, trend: 'up' },
-    { title: 'Avg. Order Value', value: `${analyticsData.average_order_value.toFixed(2)} DA`, change: '', icon: <TrendingUp className="text-orange-500" />, trend: 'up' },
-    { title: 'Top Item', value: analyticsData.top_items.length > 0 ? analyticsData.top_items[0].name : 'N/A', change: '', icon: <ShoppingBag className="text-purple-500" />, trend: 'up' },
+    { title: 'Revenu total', value: `${analyticsData.total_revenue.toFixed(2)} DA`, change: '', icon: <DollarSign className="text-green-500" />, trend: 'up' },
+    { title: 'Commandes totales', value: analyticsData.total_orders.toString(), change: '', icon: <ShoppingBag className="text-blue-500" />, trend: 'up' },
+    { title: 'Valeur moyenne des commandes', value: `${analyticsData.average_order_value.toFixed(2)} DA`, change: '', icon: <TrendingUp className="text-orange-500" />, trend: 'up' },
+    { title: 'Article le plus vendu', value: analyticsData.top_items.length > 0 ? analyticsData.top_items[0].name : 'N/A', change: '', icon: <ShoppingBag className="text-purple-500" />, trend: 'up' },
   ] : [
-    { title: 'Total Revenue', value: '0 DA', change: '', icon: <DollarSign className="text-green-500" />, trend: 'up' },
-    { title: 'Total Orders', value: '0', change: '', icon: <ShoppingBag className="text-blue-500" />, trend: 'up' },
-    { title: 'Avg. Order Value', value: '0 DA', change: '', icon: <TrendingUp className="text-orange-500" />, trend: 'up' },
-    { title: 'Top Item', value: 'N/A', change: '', icon: <ShoppingBag className="text-purple-500" />, trend: 'up' },
+    { title: 'Revenu total', value: '0 DA', change: '', icon: <DollarSign className="text-green-500" />, trend: 'up' },
+    { title: 'Commandes totales', value: '0', change: '', icon: <ShoppingBag className="text-blue-500" />, trend: 'up' },
+    { title: 'Valeur moyenne des commandes', value: '0 DA', change: '', icon: <TrendingUp className="text-orange-500" />, trend: 'up' },
+    { title: 'Article le plus vendu', value: 'N/A', change: '', icon: <ShoppingBag className="text-purple-500" />, trend: 'up' },
   ];
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-title)', color: '#FF8C00' }}>
-          Analytics
+          Analytique
         </h1>
         <div className="flex space-x-4">
           <div className="flex items-center bg-white rounded-lg px-4 py-2 shadow">
             <Calendar className="h-5 w-5 text-gray-500 mr-2" />
-            <select 
+            <select
               className="bg-transparent border-none text-sm focus:outline-none"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
             >
-              <option>Today</option>
-              <option>Yesterday</option>
-              <option>Last 7 Days</option>
-              <option>This Month</option>
-              <option>Last Month</option>
-              <option>This Year</option>
+              <option>Aujourd'hui</option>
+              <option>Hier</option>
+              <option>7 derniers jours</option>
+              <option>Ce mois-ci</option>
+              <option>Le mois dernier</option>
+              <option>Cette année</option>
             </select>
           </div>
-          <button 
+          <button
             onClick={handleRefresh}
             disabled={refreshing}
             className="flex items-center bg-white rounded-lg px-4 py-2 shadow hover:bg-gray-50 disabled:opacity-50"
           >
             <RefreshCw className={`h-5 w-5 text-gray-500 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            <span className="text-sm">Refresh</span>
+            <span className="text-sm">Rafraîchir</span>
           </button>
         </div>
       </div>
 
-      {/* Error Message */}
+      {/* Message d'erreur */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
           <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
@@ -132,14 +132,14 @@ const Analytics: React.FC = () => {
         </div>
       )}
 
-      {/* Loading State */}
+      {/* État de chargement */}
       {loading && (
         <div className="flex items-center justify-center py-16">
           <Loader2 size={32} className="animate-spin" style={{ color: '#FF8C00' }} />
         </div>
       )}
 
-      {/* Summary Cards */}
+      {/* Cartes récapitulatives */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         {summaryCards.map((card, index) => (
           <div key={index} className="bg-white rounded-lg shadow p-6">
@@ -148,7 +148,7 @@ const Analytics: React.FC = () => {
                 <p className="text-sm text-gray-500 mb-1">{card.title}</p>
                 <h3 className="text-2xl font-bold mb-2">{card.value}</h3>
                 <p className={`text-sm ${card.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                  {card.change} from last period
+                  {card.change} depuis la période précédente
                 </p>
               </div>
               <div className="p-3 rounded-full bg-gray-100">
@@ -159,66 +159,62 @@ const Analytics: React.FC = () => {
         ))}
       </div>
 
-      {/* Tabs */}
+      {/* Onglets */}
       <div className="bg-white rounded-lg shadow mb-6">
         <div className="border-b border-gray-200">
           <nav className="flex -mb-px">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-6 text-sm font-medium ${
-                activeTab === 'overview'
+              className={`py-4 px-6 text-sm font-medium ${activeTab === 'overview'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
-              Overview
+              Vue d'ensemble
             </button>
             <button
               onClick={() => setActiveTab('sales')}
-              className={`py-4 px-6 text-sm font-medium ${
-                activeTab === 'sales'
+              className={`py-4 px-6 text-sm font-medium ${activeTab === 'sales'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
-              Sales
+              Ventes
             </button>
             <button
               onClick={() => setActiveTab('customers')}
-              className={`py-4 px-6 text-sm font-medium ${
-                activeTab === 'customers'
+              className={`py-4 px-6 text-sm font-medium ${activeTab === 'customers'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
-              Customers
+              Clients
             </button>
             <button
               onClick={() => setActiveTab('products')}
-              className={`py-4 px-6 text-sm font-medium ${
-                activeTab === 'products'
+              className={`py-4 px-6 text-sm font-medium ${activeTab === 'products'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
-              Products
+              Produits
             </button>
           </nav>
         </div>
       </div>
 
-      {/* Charts Section */}
+      {/* Section Graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Sales Trend Chart */}
+        {/* Graphique des ventes */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Sales Trend</h3>
+          <h3 className="text-lg font-semibold mb-4">Tendance des ventes</h3>
           {analyticsData && formatSalesData(analyticsData).length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={formatSalesData(analyticsData)} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF8C00" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#FF8C00" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#FF8C00" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#FF8C00" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="name" />
@@ -230,14 +226,14 @@ const Analytics: React.FC = () => {
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[300px] text-gray-500">
-              No sales data available
+              Aucune donnée de ventes disponible
             </div>
           )}
         </div>
 
-        {/* Top Items Distribution */}
+        {/* Distribution des meilleurs articles */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Top Selling Items</h3>
+          <h3 className="text-lg font-semibold mb-4">Articles les plus vendus</h3>
           {analyticsData && formatCategoryData(analyticsData).length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -261,17 +257,17 @@ const Analytics: React.FC = () => {
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[300px] text-gray-500">
-              No item data available
+              Aucune donnée d'article disponible
             </div>
           )}
         </div>
       </div>
 
-      {/* Second Row of Charts */}
+      {/* Deuxième rangée de graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Orders by Hour */}
+        {/* Commandes par heure */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Orders by Hour</h3>
+          <h3 className="text-lg font-semibold mb-4">Commandes par heure</h3>
           {analyticsData && formatHourlyData(analyticsData).length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={formatHourlyData(analyticsData)}>
@@ -285,14 +281,14 @@ const Analytics: React.FC = () => {
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[300px] text-gray-500">
-              No hourly data available
+              Aucune donnée horaire disponible
             </div>
           )}
         </div>
 
-        {/* Sales Trend Line */}
+        {/* Graphique de tendance des ventes (ligne) */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Sales Trend</h3>
+          <h3 className="text-lg font-semibold mb-4">Tendance des ventes</h3>
           {analyticsData && formatSalesData(analyticsData).length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={formatSalesData(analyticsData)}>
@@ -308,7 +304,7 @@ const Analytics: React.FC = () => {
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[300px] text-gray-500">
-              No sales data available
+              Aucune donnée de ventes disponible
             </div>
           )}
         </div>

@@ -1,14 +1,15 @@
-"use client"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useCart } from "../../context/CartContext"
+import type { Promotion } from "../../lib/api"
 
 interface MenuItemSize {
-  size: "M" | "L" | "Mega"
+  id: number
+  size: string
   price: number | string
 }
 
 interface MenuItem {
-  id: string
+  id: number | string
   name: string
   description?: string
   category: string
@@ -21,39 +22,74 @@ interface MenuItem {
 }
 
 const categoryColors: Record<string, { bg: string; text: string }> = {
-  pizza: { bg: "bg-[#fdf6e5]", text: "text-[#e7c078]" },
-  salad: { bg: "bg-green-50", text: "text-green-700" },
-  burger: { bg: "bg-[#fdf6e5]", text: "text-[#e7c078]" },
-  deserts: { bg: "bg-purple-50", text: "text-purple-700" },
-  meat: { bg: "bg-red-50", text: "text-red-700" },
-  pasta: { bg: "bg-blue-50", text: "text-blue-700" },
+  pizza: { bg: "bg-amber-50", text: "text-amber-600" },
+  burger: { bg: "bg-orange-50", text: "text-orange-600" },
+  sandwich: { bg: "bg-yellow-50", text: "text-yellow-600" },
+  tacos: { bg: "bg-red-50", text: "text-red-600" },
 }
 
 interface MenuCardProps {
   item: MenuItem
+  promotions: Promotion[]
 }
 
-export default function MenuCard({ item }: MenuCardProps) {
-  const [selectedSize, setSelectedSize] = useState<"M" | "L" | "Mega" | null>(null)
+export default function MenuCard({ item, promotions }: MenuCardProps) {
+  const hasOnlyDefaultSize =
+    item.sizes && item.sizes.length === 1 && item.sizes[0].size === "M"
+
+  const [selectedSize, setSelectedSize] = useState<string | null>(
+    hasOnlyDefaultSize ? "M" : null
+  )
   const [isAdding, setIsAdding] = useState(false)
   const { addToCart } = useCart()
 
-  const colors = categoryColors[item.category] || {
-    bg: "bg-gray-50",
-    text: "text-gray-700",
-  }
+  const activePromo = useMemo(() => {
+    if (selectedSize && item.sizes) {
+      const currentSizeObj = item.sizes.find(s => s.size === selectedSize)
+      if (currentSizeObj) {
+        const sizePromo = promotions.find(
+          p =>
+            p.applicable_sizes.includes(Number(currentSizeObj.id)) &&
+            p.display_status === "Live"
+        )
+        if (sizePromo) return sizePromo
+      }
+    }
+
+    return promotions.find(
+      p =>
+        p.applicable_items.includes(Number(item.id)) &&
+        p.display_status === "Live"
+    )
+  }, [promotions, item.id, selectedSize, item.sizes])
 
   const getCurrentPrice = () => {
+    let basePrice = Number(item.price)
     if (item.sizes && selectedSize) {
-      const sizeOption = item.sizes.find((s) => s.size === selectedSize)
+      const sizeOption = item.sizes.find(s => s.size === selectedSize)
+      if (sizeOption) basePrice = Number(sizeOption.price)
+    }
+
+    if (activePromo) {
+      if (activePromo.promotion_type === "percentage") {
+        return basePrice * (1 - parseFloat(activePromo.value) / 100)
+      } else if (activePromo.promotion_type === "fixed_amount") {
+        return Math.max(0, basePrice - parseFloat(activePromo.value))
+      }
+    }
+    return basePrice
+  }
+
+  const getOriginalPrice = () => {
+    if (item.sizes && selectedSize) {
+      const sizeOption = item.sizes.find(s => s.size === selectedSize)
       return sizeOption ? Number(sizeOption.price) : Number(item.price)
     }
     return Number(item.price)
   }
 
   const handleAddToCart = () => {
-    if (item.sizes && item.sizes.length > 0 && !selectedSize) return
-    
+    if (item.sizes && item.sizes.length > 1 && !selectedSize) return
     setIsAdding(true)
     addToCart({
       id: String(item.id) + (selectedSize || ""),
@@ -65,72 +101,85 @@ export default function MenuCard({ item }: MenuCardProps) {
     setTimeout(() => setIsAdding(false), 600)
   }
 
-  const isButtonDisabled = isAdding || (item.sizes && item.sizes.length > 0 && !selectedSize)
+  const isButtonDisabled =
+    isAdding || (item.sizes && item.sizes.length > 1 && !selectedSize)
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full w-full border border-gray-200 hover:border-[#e7c078] group">
-      <div className="relative h-40 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="bg-[#f5e6d3] rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full w-full">
+      {/* Image */}
+      <div className="relative w-full h-56 overflow-hidden rounded-t-3xl">
         {item.image ? (
           <img
             src={item.image}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23f3f4f6' width='400' height='300'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='20' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3E%3C/text%3E%3C/svg%3E";
-            }}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-4xl mb-1 opacity-40">🍽️</div>
-              <p className="text-gray-400 text-xs font-medium">No Image</p>
-            </div>
+          <div className="w-full h-full flex items-center justify-center bg-[#f3f4f6]">
+            <div className="text-gray-400 text-sm font-medium">🍽️</div>
           </div>
         )}
 
+        {/* Featured Badge */}
         {item.featured && (
-          <div className="absolute top-2 right-2 bg-[#e7c078] text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
-            <span>⭐</span>
-            <span>Featured</span>
+          <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-amber-600 text-xs font-bold px-3 py-2 rounded-full shadow-lg flex items-center gap-1.5">
+            <span className="text-base">⭐</span>
+            <span>Vedette</span>
           </div>
         )}
 
-        <div className="absolute top-2 left-2">
-          <span className={`${colors.bg} ${colors.text} text-xs font-bold px-2 py-0.5 rounded-md shadow-sm`}>
-            {item.category}
+        {/* Promo Badge */}
+        {activePromo && (
+          <div
+            className="absolute top-4 left-4 text-white text-xs font-bold px-4 py-2 rounded-full shadow-xl"
+            style={{ backgroundColor: "#DC2626" }}
+          >
+            {activePromo.promotion_type === "percentage"
+              ? `${parseInt(activePromo.value)}% DE RÉDUCTION`
+              : "OFFRE SPÉCIALE"}
+          </div>
+        )}
+
+        {/* Category */}
+        <div className="absolute bottom-4 left-4">
+          <span className="bg-white/95 backdrop-blur-sm text-gray-800 text-xs font-bold px-4 py-2 rounded-full shadow-lg">
+            {item.category.toUpperCase()}
           </span>
         </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-grow bg-white">
-        <h3 className="text-base font-bold text-gray-900 mb-1.5 leading-tight line-clamp-1">
+      {/* Content */}
+      <div className="px-5 pb-5 pt-4 flex flex-col flex-grow bg-[#fdf8f2]">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">
           {item.name}
         </h3>
 
-        {item.description && (
-          <p className="text-xs text-gray-600 leading-snug mb-3 line-clamp-2">
-            {item.description}
-          </p>
-        )}
+        <p className="text-sm text-gray-500 leading-relaxed mb-4 line-clamp-2">
+          {item.description ||
+            "Savourez notre spécialité préparée avec soin, à base d’ingrédients de qualité pour une expérience gustative nostalgique."}
+        </p>
 
-        {item.sizes && item.sizes.length > 0 && (
-          <div className="mb-3">
-            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Choose Size</p>
-            <div className="flex gap-1.5">
-              {item.sizes.map((sizeOption) => (
+        {/* Sizes */}
+        {item.sizes && item.sizes.length > 1 && (
+          <div className="mb-4">
+            <p className="text-xs font-semibold text-gray-400 mb-2.5 uppercase tracking-wider">
+              Choisir la taille
+            </p>
+
+            <div className="flex gap-2">
+              {item.sizes.map(sizeOption => (
                 <button
                   key={sizeOption.size}
                   onClick={() => setSelectedSize(sizeOption.size)}
-                  className={`flex-1 py-2 px-2 rounded-lg font-semibold text-xs transition-all duration-200 ${
+                  className={`flex-1 py-3 px-3 rounded-xl font-semibold text-sm border-2 transition-all ${
                     selectedSize === sizeOption.size
-                      ? "bg-[#e7c078] text-white shadow-md ring-2 ring-[#d9b76b]"
-                      : "bg-gray-100 text-gray-700 hover:bg-[#fdf6e5] hover:text-[#e7c078] border border-gray-200"
+                      ? "bg-[#FDF8F2] text-gray-900 border-amber-500"
+                      : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                   }`}
                 >
-                  <div className="text-center">
-                    <div className="text-xs font-bold">{sizeOption.size}</div>
-                    <div className="text-[10px] mt-0.5 opacity-90">${Number(sizeOption.price).toFixed(2)}</div>
+                  <div className="font-bold">{sizeOption.size}</div>
+                  <div className="text-xs">
+                    {Number(sizeOption.price).toFixed(0)} DA
                   </div>
                 </button>
               ))}
@@ -138,46 +187,46 @@ export default function MenuCard({ item }: MenuCardProps) {
           </div>
         )}
 
-        <div className="flex-grow min-h-[0.5rem]"></div>
+        <div className="flex-grow"></div>
 
-        <div className="border-t border-gray-100 pt-3 mt-1">
-          <div className="flex items-center justify-between mb-3">
+        {/* Footer */}
+        <div className="pt-4 mt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-xl font-bold text-[#e7c078]">
-                ${getCurrentPrice().toFixed(2)}
+              {activePromo && (
+                <span className="text-sm text-gray-400 line-through font-semibold block">
+                  {getOriginalPrice().toFixed(0)} DA
+                </span>
+              )}
+              <div className="text-3xl font-bold text-gray-900">
+                {getCurrentPrice().toFixed(0)} DA
               </div>
-              <div className="text-[10px] text-gray-500">DA</div>
             </div>
-          </div>
 
-          <button
-            onClick={handleAddToCart}
-            disabled={isButtonDisabled}
-            className={`w-full py-2.5 rounded-lg font-bold text-xs transition-all duration-300 flex items-center justify-center gap-2 ${
-              isAdding
-                ? "bg-green-500 text-white scale-95"
-                : isButtonDisabled
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-[#e7c078] hover:bg-[#d9b76b] text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95"
-            }`}
-          >
-            {isAdding ? (
-              <>
-                <span>✓</span>
-                <span>Ajouté!</span>
-              </>
-            ) : (item.sizes && item.sizes.length > 0 && !selectedSize) ? (
-              <>
-                <span>⚠️</span>
-                <span>Sélectionnez une taille</span>
-              </>
-            ) : (
-              <>
-                <span>🛒</span>
-                <span>Ajouter au panier</span>
-              </>
-            )}
-          </button>
+            <button
+              onClick={handleAddToCart}
+              disabled={isButtonDisabled}
+              className={`px-8 py-3.5 rounded-2xl font-bold text-sm transition-all flex items-center gap-2 shadow-lg ${
+                isAdding
+                  ? "bg-[#fe9a00] text-white scale-95"
+                  : isButtonDisabled
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-[#fe9a00] hover:brightness-110 text-white hover:scale-105"
+              }`}
+            >
+              {isAdding ? (
+                <>
+                  <span>✓</span>
+                  <span>Ajouté</span>
+                </>
+              ) : (
+                <>
+                  <span>🛒</span>
+                  <span>Ajouter au panier</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

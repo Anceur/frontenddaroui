@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Package, ChefHat, Clock, MapPin, Phone, User, Loader2, AlertCircle, X, Ruler } from 'lucide-react';
 import { getOrderDetails, type OrderDetails } from '../api/chef-api';
 
 export default function OrderDetails() {
 	const { orderId } = useParams<{ orderId: string }>();
 	const navigate = useNavigate();
+	const location = useLocation();
+	const queryParams = new URLSearchParams(location.search);
+	const isOffline = queryParams.get('isOffline') === 'true';
 	const [order, setOrder] = useState<OrderDetails | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -16,13 +19,13 @@ export default function OrderDetails() {
 
 	const fetchOrderDetails = useCallback(async () => {
 		if (!orderId) return;
-		
+
 		try {
 			setError(null);
 			setLoading(true);
 			// Clean order ID - remove any # prefix
 			const cleanOrderId = orderId.replace('#', '');
-			const data = await getOrderDetails(cleanOrderId);
+			const data = await getOrderDetails(cleanOrderId, isOffline);
 			setOrder(data);
 		} catch (err: any) {
 			setError(err.message || 'Failed to fetch order details');
@@ -84,7 +87,8 @@ export default function OrderDetails() {
 	}
 
 	const statusColor = getStatusColor(order.status);
-	const tableDisplay = order.table_number || (order.order_type === 'dine_in' ? 'Dine In' : order.address) || 'N/A';
+	const isImportedOrder = (order as any).is_imported || order.customer === 'Imported Order';
+	const tableDisplay = isImportedOrder ? 'Imported Order' : (order.table_number || (order.order_type === 'dine_in' ? 'Dine In' : order.address) || 'N/A');
 
 	return (
 		<div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #FFFAF0 0%, #FFFFFF 100%)' }}>
@@ -98,7 +102,7 @@ export default function OrderDetails() {
 					>
 						<ArrowLeft size={18} /> Back to Orders
 					</button>
-					
+
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 						<div>
 							<h1 className="text-3xl font-bold mb-1" style={{ color: '#FF8C00' }}>
@@ -108,16 +112,23 @@ export default function OrderDetails() {
 								{formatDate(order.created_at)}
 							</p>
 						</div>
-						<span 
-							className="px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide border-2"
-							style={{ 
-								background: statusColor.bg,
-								color: statusColor.text,
-								borderColor: statusColor.border
-							}}
-						>
-							{order.status}
-						</span>
+						<div className="flex flex-col items-end gap-2">
+							<span
+								className="px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide border-2"
+								style={{
+									background: statusColor.bg,
+									color: statusColor.text,
+									borderColor: statusColor.border
+								}}
+							>
+								{order.status}
+							</span>
+							{isImportedOrder && (
+								<span className="px-3 py-1 rounded text-xs font-bold uppercase bg-blue-100 text-blue-700 border border-blue-200">
+									Imported
+								</span>
+							)}
+						</div>
 					</div>
 				</div>
 
@@ -173,7 +184,7 @@ export default function OrderDetails() {
 					) : (
 						<div className="space-y-4">
 							{order.items.map((item) => (
-								<div 
+								<div
 									key={item.id}
 									className="border-2 rounded-lg p-4 transition-all hover:shadow-md"
 									style={{ borderColor: '#FFD700' }}
@@ -186,7 +197,7 @@ export default function OrderDetails() {
 													{item.item.name}
 												</h3>
 												{item.size && (
-													<span 
+													<span
 														className="px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1"
 														style={{ background: '#FFF3E0', color: '#FF8C00' }}
 													>
@@ -213,10 +224,10 @@ export default function OrderDetails() {
 													// Calculate total quantity needed (ingredient quantity × order item quantity)
 													const totalQuantity = (ing.quantity * item.quantity).toFixed(2);
 													return (
-														<div 
+														<div
 															key={idx}
 															className="p-3 rounded-lg border"
-															style={{ 
+															style={{
 																background: '#FFFAF0',
 																borderColor: '#FFD700'
 															}}
@@ -238,7 +249,7 @@ export default function OrderDetails() {
 									) : (
 										<div className="mt-4 pt-4 border-t text-center" style={{ borderColor: '#FFD700' }}>
 											<p className="text-sm text-gray-500 italic">
-												{item.size 
+												{item.size
 													? `No ingredients configured for ${item.item.name} (${item.size.size})`
 													: `No ingredients configured for ${item.item.name}. Please select a size to see ingredients.`
 												}

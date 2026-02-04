@@ -6,7 +6,6 @@ export default function OfflineOrdersManagement() {
   const [activeTab, setActiveTab] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
 
   // API state
   const [orders, setOrders] = useState<OfflineOrder[]>([]);
@@ -22,17 +21,17 @@ export default function OfflineOrdersManagement() {
       setError(null);
       const statusFilter = activeTab !== 'All' ? activeTab : undefined;
       const search = searchQuery.trim() || undefined;
-      
+
       const data = await getOfflineOrders({
         status: statusFilter,
         search: search,
       });
-      
+
       setOrders(data || []);
     } catch (err: any) {
       console.error('Error fetching offline orders:', err);
       const errorMessage = err.message || 'Failed to load offline orders. Please try again.';
-      
+
       if (err.response?.status === 401 || err.response?.status === 403) {
         setError('Authentication required. Please log in as admin to view offline orders.');
       } else if (err.response?.status === 500) {
@@ -91,6 +90,17 @@ export default function OfflineOrdersManagement() {
 
   const tabs = ['All', 'Pending', 'Preparing', 'Ready', 'Served', 'Paid', 'Canceled'];
 
+  // Mapper pour afficher les libellés des onglets en français (valeurs inchangées)
+  const tabLabel = (t: string) => ({
+    All: 'Tous',
+    Pending: 'En attente',
+    Preparing: 'En préparation',
+    Ready: 'Prête',
+    Served: 'Servie',
+    Paid: 'Payée',
+    Canceled: 'Annulée',
+  } as Record<string, string>)[t] || t;
+
   // Pagination
   const totalPages = Math.ceil(orders.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
@@ -98,7 +108,7 @@ export default function OfflineOrdersManagement() {
   const paginatedOrders = orders.slice(startIndex, endIndex);
 
   const getStatusColor = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'Pending': return { bg: '#FEF3C7', text: '#F59E0B', border: '#FCD34D' };
       case 'Preparing': return { bg: '#DBEAFE', text: '#3B82F6', border: '#93C5FD' };
       case 'Ready': return { bg: '#D1FAE5', text: '#10B981', border: '#6EE7B7' };
@@ -122,10 +132,10 @@ export default function OfflineOrdersManagement() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1F2937' }}>
-                Offline Orders
+                Commandes hors ligne
               </h1>
               <p className="text-sm sm:text-base" style={{ color: '#6B7280' }}>
-                Manage dine-in orders from restaurant tables
+                Gérez les commandes sur place et importées
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -136,7 +146,7 @@ export default function OfflineOrdersManagement() {
                 style={{ borderColor: '#E5E7EB', color: '#374151' }}
               >
                 <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
-                Refresh
+                Actualiser
               </button>
             </div>
           </div>
@@ -149,28 +159,33 @@ export default function OfflineOrdersManagement() {
                 <button
                   key={tab}
                   onClick={() => handleTabChange(tab)}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                    activeTab === tab
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${activeTab === tab
                       ? 'bg-orange-500 text-white shadow-md'
                       : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
-                  }`}
+                    }`}
                 >
-                  {tab} ({count})
+                  {tabLabel(tab)} ({count})
                 </button>
               );
             })}
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by table number or order ID..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all"
-            />
+          {/* Search and Badge */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Rechercher par numéro de table ou ID de commande..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 text-sm font-medium h-[46px]">
+              <Package size={16} />
+              <span>Commandes importées prises en charge</span>
+            </div>
           </div>
         </div>
 
@@ -189,15 +204,15 @@ export default function OfflineOrdersManagement() {
           <div className="flex items-center justify-center py-16">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading offline orders...</p>
+              <p className="text-gray-600">Chargement des commandes hors ligne...</p>
             </div>
           </div>
         ) : paginatedOrders.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg border-2" style={{ borderColor: '#E5E7EB' }}>
             <Package size={64} className="mx-auto mb-4 text-gray-400" />
-            <h3 className="text-xl font-bold text-gray-700 mb-2">No offline orders found</h3>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">Aucune commande hors ligne trouvée</h3>
             <p className="text-gray-500">
-              {searchQuery || activeTab !== 'All' ? 'Try adjusting your filters' : 'No orders have been placed yet'}
+              {searchQuery || activeTab !== 'All' ? 'Essayez de modifier vos filtres' : "Aucune commande n’a encore été passée"}
             </p>
           </div>
         ) : (
@@ -214,21 +229,28 @@ export default function OfflineOrdersManagement() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
                         <h3 className="text-xl font-bold" style={{ color: '#1F2937' }}>
-                          Order #{order.id}
+                          Commande n°{order.id}
                         </h3>
                         <span
                           className="px-3 py-1 rounded-full text-xs font-bold"
                           style={{ background: statusColor.bg, color: statusColor.text }}
                         >
-                          {order.status}
+                          {tabLabel(order.status)}
                         </span>
+                        {order.is_imported && (
+                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider rounded border border-blue-200">
+                            Importée
+                          </span>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <MapPin size={16} />
-                          <span className="font-semibold">Table {order.table.number}</span>
-                          {order.table.location && (
+                          <span className="font-semibold">
+                            {order.is_imported ? 'Source externe' : (order.table ? `Table ${order.table.number}` : 'Aucune table')}
+                          </span>
+                          {!order.is_imported && order.table?.location && (
                             <span className="text-gray-500">({order.table.location})</span>
                           )}
                         </div>
@@ -238,7 +260,7 @@ export default function OfflineOrdersManagement() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Package size={16} />
-                          <span>{order.items.length} item(s)</span>
+                          <span>{order.items.length} article(s)</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm font-bold" style={{ color: '#FF8C00' }}>
                           <DollarSign size={16} />
@@ -248,7 +270,7 @@ export default function OfflineOrdersManagement() {
 
                       {/* Order Items */}
                       <div className="mb-4">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Items:</h4>
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Articles :</h4>
                         <div className="space-y-1">
                           {order.items.map((item, idx) => (
                             <div key={idx} className="text-sm text-gray-600 flex items-center gap-2">
@@ -267,7 +289,7 @@ export default function OfflineOrdersManagement() {
                       {order.notes && (
                         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                           <p className="text-sm text-gray-600">
-                            <span className="font-semibold">Notes:</span> {order.notes}
+                            <span className="font-semibold">Notes :</span> {order.notes}
                           </p>
                         </div>
                       )}
@@ -281,12 +303,12 @@ export default function OfflineOrdersManagement() {
                         className="px-3 py-2 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all text-sm font-semibold"
                         style={{ color: statusColor.text, background: statusColor.bg }}
                       >
-                        <option value="Pending">Pending</option>
-                        <option value="Preparing">Preparing</option>
-                        <option value="Ready">Ready</option>
-                        <option value="Served">Served</option>
-                        <option value="Paid">Paid</option>
-                        <option value="Canceled">Canceled</option>
+                        <option value="Pending">En attente</option>
+                        <option value="Preparing">En préparation</option>
+                        <option value="Ready">Prête</option>
+                        <option value="Served">Servie</option>
+                        <option value="Paid">Payée</option>
+                        <option value="Canceled">Annulée</option>
                       </select>
                     </div>
                   </div>
@@ -298,7 +320,7 @@ export default function OfflineOrdersManagement() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                 <div className="text-sm text-gray-600">
-                  Showing {startIndex + 1} to {Math.min(endIndex, orders.length)} of {orders.length} orders
+                  Affichage de {startIndex + 1} à {Math.min(endIndex, orders.length)} sur {orders.length} commandes
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -309,7 +331,7 @@ export default function OfflineOrdersManagement() {
                     <ChevronLeft size={20} />
                   </button>
                   <span className="px-4 py-2 text-sm font-semibold text-gray-700">
-                    Page {currentPage} of {totalPages}
+                    Page {currentPage} sur {totalPages}
                   </span>
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
@@ -327,4 +349,3 @@ export default function OfflineOrdersManagement() {
     </div>
   );
 }
-

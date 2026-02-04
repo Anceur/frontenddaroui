@@ -25,7 +25,7 @@ export default function TablesManagement() {
       const data = await getTables();
       setTables(data);
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to load tables';
+      const errorMessage = err.message || 'Échec du chargement des tables';
       setError(errorMessage);
       console.error('Error fetching tables:', err);
     } finally {
@@ -59,7 +59,7 @@ export default function TablesManagement() {
       setFormData({ number: '', capacity: 4, is_available: true, location: '', notes: '' });
       await fetchTables();
     } catch (err: any) {
-      setError(err.message || 'Failed to save table');
+      setError(err.message || 'Échec de l\'enregistrement de la table');
       console.error('Error saving table:', err);
     }
   };
@@ -79,7 +79,7 @@ export default function TablesManagement() {
 
   // Handle delete
   const handleDelete = async (tableId: number) => {
-    if (!confirm('Are you sure you want to delete this table? This action cannot be undone.')) {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette table ? Cette action est irréversible.")) {
       return;
     }
     try {
@@ -87,7 +87,7 @@ export default function TablesManagement() {
       await deleteTable(tableId);
       await fetchTables();
     } catch (err: any) {
-      setError(err.message || 'Failed to delete table');
+      setError(err.message || 'Échec de la suppression de la table');
       console.error('Error deleting table:', err);
     }
   };
@@ -106,10 +106,10 @@ export default function TablesManagement() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1F2937' }}>
-                Tables Management
+                Gestion des tables
               </h1>
               <p className="text-sm sm:text-base" style={{ color: '#6B7280' }}>
-                Manage restaurant tables and their availability
+                Gérez les tables du restaurant et leur disponibilité
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export default function TablesManagement() {
                 style={{ borderColor: '#E5E7EB', color: '#374151' }}
               >
                 <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
-                Refresh
+                Actualiser
               </button>
               <button
                 onClick={() => {
@@ -132,7 +132,7 @@ export default function TablesManagement() {
                 style={{ background: '#FF8C00' }}
               >
                 <Plus size={18} />
-                Add Table
+                Ajouter une table
               </button>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function TablesManagement() {
             <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by table number or location..."
+              placeholder="Rechercher par numéro de table ou emplacement..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all"
@@ -174,9 +174,9 @@ export default function TablesManagement() {
         ) : filteredTables.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg border-2" style={{ borderColor: '#E5E7EB' }}>
             <MapPin size={64} className="mx-auto mb-4 text-gray-400" />
-            <h3 className="text-xl font-bold text-gray-700 mb-2">No tables found</h3>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">Aucune table trouvée</h3>
             <p className="text-gray-500 mb-4">
-              {searchQuery ? 'Try adjusting your search query' : 'Get started by adding your first table'}
+              {searchQuery ? 'Essayez d\'ajuster votre recherche' : 'Commencez par ajouter votre première table'}
             </p>
             {!searchQuery && (
               <button
@@ -185,7 +185,7 @@ export default function TablesManagement() {
                 style={{ background: '#FF8C00' }}
               >
                 <Plus size={18} className="inline mr-2" />
-                Add Table
+                Ajouter une table
               </button>
             )}
           </div>
@@ -216,14 +216,14 @@ export default function TablesManagement() {
                         : 'bg-red-100 text-red-700'
                     }`}
                   >
-                    {table.is_available ? 'Available' : 'Occupied'}
+                    {table.is_available ? 'Disponible' : 'Occupée'}
                   </span>
                 </div>
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Users size={16} />
-                    <span>Capacity: {table.capacity} guests</span>
+                    <span>Capacité : {table.capacity} personnes</span>
                   </div>
                   {table.notes && (
                     <p className="text-sm text-gray-600 line-clamp-2">{table.notes}</p>
@@ -237,7 +237,7 @@ export default function TablesManagement() {
                     style={{ background: '#FEF3C7', color: '#92400E' }}
                   >
                     <Edit2 size={16} />
-                    Edit
+                    Modifier
                   </button>
                   <button
                     onClick={() => handleDelete(table.id)}
@@ -258,7 +258,7 @@ export default function TablesManagement() {
             <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold" style={{ color: '#1F2937' }}>
-                  {editingTable ? 'Edit Table' : 'Add New Table'}
+                  {editingTable ? 'Modifier la table' : 'Ajouter une nouvelle table'}
                 </h2>
                 <button
                   onClick={() => {
@@ -275,7 +275,7 @@ export default function TablesManagement() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Table Number <span className="text-red-500">*</span>
+                    Numéro de table <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -283,13 +283,13 @@ export default function TablesManagement() {
                     value={formData.number}
                     onChange={(e) => setFormData({ ...formData, number: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all"
-                    placeholder="e.g., 1, 2, VIP-1"
+                    placeholder="ex. 1, 2, VIP-1"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Capacity
+                    Capacité
                   </label>
                   <input
                     type="number"
@@ -302,14 +302,14 @@ export default function TablesManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location
+                    Emplacement
                   </label>
                   <input
                     type="text"
                     value={formData.location || ''}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all"
-                    placeholder="e.g., Window, Patio, Main Hall"
+                    placeholder="ex. Fenêtre, Terrasse, Salle principale"
                   />
                 </div>
 
@@ -322,7 +322,7 @@ export default function TablesManagement() {
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all"
                     rows={3}
-                    placeholder="Additional notes about this table..."
+                    placeholder="Informations supplémentaires sur cette table..."
                   />
                 </div>
 
@@ -335,7 +335,7 @@ export default function TablesManagement() {
                     className="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
                   />
                   <label htmlFor="is_available" className="text-sm font-medium text-gray-700">
-                    Table is available
+                    Table disponible
                   </label>
                 </div>
 
@@ -350,14 +350,14 @@ export default function TablesManagement() {
                     className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition-all border-2"
                     style={{ borderColor: '#E5E7EB', color: '#374151' }}
                   >
-                    Cancel
+                    Annuler
                   </button>
                   <button
                     type="submit"
                     className="flex-1 px-4 py-2.5 rounded-lg font-semibold text-white transition-all"
                     style={{ background: '#FF8C00' }}
                   >
-                    {editingTable ? 'Update' : 'Create'}
+                    {editingTable ? 'Mettre à jour' : 'Ajouter'}
                   </button>
                 </div>
               </form>
@@ -368,5 +368,3 @@ export default function TablesManagement() {
     </div>
   );
 }
-
-

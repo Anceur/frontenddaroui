@@ -7,16 +7,24 @@ export type Ingredient = {
   id: number;
   name: string;
   unit: string;
+  suppliers?: number[];
+  supplier_ids?: number[];
+  suppliers_list?: string[];
+  stock?: number;
+  reorder_level?: number;
+  is_low_stock?: boolean;
 };
 
 export type CreateIngredientData = {
   name: string;
   unit: string;
+  supplier_ids?: number[];
 };
 
 export type UpdateIngredientData = {
   name?: string;
   unit?: string;
+  supplier_ids?: number[];
 };
 
 // Get all ingredients

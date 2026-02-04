@@ -21,7 +21,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
   const handleMenuClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Menu button clicked');
+    console.log('Bouton de menu cliqué');
     if (onMenuClick) {
       onMenuClick();
     }
@@ -61,7 +61,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
           onClick={handleMenuClick}
           className="lg:hidden p-2 rounded-lg transition-all duration-200 hover:bg-gray-50 relative z-50"
           style={{ color: '#FF8C00' }}
-          aria-label="Open menu"
+          aria-label="Ouvrir le menu"
           type="button"
         >
           <Menu size={20} />
@@ -74,7 +74,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
           </div>
           <input
             type="text"
-            placeholder="Search orders, products, staff..."
+            placeholder="Rechercher des commandes, produits, personnel..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-100"
@@ -101,7 +101,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
           onClick={() => setShowMobileSearch(!showMobileSearch)}
           className="lg:hidden p-2 rounded-lg transition-all duration-200 hover:bg-gray-50"
           style={{ color: '#6B7280' }}
-          aria-label="Search"
+          aria-label="Rechercher"
         >
           <Search size={20} />
         </button>
@@ -116,7 +116,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
             </div>
             <input
               type="text"
-              placeholder="Search orders, products, staff..."
+              placeholder="Rechercher des commandes, produits, personnel..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-10 py-2.5 text-sm rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-100"
@@ -148,7 +148,8 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
               setShowProfile(false);
             }}
             className="relative p-2 rounded-lg transition-all duration-200 hover:bg-gray-50 group"
-            title="Notifications"
+            title="Afficher les notifications"
+            aria-label={`Afficher les notifications (${unreadCount} non lues)`}
           >
             <Bell size={20} strokeWidth={2} style={{ color: '#6B7280' }} className="group-hover:text-orange-600" />
             {unreadCount > 0 && (
@@ -185,14 +186,14 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
                 </h3>
                 {unreadCount > 0 && (
                   <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
-                    {unreadCount} new
+                    {unreadCount} nouveaux
                   </span>
                 )}
               </div>
               <div className="max-h-96 overflow-y-auto">
                 {notifications.length === 0 ? (
                   <div className="px-5 py-8 text-center">
-                    <p style={{ color: '#6B7280' }} className="text-sm">No notifications</p>
+                    <p style={{ color: '#6B7280' }} className="text-sm">Aucune notification</p>
                   </div>
                 ) : (
                   notifications.slice(0, 10).map((notif) => (
@@ -238,7 +239,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
                       className="w-full py-3 text-center text-sm font-medium hover:bg-gray-50 transition-colors"
                       style={{ color: '#FF8C00' }}
                     >
-                      Mark All as Read
+                      Tout marquer comme lu
                     </button>
                   )}
                   <button 
@@ -252,7 +253,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
                       borderColor: '#E5E7EB'
                     }}
                   >
-                    View All Notifications
+                    Voir toutes les notifications
                   </button>
                 </div>
               )}
@@ -268,6 +269,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
               setShowNotifications(false);
             }}
             className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 transition-all duration-200 group"
+            aria-label="Ouvrir le menu profil"
           >
             <div 
               className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold shadow-sm"
@@ -280,10 +282,10 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
             </div>
             <div className="hidden md:block text-left">
               <p className="text-sm font-semibold" style={{ color: '#1F2937' }}>
-                Admin User
+                Administrateur
               </p>
               <p className="text-xs" style={{ color: '#6B7280' }}>
-                Manager
+                Gestionnaire
               </p>
             </div>
             <ChevronDown size={16} style={{ color: '#6B7280' }} className="group-hover:text-orange-600" />
@@ -310,7 +312,7 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
                     AM
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm" style={{ color: '#1F2937' }}>Admin User</p>
+                    <p className="font-semibold text-sm" style={{ color: '#1F2937' }}>Administrateur</p>
                     <p className="text-xs" style={{ color: '#6B7280' }}>admin@nostalgie.com</p>
                   </div>
                 </div>
@@ -318,15 +320,15 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
               <div className="py-2">
                 <button className="w-full px-5 py-2.5 text-left hover:bg-gray-50 transition-colors text-sm flex items-center gap-3 group" style={{ color: '#374151' }}>
                   <User size={16} style={{ color: '#9CA3AF' }} className="group-hover:text-orange-600" />
-                  <span>My Profile</span>
+                  <span>Mon profil</span>
                 </button>
                 <button className="w-full px-5 py-2.5 text-left hover:bg-gray-50 transition-colors text-sm flex items-center gap-3 group" style={{ color: '#374151' }} onClick={()=>{ navigate("/change-password") }} >
                   <Settings size={16} style={{ color: '#9CA3AF' }} className="group-hover:text-orange-600" />
-                  <span>Change-password</span>
+                  <span>Changer le mot de passe</span>
                 </button>
                 <button className="w-full px-5 py-2.5 text-left hover:bg-gray-50 transition-colors text-sm flex items-center gap-3 group" style={{ color: '#374151' }}>
                   <HelpCircle size={16} style={{ color: '#9CA3AF' }} className="group-hover:text-orange-600" />
-                  <span>Help & Support</span>
+                  <span>Aide et support</span>
                 </button>
               </div>
               <div className="border-t" style={{ borderColor: '#E5E7EB' }}>
@@ -334,9 +336,10 @@ export default function NostalgieNavbar({ onMenuClick }: NostalgieNavbarProps) {
                   onClick={handleLogout}
                   className="w-full px-5 py-3 text-left font-medium hover:bg-red-50 transition-colors text-sm flex items-center gap-3 group"
                   style={{ color: '#DC2626' }}
+                  aria-label="Se déconnecter"
                 >
                   <LogOut size={16} className="group-hover:scale-110 transition-transform" />
-                  <span>Sign Out</span>
+                  <span>Se déconnecter</span>
                 </button>
               </div>
             </div>

@@ -113,14 +113,14 @@ export default function ChefNavbar(): JSX.Element {
                 color: '#FF8C00',
                 letterSpacing: '-0.5px'
               }}>
-                Chef Panel
+                Espace Chef
               </h1>
               <p style={{ 
                 margin: 0, 
                 fontSize: '12px', 
                 color: '#999999' 
               }}>
-                Kitchen Management System
+                Système de gestion de cuisine
               </p>
             </div>
           </div>
@@ -132,16 +132,16 @@ export default function ChefNavbar(): JSX.Element {
             alignItems: 'center'
           }} className="desktop-nav">
             <div onClick={() => navigate('/orders')} style={{ cursor: 'pointer' }}>
-              <NavButton icon={<ClipboardList size={18} />} label="Orders" primary={location.pathname.startsWith('/chef') && (location.pathname === '/chef' || location.pathname.startsWith('/chef/orders'))} />
+              <NavButton icon={<ClipboardList size={18} />} label="Commandes" primary={location.pathname.startsWith('/chef') && (location.pathname === '/chef' || location.pathname.startsWith('/chef/orders'))} />
             </div>
             <div onClick={() => navigate('/menu')} style={{ cursor: 'pointer' }}>
               <NavButton icon={<UtensilsCrossed size={18} />} label="Menu" primary={location.pathname.startsWith('/chef/menu')} />
             </div>
             <div onClick={() => navigate('/ingredients')} style={{ cursor: 'pointer' }}>
-              <NavButton icon={<Package size={18} />} label="Ingredients" primary={location.pathname.startsWith('/chef/ingredients')} />
+              <NavButton icon={<Package size={18} />} label="Ingrédients" primary={location.pathname.startsWith('/chef/ingredients')} />
             </div>
             <div onClick={() => navigate('/stats')} style={{ cursor: 'pointer' }}>
-              <NavButton icon={<BarChart3 size={18} />} label="Stats" primary={location.pathname.startsWith('/chef/stats')} />
+              <NavButton icon={<BarChart3 size={18} />} label="Statistiques" primary={location.pathname.startsWith('/chef/stats')} />
             </div>
             
             <div style={{ 
@@ -225,14 +225,14 @@ export default function ChefNavbar(): JSX.Element {
                         background: '#FFF4E6',
                         color: '#FF8C00'
                       }}>
-                        {unreadCount} new
+                        {unreadCount} nouveaux
                       </span>
                     )}
                   </div>
                   <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                     {notifications.length === 0 ? (
                       <div style={{ padding: '32px 20px', textAlign: 'center' }}>
-                        <p style={{ margin: 0, fontSize: '14px', color: '#6B7280' }}>No notifications</p>
+                        <p style={{ margin: 0, fontSize: '14px', color: '#6B7280' }}>Aucune notification</p>
                       </div>
                     ) : (
                       notifications.slice(0, 10).map((notif) => (
@@ -319,7 +319,7 @@ export default function ChefNavbar(): JSX.Element {
                           onMouseEnter={(e) => e.currentTarget.style.background = '#F9FAFB'}
                           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                         >
-                          Mark All as Read
+                          Tout marquer comme lu
                         </button>
                       )}
                     </div>
@@ -357,21 +357,21 @@ export default function ChefNavbar(): JSX.Element {
             paddingTop: '15px'
           }} className="mobile-menu">
             <div onClick={() => { navigate('/chef/orders'); setIsMenuOpen(false); }}>
-              <MobileNavItem icon={<ClipboardList size={18} />} label="Orders" primary={location.pathname.startsWith('/chef') && (location.pathname === '/chef' || location.pathname.startsWith('/chef/orders'))} />
+              <MobileNavItem icon={<ClipboardList size={18} />} label="Commandes" primary={location.pathname.startsWith('/chef') && (location.pathname === '/chef' || location.pathname.startsWith('/chef/orders'))} />
             </div>
             <div onClick={() => { navigate('/chef/menu'); setIsMenuOpen(false); }}>
               <MobileNavItem icon={<UtensilsCrossed size={18} />} label="Menu" primary={location.pathname.startsWith('/chef/menu')} />
             </div>
             <div onClick={() => { navigate('/chef/ingredients'); setIsMenuOpen(false); }}>
-              <MobileNavItem icon={<Package size={18} />} label="Ingredients" primary={location.pathname.startsWith('/chef/ingredients')} />
+              <MobileNavItem icon={<Package size={18} />} label="Ingrédients" primary={location.pathname.startsWith('/chef/ingredients')} />
             </div>
             <div onClick={() => { navigate('/chef/stats'); setIsMenuOpen(false); }}>
-              <MobileNavItem icon={<BarChart3 size={18} />} label="Stats" primary={location.pathname.startsWith('/chef/stats')} />
+              <MobileNavItem icon={<BarChart3 size={18} />} label="Statistiques" primary={location.pathname.startsWith('/chef/stats')} />
             </div>
             <MobileNavItem icon={<Bell size={18} />} label="Notifications" badge={unreadCount} />
-            <MobileNavItem icon={<User size={18} />} label="Profile" />
+            <MobileNavItem icon={<User size={18} />} label="Profil" />
             <div onClick={() => { handleLogoutClick(); setIsMenuOpen(false); }}>
-              <MobileNavItem icon={<LogOut size={18} />} label="Logout" />
+              <MobileNavItem icon={<LogOut size={18} />} label="Déconnexion" />
             </div>
           </div>
         )}
@@ -428,4 +428,3 @@ export default function ChefNavbar(): JSX.Element {
 // ============================================
 // MOBILE NAV ITEM COMPONENT
 // ============================================
-

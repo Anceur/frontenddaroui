@@ -30,6 +30,7 @@ export default function Menu() {
         name: '',
         description: '',
         price: 0,
+        cost_price: 0,
         category: 'burger',
         image: null,
         featured: false,
@@ -37,7 +38,7 @@ export default function Menu() {
     const [submitting, setSubmitting] = useState(false)
     const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [hasSizes, setHasSizes] = useState(false)
-    const [sizes, setSizes] = useState<Array<{ size: 'M' | 'L' | 'Mega', price: number }>>([])
+    const [sizes, setSizes] = useState<Array<{ size: 'M' | 'L' | 'Mega', price: number, cost_price: number }>>([])
 
     // Fetch menu items
     const fetchMenuItems = useCallback(async () => {
@@ -121,7 +122,8 @@ export default function Menu() {
                     await createMenuItemSize({
                         menu_item_id: newItem.id,
                         size: sizeData.size,
-                        price: sizeData.price
+                        price: sizeData.price,
+                        cost_price: sizeData.cost_price || 0
                     });
                 }
             }
@@ -131,6 +133,7 @@ export default function Menu() {
                 name: '',
                 description: '',
                 price: 0,
+                cost_price: 0,
                 category: 'burger',
                 image: null,
                 featured: false,
@@ -310,6 +313,7 @@ export default function Menu() {
                                 name: '',
                                 description: '',
                                 price: 0,
+                                cost_price: 0,
                                 category: 'burger',
                                 image: null,
                                 featured: false,
@@ -720,8 +724,8 @@ interface CreateMenuItemModalProps {
     submitting: boolean
     hasSizes: boolean
     setHasSizes: (value: boolean) => void
-    sizes: Array<{ size: 'M' | 'L' | 'Mega', price: number }>
-    setSizes: (sizes: Array<{ size: 'M' | 'L' | 'Mega', price: number }>) => void
+    sizes: Array<{ size: 'M' | 'L' | 'Mega', price: number, cost_price: number }>
+    setSizes: (sizes: Array<{ size: 'M' | 'L' | 'Mega', price: number, cost_price: number }>) => void
 }
 
 function CreateMenuItemModal({
@@ -741,14 +745,14 @@ function CreateMenuItemModal({
     const sizeOptions: Array<'M' | 'L' | 'Mega'> = ['M', 'L', 'Mega']
 
     const addSize = () => {
-        setSizes([...sizes, { size: 'M', price: 0 }])
+        setSizes([...sizes, { size: 'M', price: 0, cost_price: 0 }])
     }
 
     const removeSize = (index: number) => {
         setSizes(sizes.filter((_, i) => i !== index))
     }
 
-    const updateSize = (index: number, field: 'size' | 'price', value: string | number) => {
+    const updateSize = (index: number, field: 'size' | 'price' | 'cost_price', value: string | number) => {
         const updated = [...sizes]
         updated[index] = { ...updated[index], [field]: value }
         setSizes(updated)
@@ -799,7 +803,7 @@ function CreateMenuItemModal({
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-semibold mb-2" style={{ color: '#333333' }}>
-                                Price *
+                                Selling Price *
                             </label>
                             <input
                                 type="number"
@@ -808,6 +812,23 @@ function CreateMenuItemModal({
                                 step="0.01"
                                 value={formData.price}
                                 onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                                className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none transition-all"
+                                style={{ borderColor: '#FFD700' }}
+                                placeholder="0.00"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold mb-2" style={{ color: '#333333' }}>
+                                Cost Price *
+                            </label>
+                            <input
+                                type="number"
+                                required
+                                min="0"
+                                step="0.01"
+                                value={formData.cost_price || 0}
+                                onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) || 0 })}
                                 className="w-full px-4 py-2 rounded-lg border-2 focus:outline-none transition-all"
                                 style={{ borderColor: '#FFD700' }}
                                 placeholder="0.00"
@@ -872,7 +893,7 @@ function CreateMenuItemModal({
                                     if (!e.target.checked) {
                                         setSizes([])
                                     } else if (sizes.length === 0) {
-                                        setSizes([{ size: 'M', price: formData.price }])
+                                        setSizes([{ size: 'M', price: formData.price, cost_price: formData.cost_price || 0 }])
                                     }
                                 }}
                                 className="w-4 h-4"
@@ -905,7 +926,17 @@ function CreateMenuItemModal({
                                             onChange={(e) => updateSize(index, 'price', parseFloat(e.target.value) || 0)}
                                             className="flex-1 px-3 py-2 rounded-lg border-2 text-sm"
                                             style={{ borderColor: '#FFD700' }}
-                                            placeholder="Price"
+                                            placeholder="Selling Price"
+                                        />
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={size.cost_price || 0}
+                                            onChange={(e) => updateSize(index, 'cost_price', parseFloat(e.target.value) || 0)}
+                                            className="flex-1 px-3 py-2 rounded-lg border-2 text-sm"
+                                            style={{ borderColor: '#FFD700' }}
+                                            placeholder="Cost Price"
                                         />
                                         <button
                                             type="button"

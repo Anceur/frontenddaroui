@@ -1,4 +1,4 @@
-import  { useContext } from 'react'
+import { useContext } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthContext } from '../shared/context/Authservice'
 import AdminApp from '../admin/App'
@@ -7,7 +7,7 @@ import CashierApp from '../cashier/App'
 import Login from '../auth/Login'
 import FullscreenLoader from '../shared/components/FullscreenLoader'
 import ClientApp from '../client/App'
-import OfflineClientApp from '../offline-client/App'
+import OfflineClientApp from '../offline_client/App'
 
 export default function RoleRouter() {
   const auth = useContext(AuthContext)
@@ -31,16 +31,16 @@ export default function RoleRouter() {
 
   return (
     <Routes>
-    {role === 'admin' && (
-      <Route path="/*" element={<AdminApp />} />
-    )}
-    {role === 'chef' && (
-      <Route path="/*" element={<ChefApp />} />
-    )}
-    {role === 'cashier' && (
-      <Route path="/*" element={<CashierApp />} />
-    )}
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
+      {role === 'admin' && (
+        <Route path="/*" element={<AdminApp />} />
+      )}
+      {role === 'chef' && (
+        <Route path="/*" element={<ChefApp />} />
+      )}
+      {role === 'cashier' && (
+        <Route path="/*" element={<CashierApp />} />
+      )}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }

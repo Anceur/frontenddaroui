@@ -7,6 +7,15 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filter, setFilter] = useState<'all' | 'unread' | 'critical' | 'medium' | 'low'>('all');
 
+  // Libellés pour les filtres (affichage uniquement)
+  const filterLabel = (key: 'all' | 'unread' | 'critical' | 'medium' | 'low') => ({
+    all: 'Tous',
+    unread: 'Non lues',
+    critical: 'Critiques',
+    medium: 'Moyennes',
+    low: 'Faibles',
+  }[key]);
+
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
@@ -84,11 +93,11 @@ export default function NotificationsPage() {
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
       case 'critical':
-        return 'Critical';
+        return 'Critique';
       case 'medium':
-        return 'Medium';
+        return 'Moyenne';
       case 'low':
-        return 'Low';
+        return 'Faible';
       default:
         return priority;
     }
@@ -115,16 +124,16 @@ export default function NotificationsPage() {
               <Bell className="text-[var(--color-primary)]" size={28} />
               Notifications
             </h1>
-            <p className="text-gray-600 mt-1">Manage and view all system notifications</p>
+            <p className="text-gray-600 mt-1">Gérez et consultez toutes les notifications du système</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={fetchNotifications}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg flex items-center gap-2 transition-colors"
-              title="Refresh"
+              title="Actualiser"
             >
               <RefreshCw size={18} />
-              Refresh
+              Actualiser
             </button>
             {unreadCount > 0 && (
               <button
@@ -132,7 +141,7 @@ export default function NotificationsPage() {
                 className="px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white rounded-lg flex items-center gap-2 transition-colors"
               >
                 <CheckCheck size={18} />
-                Mark All Read
+                Tout marquer comme lu
               </button>
             )}
           </div>
@@ -141,15 +150,15 @@ export default function NotificationsPage() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-sm text-gray-600">Total Notifications</div>
+            <div className="text-sm text-gray-600">Total des notifications</div>
             <div className="text-2xl font-bold text-gray-900">{notifications.length}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-sm text-gray-600">Unread</div>
+            <div className="text-sm text-gray-600">Non lues</div>
             <div className="text-2xl font-bold text-red-600">{unreadCount}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-sm text-gray-600">Critical Alerts</div>
+            <div className="text-sm text-gray-600">Alertes critiques</div>
             <div className="text-2xl font-bold text-red-600">{criticalCount}</div>
           </div>
         </div>
@@ -157,7 +166,7 @@ export default function NotificationsPage() {
         {/* Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           <Filter size={18} className="text-gray-600" />
-          <span className="text-sm text-gray-600 font-medium">Filter:</span>
+          <span className="text-sm text-gray-600 font-medium">Filtre :</span>
           {(['all', 'unread', 'critical', 'medium', 'low'] as const).map((filterOption) => (
             <button
               key={filterOption}
@@ -168,7 +177,7 @@ export default function NotificationsPage() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
+              {filterLabel(filterOption)}
             </button>
           ))}
         </div>
@@ -182,9 +191,9 @@ export default function NotificationsPage() {
       ) : filteredNotifications.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center border border-gray-200">
           <Bell size={48} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 text-lg">No notifications found</p>
+          <p className="text-gray-600 text-lg">Aucune notification trouvée</p>
           <p className="text-gray-500 text-sm mt-2">
-            {filter !== 'all' ? `Try changing the filter to see more notifications.` : 'You\'re all caught up!'}
+            {filter !== 'all' ? `Essayez de modifier le filtre pour voir plus de notifications.` : 'Tout est à jour !'}
           </p>
         </div>
       ) : (
@@ -228,13 +237,13 @@ export default function NotificationsPage() {
                           </span>
                           <span>{notification.time_ago}</span>
                           {notification.related_order && (
-                            <span>Order #{notification.related_order}</span>
+                            <span>Commande n°{notification.related_order}</span>
                           )}
                           {notification.related_offline_order && (
-                            <span>Table Order #{notification.related_offline_order}</span>
+                            <span>Commande table n°{notification.related_offline_order}</span>
                           )}
                           {notification.related_ingredient && (
-                            <span>Ingredient #{notification.related_ingredient}</span>
+                            <span>Ingrédient n°{notification.related_ingredient}</span>
                           )}
                         </div>
                       </div>
@@ -245,7 +254,7 @@ export default function NotificationsPage() {
                           <button
                             onClick={() => handleMarkAsRead(notification.id)}
                             className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Mark as read"
+                            title="Marquer comme lue"
                           >
                             <Check size={18} />
                           </button>
@@ -253,7 +262,7 @@ export default function NotificationsPage() {
                         <button
                           onClick={() => handleDelete(notification.id)}
                           className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
+                          title="Supprimer"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -269,4 +278,3 @@ export default function NotificationsPage() {
     </div>
   );
 }
-

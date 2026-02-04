@@ -25,6 +25,7 @@ export type IngredientTrace = {
   used_by_username: string | null;
   stock_before: number | null;
   stock_after: number | null;
+  notes?: string;
 };
 
 export type IngredientTraceListResponse = {
@@ -48,7 +49,7 @@ export async function getIngredientTraces(
 ): Promise<IngredientTraceListResponse> {
   try {
     const params: Record<string, string | number> = {};
-    
+
     if (filters?.ingredient) {
       params.ingredient = filters.ingredient;
     }
@@ -61,7 +62,7 @@ export async function getIngredientTraces(
     if (filters?.page_size) {
       params.page_size = filters.page_size;
     }
-    
+
     const response = await axios.get<IngredientTraceListResponse>(
       `${API}/ingredient-traces/`,
       {

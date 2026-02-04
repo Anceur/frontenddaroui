@@ -7,36 +7,36 @@ type Status = 'all' | 'new' | 'preparing' | 'ready'
 
 // Map chef panel status to backend status
 function mapStatusToBackend(status: 'new' | 'preparing' | 'ready'): 'Pending' | 'Preparing' | 'Ready' {
-  const statusMap = {
-    'new': 'Pending' as const,
-    'preparing': 'Preparing' as const,
-    'ready': 'Ready' as const,
-  };
-  return statusMap[status];
+	const statusMap = {
+		'new': 'Pending' as const,
+		'preparing': 'Preparing' as const,
+		'ready': 'Ready' as const,
+	};
+	return statusMap[status];
 }
 
 // Map backend status to chef panel status
 function mapBackendStatusToChef(status: string): 'new' | 'preparing' | 'ready' {
-  const statusMap: Record<string, 'new' | 'preparing' | 'ready'> = {
-    'Pending': 'new',
-    'Preparing': 'preparing',
-    'Ready': 'ready',
-  };
-  return statusMap[status] || 'new';
+	const statusMap: Record<string, 'new' | 'preparing' | 'ready'> = {
+		'Pending': 'new',
+		'Preparing': 'preparing',
+		'Ready': 'ready',
+	};
+	return statusMap[status] || 'new';
 }
 
 // Time ago helper
 function timeAgo(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffMs = now.getTime() - date.getTime();
-  const diffSecs = Math.floor(diffMs / 1000);
-  const diffMins = Math.floor(diffSecs / 60);
-  const diffHours = Math.floor(diffMins / 60);
-  
-  if (diffSecs < 60) return `${diffSecs}s ago`;
-  if (diffMins < 60) return `${diffMins}m ago`;
-  return `${diffHours}h ago`;
+	const now = new Date();
+	const date = new Date(dateString);
+	const diffMs = now.getTime() - date.getTime();
+	const diffSecs = Math.floor(diffMs / 1000);
+	const diffMins = Math.floor(diffSecs / 60);
+	const diffHours = Math.floor(diffMins / 60);
+
+	if (diffSecs < 60) return `${diffSecs}s ago`;
+	if (diffMins < 60) return `${diffMins}m ago`;
+	return `${diffHours}h ago`;
 }
 
 // ============================================
@@ -68,7 +68,7 @@ export default function Orders() {
 	const fetchOrders = useCallback(async () => {
 		if (loadingRef.current) return;
 		loadingRef.current = true;
-		
+
 		try {
 			setError(null);
 			setRefreshing(true);
@@ -116,9 +116,9 @@ export default function Orders() {
 		let result = orders.filter(t => {
 			const matchesFilter = filter === 'all' ? true : mapBackendStatusToChef(t.status) === filter
 			const q = query.toLowerCase()
-			const matchesQuery = !q || 
-				`#${t.id}`.toLowerCase().includes(q) || 
-				(t.table_number || '').toLowerCase().includes(q) || 
+			const matchesQuery = !q ||
+				`#${t.id}`.toLowerCase().includes(q) ||
+				(t.table_number || '').toLowerCase().includes(q) ||
 				t.items.some(i => i.name.toLowerCase().includes(q))
 			return matchesFilter && matchesQuery
 		});
@@ -249,30 +249,27 @@ export default function Orders() {
 								/>
 							))}
 						</div>
-						
+
 						<div className="flex items-center gap-2">
 							<span className="text-sm font-medium" style={{ color: '#6B7280' }}>Sort:</span>
 							<button
 								onClick={() => setSortBy('urgency')}
-								className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-									sortBy === 'urgency' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-								}`}
+								className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${sortBy === 'urgency' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+									}`}
 							>
 								Priority
 							</button>
 							<button
 								onClick={() => setSortBy('time')}
-								className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-									sortBy === 'time' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-								}`}
+								className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${sortBy === 'time' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+									}`}
 							>
 								Time
 							</button>
 							<button
 								onClick={() => setSortBy('id')}
-								className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-									sortBy === 'id' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-								}`}
+								className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${sortBy === 'id' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+									}`}
 							>
 								ID
 							</button>
@@ -367,11 +364,10 @@ function FilterButton({ active, onClick, label, count }: FilterButtonProps) {
 	return (
 		<button
 			onClick={onClick}
-			className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-				active
-					? 'bg-orange-500 text-white shadow-md'
-					: 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
-			}`}
+			className={`px-4 py-2 rounded-lg font-semibold transition-all ${active
+				? 'bg-orange-500 text-white shadow-md'
+				: 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
+				}`}
 		>
 			{label} ({count})
 		</button>
@@ -405,23 +401,23 @@ function OrderCard({ ticket: t, onStart, onReady, onComplete }: OrderCardProps) 
 
 	const statusColor = getStatusColor(t.status)
 	// For offline orders, show table number; for online orders, show customer info
-	const tableDisplay = t.is_offline 
-		? `Table ${t.table_number || t.table?.number || 'N/A'}`
+	const tableDisplay = t.is_offline
+		? (t.is_imported ? 'Imported Order' : `Table ${t.table_number || t.table?.number || 'N/A'}`)
 		: (t.table_number || (t.order_type === 'dine_in' ? 'Dine In' : t.customer || t.address) || 'N/A')
-	
+
 	const estimatedPrepTime = useMemo(() => {
 		const baseTime = Math.max(5, t.items.length * 5);
 		return baseTime;
 	}, [t.items.length])
 
 	return (
-		<div 
+		<div
 			className="bg-white rounded-xl shadow-md border-2 overflow-hidden transition-all duration-200 hover:shadow-xl hover:scale-[1.02]"
 			style={{ borderColor: '#FFD700' }}
 		>
-			<div 
+			<div
 				className="p-4 border-b-2 flex items-center justify-between"
-				style={{ 
+				style={{
 					borderColor: '#F3F4F6',
 					background: 'linear-gradient(135deg, #FFFAF0, #FFFFFF)'
 				}}
@@ -449,16 +445,23 @@ function OrderCard({ ticket: t, onStart, onReady, onComplete }: OrderCardProps) 
 						)}
 					</div>
 				</div>
-				<span 
-					className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide border-2"
-					style={{ 
-						background: statusColor.bg,
-						color: statusColor.text,
-						borderColor: statusColor.border
-					}}
-				>
-					{t.status}
-				</span>
+				<div className="flex flex-col items-end gap-1">
+					<span
+						className="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wide border-2"
+						style={{
+							background: statusColor.bg,
+							color: statusColor.text,
+							borderColor: statusColor.border
+						}}
+					>
+						{t.status}
+					</span>
+					{t.is_imported && (
+						<span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-700 border border-blue-200">
+							Imported
+						</span>
+					)}
+				</div>
 			</div>
 
 			<div className="p-4">
@@ -466,8 +469,8 @@ function OrderCard({ ticket: t, onStart, onReady, onComplete }: OrderCardProps) 
 					{t.items && t.items.length > 0 ? (
 						t.items.map((i: any, idx: number) => (
 							i.name && i.name.trim() !== '' && i.name !== 'x' ? (
-								<div 
-									key={idx} 
+								<div
+									key={idx}
 									className="flex justify-between items-start p-2 rounded-lg"
 									style={{ background: '#F9FAFB' }}
 								>
@@ -500,8 +503,8 @@ function OrderCard({ ticket: t, onStart, onReady, onComplete }: OrderCardProps) 
 						onClick={(e) => {
 							e.preventDefault();
 							e.stopPropagation();
-							const cleanOrderId = typeof t.id === 'string' ? t.id.replace('#', '') : t.id;
-							const path = `/orders/${cleanOrderId}`;
+							const cleanOrderId = t.id;
+							const path = `/orders/${cleanOrderId}${t.is_offline ? '?isOffline=true' : ''}`;
 							navigate(path);
 						}}
 						className="px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:shadow-lg"

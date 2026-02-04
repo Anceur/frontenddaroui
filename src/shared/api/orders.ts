@@ -3,6 +3,13 @@ import { API } from './API';
 
 axios.defaults.withCredentials = true;
 
+export type LoyalCustomer = {
+  id: number;
+  name: string;
+  phone: string;
+  loyaltyCardNumber: string;
+};
+
 export type Order = {
   id: string;
   customer: string;
@@ -14,6 +21,8 @@ export type Order = {
   date: string;
   time: string;
   paymentMethod: string;
+  notes?: string;
+  loyalCustomer?: LoyalCustomer | null;
   created_at?: string;
   updated_at?: string;
 };
@@ -29,6 +38,7 @@ export type OrderResponse = {
 export type OrderStatusCounts = {
   All: number;
   Pending: number;
+  Confirmed: number;
   Preparing: number;
   Ready: number;
   Delivered: number;
@@ -43,6 +53,8 @@ export type CreateOrderData = {
   total: number;
   status?: 'Pending' | 'Preparing' | 'Ready' | 'Delivered' | 'Canceled';
   paymentMethod?: string;
+  notes?: string;
+  loyalCustomerId?: number | null;
 };
 
 export type UpdateOrderData = {
@@ -53,6 +65,8 @@ export type UpdateOrderData = {
   total?: number;
   status?: 'Pending' | 'Preparing' | 'Ready' | 'Delivered' | 'Canceled';
   paymentMethod?: string;
+  notes?: string;
+  loyalCustomerId?: number | null;
 };
 
 // Get all orders with optional filters
@@ -61,6 +75,7 @@ export async function getOrders(params?: {
   search?: string;
   page?: number;
   page_size?: number;
+  ordering?: string;
 }): Promise<OrderResponse> {
   try {
     const queryParams = new URLSearchParams();
@@ -68,6 +83,7 @@ export async function getOrders(params?: {
     if (params?.search) queryParams.append('search', params.search);
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    if (params?.ordering) queryParams.append('ordering', params.ordering);
 
     const queryString = queryParams.toString();
     const url = queryString ? `${API}/orders/?${queryString}` : `${API}/orders/`;

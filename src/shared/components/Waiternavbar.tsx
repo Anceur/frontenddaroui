@@ -13,11 +13,11 @@ const WaiterNavbar: React.FC = () => {
   const [notifications, setNotifications] = useState<number>(3);
 
   const navItems: NavItem[] = [
-    { id: 'home', label: 'Home', icon: Home },
+    { id: 'home', label: 'Accueil', icon: Home },
     { id: 'tables', label: 'Tables', icon: Table2 },
-    { id: 'orders', label: 'Orders', icon: ClipboardList },
-    { id: 'billing', label: 'Billing', icon: DollarSign },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'orders', label: 'Commandes', icon: ClipboardList },
+    { id: 'billing', label: 'Facturation', icon: DollarSign },
+    { id: 'settings', label: 'Paramètres', icon: Settings }
   ];
 
   const handleTabClick = (tabId: string): void => {
@@ -33,8 +33,8 @@ const WaiterNavbar: React.FC = () => {
             {/* Logo */}
             <div className="flex items-center">
               <div className="text-2xl font-bold" style={{ color: '#FF8C00' }}>
-                <span>Waiter</span>
-                <span style={{ color: '#FFD700' }}>Panel</span>
+                <span>Serveur</span>
+                <span style={{ color: '#FFD700' }}>Panneau</span>
               </div>
             </div>
 
@@ -82,7 +82,7 @@ const WaiterNavbar: React.FC = () => {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-semibold" style={{ color: '#333333' }}>John Doe</p>
-                  <p className="text-xs" style={{ color: '#999999' }}>Waiter #42</p>
+                  <p className="text-xs" style={{ color: '#999999' }}>Serveur #42</p>
                 </div>
               </div>
 
@@ -117,7 +117,7 @@ const WaiterNavbar: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#333333' }}>John Doe</p>
-                  <p className="text-xs" style={{ color: '#999999' }}>Waiter #42</p>
+                  <p className="text-xs" style={{ color: '#999999' }}>Serveur #42</p>
                 </div>
                 <button className="ml-auto relative p-2">
                   <Bell size={20} style={{ color: '#333333' }} />
@@ -161,7 +161,7 @@ const WaiterNavbar: React.FC = () => {
                 style={{ backgroundColor: '#FFFFFF', color: '#FF8C00' }}
               >
                 <LogOut size={22} />
-                <span className="font-medium">Logout</span>
+                <span className="font-medium">Déconnexion</span>
               </button>
             </div>
           </div>

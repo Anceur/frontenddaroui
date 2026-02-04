@@ -37,23 +37,23 @@ export default function ChangePasswordPage() {
     const errors: Record<string, string> = {}
 
     if (!formData.oldPassword) {
-      errors.oldPassword = 'Current password is required'
+      errors.oldPassword = 'Le mot de passe actuel est requis'
     }
 
     if (!formData.newPassword) {
-      errors.newPassword = 'New password is required'
+      errors.newPassword = 'Nouveau mot de passe requis'
     } else if (formData.newPassword.length < 8) {
-      errors.newPassword = 'Password must be at least 8 characters long'
+      errors.newPassword = 'Le mot de passe doit contenir au moins 8 caractères'
     }
 
     if (!formData.confirmPassword) {
-      errors.confirmPassword = 'Please confirm your new password'
+      errors.confirmPassword = 'Veuillez confirmer votre nouveau mot de passe'
     } else if (formData.newPassword !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match'
+      errors.confirmPassword = 'Les mots de passe ne correspondent pas'
     }
 
     if (formData.oldPassword === formData.newPassword) {
-      errors.newPassword = 'New password must be different from current password'
+      errors.newPassword = 'Le nouveau mot de passe doit être différent du mot de passe actuel'
     }
 
     setValidationErrors(errors)
@@ -82,7 +82,7 @@ export default function ChangePasswordPage() {
       // Clear success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000)
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || err?.message || 'Failed to change password. Please try again.'
+      const errorMessage = err?.response?.data?.error || err?.message || 'Échec du changement de mot de passe. Veuillez réessayer.'
       setError(errorMessage)
     } finally {
       setIsSubmitting(false)
@@ -97,10 +97,10 @@ export default function ChangePasswordPage() {
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl lg:text-3xl font-bold mb-2" style={{ color: '#1F2937' }}>
-          Change Password
+          Changer le mot de passe
         </h1>
         <p className="text-sm lg:text-base" style={{ color: '#6B7280' }}>
-          Update your password to keep your account secure
+          Mettez à jour votre mot de passe pour sécuriser votre compte
         </p>
       </div>
 
@@ -111,7 +111,7 @@ export default function ChangePasswordPage() {
             <div className="flex items-center gap-3 p-4 rounded-lg" style={{ backgroundColor: '#F0FDF4', border: '1px solid #86EFAC' }}>
               <CheckCircle size={20} style={{ color: '#16A34A' }} />
               <p className="text-sm font-medium" style={{ color: '#16A34A' }}>
-                Password changed successfully!
+                Mot de passe modifié avec succès !
               </p>
             </div>
           )}
@@ -129,7 +129,7 @@ export default function ChangePasswordPage() {
           {/* Current Password */}
           <div>
             <label className="block text-sm font-semibold mb-2" style={{ color: '#374151' }}>
-              Current Password
+              Mot de passe actuel
             </label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -146,7 +146,7 @@ export default function ChangePasswordPage() {
                   color: '#374151',
                   background: '#FAFBFC'
                 }}
-                placeholder="Enter your current password"
+                placeholder="Entrez votre mot de passe actuel"
                 onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
                   e.currentTarget.style.borderColor = '#FF8C00'
                   e.currentTarget.style.background = '#FFFFFF'
@@ -177,7 +177,7 @@ export default function ChangePasswordPage() {
           {/* New Password */}
           <div>
             <label className="block text-sm font-semibold mb-2" style={{ color: '#374151' }}>
-              New Password
+              Nouveau mot de passe
             </label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -194,7 +194,7 @@ export default function ChangePasswordPage() {
                   color: '#374151',
                   background: '#FAFBFC'
                 }}
-                placeholder="Enter your new password (min. 8 characters)"
+                placeholder="Entrez votre nouveau mot de passe (min. 8 caractères)"
                 onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
                   e.currentTarget.style.borderColor = '#FF8C00'
                   e.currentTarget.style.background = '#FFFFFF'
@@ -221,14 +221,14 @@ export default function ChangePasswordPage() {
               </p>
             )}
             <p className="mt-1 text-xs" style={{ color: '#6B7280' }}>
-              Password must be at least 8 characters long
+              Le mot de passe doit contenir au moins 8 caractères
             </p>
           </div>
 
           {/* Confirm Password */}
           <div>
             <label className="block text-sm font-semibold mb-2" style={{ color: '#374151' }}>
-              Confirm New Password
+              Confirmer le nouveau mot de passe
             </label>
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -245,7 +245,7 @@ export default function ChangePasswordPage() {
                   color: '#374151',
                   background: '#FAFBFC'
                 }}
-                placeholder="Confirm your new password"
+                placeholder="Confirmez votre nouveau mot de passe"
                 onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
                   e.currentTarget.style.borderColor = '#FF8C00'
                   e.currentTarget.style.background = '#FFFFFF'
@@ -287,12 +287,12 @@ export default function ChangePasswordPage() {
               {isSubmitting ? (
                 <>
                   <Spinner size="sm" color="white" />
-                  <span>Changing Password...</span>
+                  <span>Modification du mot de passe...</span>
                 </>
               ) : (
                 <>
                   <Lock size={16} />
-                  <span>Change Password</span>
+                  <span>Changer le mot de passe</span>
                 </>
               )}
             </button>
@@ -303,24 +303,24 @@ export default function ChangePasswordPage() {
       {/* Security Tips */}
       <div className="mt-6 bg-blue-50 rounded-xl border p-6" style={{ borderColor: '#BFDBFE' }}>
         <h3 className="text-sm font-semibold mb-3" style={{ color: '#1E40AF' }}>
-          Password Security Tips
+          Conseils de sécurité pour les mots de passe
         </h3>
         <ul className="space-y-2 text-xs" style={{ color: '#1E3A8A' }}>
           <li className="flex items-start gap-2">
             <span>•</span>
-            <span>Use a combination of letters, numbers, and special characters</span>
+            <span>Utilisez une combinaison de lettres, de chiffres et de caractères spéciaux</span>
           </li>
           <li className="flex items-start gap-2">
             <span>•</span>
-            <span>Avoid using personal information like your name or email</span>
+            <span>Évitez d'utiliser des informations personnelles comme votre nom ou votre e‑mail</span>
           </li>
           <li className="flex items-start gap-2">
             <span>•</span>
-            <span>Don't reuse passwords from other accounts</span>
+            <span>N'utilisez pas le même mot de passe que pour d'autres comptes</span>
           </li>
           <li className="flex items-start gap-2">
             <span>•</span>
-            <span>Change your password regularly for better security</span>
+            <span>Changez votre mot de passe régulièrement pour une meilleure sécurité</span>
           </li>
         </ul>
       </div>

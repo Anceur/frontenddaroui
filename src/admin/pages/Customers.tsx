@@ -9,15 +9,15 @@ export default function CustomersManagement() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Fetch customers
+  // Récupérer les clients
   const fetchCustomers = useCallback(async () => {
     try {
       setError(null);
       const response = await getCustomers();
       setCustomers(response.customers || []);
     } catch (err: any) {
-      console.error('Error fetching customers:', err);
-      const errorMessage = err.message || 'Failed to load customers. Please try again.';
+      console.error('Erreur lors de la récupération des clients :', err);
+      const errorMessage = err.message || 'Impossible de charger les clients. Veuillez réessayer.';
       setError(errorMessage);
       setCustomers([]);
     } finally {
@@ -30,14 +30,14 @@ export default function CustomersManagement() {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  // Handle refresh
+  // Rafraîchir la liste
   const handleRefresh = async () => {
     setRefreshing(true);
     setError(null);
     await fetchCustomers();
   };
 
-  // Filter customers
+  // Filtrer les clients
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     customer.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -47,21 +47,21 @@ export default function CustomersManagement() {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {/* En-tête */}
         <div className="mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1F2937' }}>
-                Customers
+                Clients
               </h1>
               <p className="text-sm sm:text-base" style={{ color: '#6B7280' }}>
-                View and manage customer information
+                Voir et gérer les informations des clients
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -72,17 +72,17 @@ export default function CustomersManagement() {
                 style={{ borderColor: '#E5E7EB', color: '#374151' }}
               >
                 <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
-                Refresh
+                Rafraîchir
               </button>
             </div>
           </div>
 
-          {/* Search */}
+          {/* Recherche */}
           <div className="relative">
             <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by name, phone, or address..."
+              placeholder="Rechercher par nom, téléphone ou adresse..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-lg border-2 border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 transition-all"
@@ -90,7 +90,7 @@ export default function CustomersManagement() {
           </div>
         </div>
 
-        {/* Error Message */}
+        {/* Message d'erreur */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
             <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
@@ -98,7 +98,7 @@ export default function CustomersManagement() {
           </div>
         )}
 
-        {/* Customers List */}
+        {/* Liste des clients */}
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 size={32} className="animate-spin" style={{ color: '#FF8C00' }} />
@@ -106,9 +106,9 @@ export default function CustomersManagement() {
         ) : filteredCustomers.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg border-2" style={{ borderColor: '#E5E7EB' }}>
             <User size={64} className="mx-auto mb-4 text-gray-400" />
-            <h3 className="text-xl font-bold text-gray-700 mb-2">No customers found</h3>
+            <h3 className="text-xl font-bold text-gray-700 mb-2">Aucun client trouvé</h3>
             <p className="text-gray-500">
-              {searchQuery ? 'Try adjusting your search query' : 'No customers have placed orders yet'}
+              {searchQuery ? 'Essayez d\'ajuster votre recherche' : 'Aucun client n\'a encore passé de commandes'}
             </p>
           </div>
         ) : (
@@ -149,7 +149,7 @@ export default function CustomersManagement() {
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2 text-gray-600">
                       <ShoppingBag size={16} />
-                      <span>Total Orders</span>
+                      <span>Total des commandes</span>
                     </div>
                     <span className="font-semibold" style={{ color: '#1F2937' }}>
                       {customer.total_orders}
@@ -158,7 +158,7 @@ export default function CustomersManagement() {
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2 text-gray-600">
                       <DollarSign size={16} />
-                      <span>Total Spent</span>
+                      <span>Total dépensé</span>
                     </div>
                     <span className="font-semibold" style={{ color: '#FF8C00' }}>
                       {Number(customer.total_spent).toFixed(2)} DA
@@ -168,7 +168,7 @@ export default function CustomersManagement() {
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2 text-gray-600">
                         <Calendar size={16} />
-                        <span>Last Order</span>
+                        <span>Dernière commande</span>
                       </div>
                       <span className="text-gray-600 text-xs">
                         {formatDate(customer.last_order_date)}
@@ -184,4 +184,3 @@ export default function CustomersManagement() {
     </div>
   );
 }
-

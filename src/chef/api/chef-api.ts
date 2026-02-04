@@ -27,6 +27,7 @@ export type ChefOrder = {
   created_at: string;
   updated_at: string;
   is_offline?: boolean; // Flag to distinguish offline orders
+  is_imported?: boolean; // Flag for imported orders
   table?: {
     id: number;
     number: string;
@@ -124,6 +125,8 @@ export type OrderDetails = {
   status: ChefOrderStatus;
   created_at: string;
   updated_at: string;
+  is_offline?: boolean;
+  is_imported?: boolean;
   items: OrderDetailItem[];
 };
 
@@ -151,12 +154,12 @@ function mapOrderStatus(status: string): ChefOrderStatus {
  */
 export async function getChefOfflineOrders(status?: 'Pending' | 'Preparing' | 'Ready'): Promise<ChefOrder[]> {
   try {
-    const url = status 
+    const url = status
       ? `${API}/offline-orders/list/?status=${status}`
       : `${API}/offline-orders/list/`;
-    
+
     const response = await axios.get<any>(url, { withCredentials: true });
-    
+
     let ordersData = response.data;
     if (!Array.isArray(ordersData)) {
       if (ordersData.orders && Array.isArray(ordersData.orders)) {
@@ -174,13 +177,13 @@ export async function getChefOfflineOrders(status?: 'Pending' | 'Preparing' | 'R
         return [];
       }
     }
-    
+
     // Map offline orders to ChefOrder format
     const orders = ordersData.map((o: any) => ({
       id: o.id,
-      customer: `Table ${o.table?.number || 'N/A'}`,
+      customer: o.is_imported ? 'Imported Order' : `Table ${o.table?.number || 'N/A'}`,
       phone: '',
-      address: `Table ${o.table?.number || 'N/A'}`,
+      address: o.is_imported ? 'Imported Source' : `Table ${o.table?.number || 'N/A'}`,
       table_number: o.table?.number || null,
       order_type: 'dine_in' as const,
       total: o.total || 0,
@@ -188,6 +191,7 @@ export async function getChefOfflineOrders(status?: 'Pending' | 'Preparing' | 'R
       created_at: o.created_at,
       updated_at: o.updated_at,
       is_offline: true,
+      is_imported: o.is_imported || false,
       table: o.table,
       items: (o.items || []).map((item: any) => ({
         name: item.item?.name || 'Unknown Item',
@@ -196,7 +200,7 @@ export async function getChefOfflineOrders(status?: 'Pending' | 'Preparing' | 'R
         size: item.size?.size || null,
       })),
     }));
-    
+
     return orders;
   } catch (error: any) {
     console.error('Error fetching offline orders:', error);
@@ -215,7 +219,7 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
     const response = await axios.get<any>(`${API}/orders/`, {
       withCredentials: true,
     });
-    
+
     // Handle different response formats
     let ordersData = response.data;
     if (!Array.isArray(ordersData)) {
@@ -236,7 +240,7 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
         return [];
       }
     }
-    
+
     let orders = ordersData.map((o: any) => ({
       id: o.id,
       customer: o.customer || '',
@@ -250,13 +254,13 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
       updated_at: o.updated_at,
       items: [] as Array<{ name: string; quantity: number; notes?: string }>,
     }));
-    
+
     // Filter by status if provided
     if (status) {
       const relevantStatuses = status === 'Pending' ? ['Pending'] : status === 'Preparing' ? ['Preparing'] : ['Ready'];
       orders = orders.filter((o: any) => relevantStatuses.includes(o.status));
     }
-    
+
     // Fetch order items for each order
     const ordersWithItems = await Promise.all(
       orders.map(async (order: any) => {
@@ -267,7 +271,7 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
             params: { order: orderId },
             withCredentials: true,
           });
-          
+
           // Handle different response formats for order items
           let itemsData = itemsResponse.data;
           if (!Array.isArray(itemsData)) {
@@ -279,7 +283,7 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
               itemsData = [];
             }
           }
-          
+
           const orderItems = itemsData
             .filter((item: ChefOrderItem) => item.item && item.item.name && item.item.name.trim() !== '' && item.item.name.toLowerCase() !== 'x')
             .map((item: ChefOrderItem) => ({
@@ -288,7 +292,7 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
               notes: '', // OrderItem model doesn't have notes field yet
               size: item.size ? item.size.size : null, // Include size for display
             }));
-          
+
           // If no OrderItems found, try to use items from order.items JSONField as fallback
           let finalItems = orderItems;
           if (orderItems.length === 0 && order.items && Array.isArray(order.items) && order.items.length > 0) {
@@ -308,7 +312,7 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
                 notes: '',
               }));
           }
-          
+
           return {
             ...order,
             items: finalItems,
@@ -320,10 +324,10 @@ export async function getChefOrders(status?: 'Pending' | 'Preparing' | 'Ready'):
         }
       })
     );
-    
+
     // Mark as online orders
     const onlineOrders = ordersWithItems;
-    
+
     // Also fetch offline orders and combine
     try {
       const offlineOrders = await getChefOfflineOrders(status);
@@ -351,25 +355,25 @@ export async function updateOrderStatus(orderId: number | string, newStatus: Che
     if (isNaN(cleanOrderId)) {
       throw new Error('Invalid order ID');
     }
-    
-    const endpoint = isOffline 
+
+    const endpoint = isOffline
       ? `${API}/offline-orders/${cleanOrderId}/`
       : `${API}/orders/${cleanOrderId}/`;
-    
+
     const response = await axios.patch<any>(
       endpoint,
       { status: newStatus },
       { withCredentials: true }
     );
-    
+
     // Transform offline order response to match ChefOrder format
     if (isOffline && response.data) {
       const offlineOrder = response.data;
       return {
         id: offlineOrder.id,
-        customer: `Table ${offlineOrder.table?.number || 'N/A'}`,
+        customer: offlineOrder.is_imported ? 'Imported Order' : `Table ${offlineOrder.table?.number || 'N/A'}`,
         phone: '',
-        address: `Table ${offlineOrder.table?.number || 'N/A'}`,
+        address: offlineOrder.is_imported ? 'Imported Source' : `Table ${offlineOrder.table?.number || 'N/A'}`,
         table_number: offlineOrder.table?.number || null,
         order_type: 'dine_in' as const,
         total: offlineOrder.total || 0,
@@ -377,6 +381,7 @@ export async function updateOrderStatus(orderId: number | string, newStatus: Che
         created_at: offlineOrder.created_at,
         updated_at: offlineOrder.updated_at,
         is_offline: true,
+        is_imported: offlineOrder.is_imported || false,
         table: offlineOrder.table,
         items: (offlineOrder.items || []).map((item: any) => ({
           name: item.item?.name || 'Unknown Item',
@@ -386,7 +391,7 @@ export async function updateOrderStatus(orderId: number | string, newStatus: Che
         })),
       };
     }
-    
+
     return { ...response.data, is_offline: false };
   } catch (error: any) {
     console.error('Error updating order status:', error);
@@ -407,12 +412,12 @@ export async function getChefOrderCounts(): Promise<ChefOrderStatusCounts> {
       getChefOrders('Preparing').catch(() => []),
       getChefOrders('Ready').catch(() => []),
     ]);
-    
+
     // Ensure all are arrays
     const pendingArray = Array.isArray(pending) ? pending : [];
     const preparingArray = Array.isArray(preparing) ? preparing : [];
     const readyArray = Array.isArray(ready) ? ready : [];
-    
+
     return {
       all: pendingArray.length + preparingArray.length + readyArray.length,
       new: pendingArray.length,
@@ -435,33 +440,38 @@ export async function getChefOrderCounts(): Promise<ChefOrderStatusCounts> {
 /**
  * Get detailed order information with items and ingredients
  */
-export async function getOrderDetails(orderId: number | string): Promise<OrderDetails> {
+export async function getOrderDetails(orderId: number | string, isOffline: boolean = false): Promise<OrderDetails> {
   try {
     // Clean order ID
     const cleanOrderId = typeof orderId === 'string' ? parseInt(orderId.toString().replace('#', ''), 10) : orderId;
     if (isNaN(cleanOrderId)) {
       throw new Error('Invalid order ID');
     }
-    
+
     // Fetch order
-    const orderResponse = await axios.get<any>(`${API}/orders/${cleanOrderId}/`, {
+    const endpoint = isOffline ? `${API}/offline-orders/${cleanOrderId}/` : `${API}/orders/${cleanOrderId}/`;
+    const orderResponse = await axios.get<any>(endpoint, {
       withCredentials: true,
     });
     const order = orderResponse.data;
-    
+
     // Fetch order items
-    const itemsResponse = await axios.get<ChefOrderItem[]>(`${API}/order-items/`, {
-      params: { order: cleanOrderId },
-      withCredentials: true,
-    });
-    
-    const orderItems = itemsResponse.data;
-    
+    let orderItems: any[] = [];
+    if (isOffline) {
+      orderItems = order.items || [];
+    } else {
+      const itemsResponse = await axios.get<any[]>(`${API}/order-items/`, {
+        params: { order: cleanOrderId },
+        withCredentials: true,
+      });
+      orderItems = itemsResponse.data;
+    }
+
     // Fetch ingredients for each order item that has a size
     const itemsWithIngredients = await Promise.all(
       orderItems.map(async (orderItem: ChefOrderItem) => {
         let ingredients: Array<{ ingredient: { id: number; name: string; unit: string }; quantity: number }> = [];
-        
+
         // Only fetch ingredients if the order item has a size
         if (orderItem.size && orderItem.size.id) {
           try {
@@ -469,7 +479,7 @@ export async function getOrderDetails(orderId: number | string): Promise<OrderDe
               params: { size: orderItem.size.id },
               withCredentials: true,
             });
-            
+
             ingredients = ingredientsResponse.data.map((si: any) => ({
               ingredient: {
                 id: si.ingredient.id,
@@ -482,7 +492,7 @@ export async function getOrderDetails(orderId: number | string): Promise<OrderDe
             console.warn(`Failed to fetch ingredients for size ${orderItem.size.id}:`, error);
           }
         }
-        
+
         return {
           id: orderItem.id,
           item: orderItem.item,
@@ -492,7 +502,7 @@ export async function getOrderDetails(orderId: number | string): Promise<OrderDe
         };
       })
     );
-    
+
     return {
       id: order.id,
       customer: order.customer || '',
@@ -504,6 +514,8 @@ export async function getOrderDetails(orderId: number | string): Promise<OrderDe
       status: mapOrderStatus(order.status),
       created_at: order.created_at,
       updated_at: order.updated_at,
+      is_offline: isOffline,
+      is_imported: order.is_imported || false,
       items: itemsWithIngredients.filter(item => item.item && item.item.name && item.item.name.trim() !== '' && item.item.name.toLowerCase() !== 'x'),
     };
   } catch (error: any) {
@@ -534,10 +546,10 @@ export async function getChefMenuItems(): Promise<ChefMenuItem[]> {
       axios.get<ChefMenuItem[]>(`${API}/menu-items/`, { withCredentials: true }),
       axios.get<any[]>(`${API}/menu-item-sizes/`, { withCredentials: true }),
     ]);
-    
+
     const menuItems = menuItemsResponse.data;
     const menuItemSizes = menuItemSizesResponse.data;
-    
+
     // Group sizes by menu item
     const sizesByMenuItem: Record<number, any[]> = {};
     menuItemSizes.forEach((size: any) => {
@@ -551,12 +563,12 @@ export async function getChefMenuItems(): Promise<ChefMenuItem[]> {
         price: size.price,
       });
     });
-    
+
     // Fetch ingredients for each menu item size
     const menuItemsWithSizes = await Promise.all(
       menuItems.map(async (item: ChefMenuItem) => {
         const sizes = sizesByMenuItem[item.id] || [];
-        
+
         // Fetch ingredients for all sizes of this menu item
         const ingredientsPromises = sizes.map(async (size: any) => {
           try {
@@ -576,9 +588,9 @@ export async function getChefMenuItems(): Promise<ChefMenuItem[]> {
             return [];
           }
         });
-        
+
         const allIngredients = (await Promise.all(ingredientsPromises)).flat();
-        
+
         return {
           ...item,
           available: true, // Default to available (you can add an available field to MenuItem model later)
@@ -587,7 +599,7 @@ export async function getChefMenuItems(): Promise<ChefMenuItem[]> {
         };
       })
     );
-    
+
     return menuItemsWithSizes;
   } catch (error: any) {
     console.error('Error fetching menu items:', error);
@@ -610,7 +622,7 @@ export async function getChefIngredients(): Promise<ChefIngredient[]> {
     const response = await axios.get<any[]>(`${API}/ingredients/`, {
       withCredentials: true,
     });
-    
+
     return response.data.map((ing: any) => ({
       id: ing.id,
       name: ing.name,
@@ -647,14 +659,14 @@ export async function getChefStats(): Promise<{
 }> {
   try {
     const orders = await getChefOrders();
-    
+
     // Calculate stats
     const totalOrders = orders.length;
     const completedOrders = orders.filter(o => o.status === 'Delivered').length;
     const preparingOrders = orders.filter(o => o.status === 'Preparing').length;
     const readyOrders = orders.filter(o => o.status === 'Ready').length;
     const pendingOrders = orders.filter(o => o.status === 'Pending').length;
-    
+
     // Calculate top dishes (simplified - you can enhance this later)
     const dishCounts: Record<string, number> = {};
     orders.forEach(order => {
@@ -662,16 +674,16 @@ export async function getChefStats(): Promise<{
         dishCounts[item.name] = (dishCounts[item.name] || 0) + item.quantity;
       });
     });
-    
+
     const topDishes = Object.entries(dishCounts)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
-    
+
     // Mock calculations (you can enhance these with real data later)
     const avgPreparationTime = 15; // minutes
     const completionRate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
-    
+
     return {
       totalOrders,
       completedOrders,

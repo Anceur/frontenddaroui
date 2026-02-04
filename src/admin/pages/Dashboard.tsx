@@ -40,8 +40,8 @@ export default function NostalgieDashboard() {
       setDashboardStats(stats);
       setAnalyticsData(analytics);
     } catch (err: any) {
-      console.error('Error fetching dashboard data:', err);
-      setError(err.message || 'Failed to load dashboard data');
+      console.error('Erreur lors du chargement des données du tableau de bord :', err);
+      setError(err.message || 'Échec du chargement des données du tableau de bord');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -65,9 +65,9 @@ export default function NostalgieDashboard() {
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
-    if (diffMins < 60) return `${diffMins} min ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${Math.floor(diffHours / 24)} day${Math.floor(diffHours / 24) > 1 ? 's' : ''} ago`;
+    if (diffMins < 60) return `il y a ${diffMins} min`;
+    if (diffHours < 24) return `il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+    return `il y a ${Math.floor(diffHours / 24)} jour${Math.floor(diffHours / 24) > 1 ? 's' : ''}`;
   };
 
   // Update charts when analytics data is available
@@ -85,16 +85,16 @@ export default function NostalgieDashboard() {
         // Format dates for labels
         const labels = analyticsData.sales_by_date.map(item => {
           const date = new Date(item.date);
-          return date.toLocaleDateString('en-US', { weekday: 'short' });
+          return date.toLocaleDateString('fr-FR', { weekday: 'short' });
         });
         const sales = analyticsData.sales_by_date.map(item => item.total);
 
         salesChartInstance.current = new Chart.Chart(ctx, {
           type: 'line',
           data: {
-            labels: labels.length > 0 ? labels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            labels: labels.length > 0 ? labels : ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
             datasets: [{
-              label: 'Sales',
+              label: 'Ventes',
               data: sales.length > 0 ? sales : [0, 0, 0, 0, 0, 0, 0],
               borderColor: '#FF8C00',
               backgroundColor: 'rgba(255, 140, 0, 0.1)',
@@ -176,6 +176,15 @@ export default function NostalgieDashboard() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'Ready': return 'Prêt';
+      case 'Pending': return 'En attente';
+      case 'Preparing': return 'Préparation';
+      default: return status;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
     
@@ -187,15 +196,15 @@ export default function NostalgieDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#333333' }}>
-                Hello, {user} 👋
+                Bonjour, {user} 👋
               </h2>
-              <p className="text-sm sm:text-base" style={{ color: '#999999' }}>Here's what's happening with your restaurant today</p>
+              <p className="text-sm sm:text-base" style={{ color: '#999999' }}>Voici l'activité de votre restaurant aujourd'hui</p>
             </div>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
               className="p-2 rounded-lg border-2 border-gray-300 hover:bg-gray-50 disabled:opacity-50"
-              title="Refresh"
+              title="Actualiser"
             >
               <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
             </button>
@@ -227,7 +236,7 @@ export default function NostalgieDashboard() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-1" style={{ color: '#333333' }}>{dashboardStats.orders_today}</h3>
-              <p className="text-sm" style={{ color: '#999999' }}>Orders Today</p>
+              <p className="text-sm" style={{ color: '#999999' }}>Commandes aujourd'hui</p>
             </div>
 
             <div className="bg-white p-6 rounded-lg border" style={{ borderColor: '#FFD700' }}>
@@ -237,7 +246,7 @@ export default function NostalgieDashboard() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-1" style={{ color: '#333333' }}>{dashboardStats.revenue_today.toFixed(2)} DA</h3>
-              <p className="text-sm" style={{ color: '#999999' }}>Revenue Today</p>
+              <p className="text-sm" style={{ color: '#999999' }}>Revenu aujourd'hui</p>
             </div>
 
             <div className="bg-white p-6 rounded-lg border" style={{ borderColor: '#FFD700' }}>
@@ -247,9 +256,9 @@ export default function NostalgieDashboard() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-1" style={{ color: '#333333' }}>
-                {dashboardStats.top_items.length > 0 ? dashboardStats.top_items[0].item__name : 'N/A'}
+                {dashboardStats.top_items.length > 0 ? dashboardStats.top_items[0].item__name : 'N/D'}
               </h3>
-              <p className="text-sm" style={{ color: '#999999' }}>Top Seller</p>
+              <p className="text-sm" style={{ color: '#999999' }}>Meilleure vente</p>
             </div>
 
             <div className="bg-white p-6 rounded-lg border" style={{ borderColor: '#FFD700' }}>
@@ -259,7 +268,7 @@ export default function NostalgieDashboard() {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-1" style={{ color: '#333333' }}>{dashboardStats.active_staff}</h3>
-              <p className="text-sm" style={{ color: '#999999' }}>Active Staff</p>
+              <p className="text-sm" style={{ color: '#999999' }}>Personnel actif</p>
             </div>
           </div>
         )}
@@ -268,7 +277,7 @@ export default function NostalgieDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 lg:mb-8">
           {/* Recent Orders */}
           <div className="bg-white rounded-lg border p-6" style={{ borderColor: '#FFD700' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Recent Orders</h3>
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Commandes récentes</h3>
             <div className="space-y-4">
               {dashboardStats?.recent_orders && dashboardStats.recent_orders.length > 0 ? (
                 dashboardStats.recent_orders.map((order) => (
@@ -285,20 +294,20 @@ export default function NostalgieDashboard() {
                     <div className="text-right">
                       <p className="font-semibold mb-1" style={{ color: '#333333' }}>{Number(order.total).toFixed(2)} DA</p>
                       <span className="text-xs px-3 py-1 rounded-full font-medium" style={{ backgroundColor: getStatusColor(order.status) + '20', color: getStatusColor(order.status) }}>
-                        {order.status}
+                        {getStatusLabel(order.status)}
                       </span>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 text-center py-4">No recent orders</p>
+                <p className="text-sm text-gray-500 text-center py-4">Aucune commande récente</p>
               )}
             </div>
           </div>
 
           {/* Low Stock Alerts */}
           <div className="bg-white rounded-lg border p-6" style={{ borderColor: '#FFD700' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Low Stock Alerts</h3>
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Alertes de stock faible</h3>
             <div className="space-y-4">
               {dashboardStats?.low_stock_ingredients && dashboardStats.low_stock_ingredients.length > 0 ? (
                 dashboardStats.low_stock_ingredients.slice(0, 5).map((ingredient) => (
@@ -311,18 +320,18 @@ export default function NostalgieDashboard() {
                         <div className="flex items-center justify-between mb-1">
                           <p className="font-semibold" style={{ color: '#333333' }}>{ingredient.name}</p>
                           <span className="text-xs px-2 py-1 rounded" style={{ backgroundColor: '#EF4444', color: 'white' }}>
-                            Low Stock
+                            Stock faible
                           </span>
                         </div>
                         <p className="text-sm mb-1" style={{ color: '#999999' }}>
-                          Current: {ingredient.stock} {ingredient.unit} | Reorder: {ingredient.reorder_level} {ingredient.unit}
+                          Actuel : {ingredient.stock} {ingredient.unit} | Réapprovisionnement : {ingredient.reorder_level} {ingredient.unit}
                         </p>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 text-center py-4">All ingredients are well stocked</p>
+                <p className="text-sm text-gray-500 text-center py-4">Tous les ingrédients sont suffisamment approvisionnés</p>
               )}
             </div>
           </div>
@@ -332,7 +341,7 @@ export default function NostalgieDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 lg:mb-8">
           {/* Sales Trends */}
           <div className="bg-white rounded-lg border p-6" style={{ borderColor: '#FFD700' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Sales Trends</h3>
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Tendances des ventes</h3>
             <div style={{ height: '300px' }}>
               <canvas ref={salesChartRef}></canvas>
             </div>
@@ -340,7 +349,7 @@ export default function NostalgieDashboard() {
 
           {/* Top Categories */}
           <div className="bg-white rounded-lg border p-6" style={{ borderColor: '#FFD700' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Top Categories</h3>
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Principales catégories</h3>
             <div style={{ height: '300px' }}>
               <canvas ref={categoriesChartRef}></canvas>
             </div>
@@ -351,24 +360,24 @@ export default function NostalgieDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pending Orders */}
           <div className="bg-white rounded-lg border p-6" style={{ borderColor: '#FFD700' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Pending Orders</h3>
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Commandes en attente</h3>
             <div className="space-y-4">
               {dashboardStats && dashboardStats.pending_orders > 0 ? (
                 <div className="text-center py-8">
                   <div className="text-4xl font-bold mb-2" style={{ color: '#FF8C00' }}>
                     {dashboardStats.pending_orders}
                   </div>
-                  <p className="text-sm text-gray-600">Orders waiting to be processed</p>
+                  <p className="text-sm text-gray-600">Commandes en attente de traitement</p>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 text-center py-4">No pending orders</p>
+                <p className="text-sm text-gray-500 text-center py-4">Aucune commande en attente</p>
               )}
             </div>
           </div>
 
           {/* Top Items */}
           <div className="bg-white rounded-lg border p-6" style={{ borderColor: '#FFD700' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Top Selling Items</h3>
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#FF8C00' }}>Articles les plus vendus</h3>
             <div className="space-y-3">
               {dashboardStats?.top_items && dashboardStats.top_items.length > 0 ? (
                 dashboardStats.top_items.map((item, index) => (
@@ -382,12 +391,12 @@ export default function NostalgieDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-sm" style={{ color: '#FF8C00' }}>{item.total_quantity} sold</p>
+                      <p className="font-semibold text-sm" style={{ color: '#FF8C00' }}>{item.total_quantity} vendus</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 text-center py-4">No data available</p>
+                <p className="text-sm text-gray-500 text-center py-4">Aucune donnée disponible</p>
               )}
             </div>
           </div>

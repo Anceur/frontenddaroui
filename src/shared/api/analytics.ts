@@ -38,4 +38,29 @@ export async function getAnalytics(days: number = 30): Promise<AnalyticsData> {
   }
 }
 
+export type MenuItemMovement = {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  cost_price: number;
+  today: number;
+  month: number;
+  year: number;
+};
+
+// Get menu item movement statistics
+export async function getMenuItemMovement(): Promise<MenuItemMovement[]> {
+  try {
+    const response = await axios.get<MenuItemMovement[]>(`${API}/analytics/menu-item-movement/`, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching menu item movement:', error);
+    if (error.response) {
+      throw new Error(error.response.data?.error || error.response.data?.detail || 'Failed to fetch movement data');
+    }
+    throw new Error('Network error: Failed to fetch movement data');
+  }
+}
+
 
