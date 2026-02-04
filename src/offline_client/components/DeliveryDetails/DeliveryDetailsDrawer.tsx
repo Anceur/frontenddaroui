@@ -5,7 +5,7 @@ import { useCart } from "../../context/CartContext";
 import { useTableSession } from "../../context/TableSessionContext";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://backenddaroui.onrender.com';
 
 interface DeliveryDetailsDrawerProps {
   isOpen: boolean;
