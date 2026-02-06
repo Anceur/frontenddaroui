@@ -191,22 +191,30 @@ export default function MenuProducts() {
   if (!file) return;
 
   try {
+    // 1️⃣ preview محلي
     const localPreview = URL.createObjectURL(file);
     setImagePreview(localPreview);
 
-   
+    // 2️⃣ رفع الصورة إلى Firebase
     const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
     await uploadBytes(imageRef, file);
 
+    // 3️⃣ جلب رابط الصورة
     const imageURL = await getDownloadURL(imageRef);
+    console.log("🔥 Firebase Image URL:", imageURL);
+
+    // 4️⃣ تخزين الرابط في formData
     setFormData(prev => ({ ...prev, image: imageURL }));
+
+    // 5️⃣ تحديث preview بالرابط النهائي
     setImagePreview(imageURL);
 
   } catch (err) {
-    console.error(err);
+    console.error("Upload error:", err);
     setError("Erreur lors du téléchargement de l'image");
   }
 };
+
 
 
 
