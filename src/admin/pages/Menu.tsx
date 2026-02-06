@@ -25,6 +25,7 @@ export default function MenuProducts() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [generatingDescription, setGeneratingDescription] = useState<boolean>(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState<CreateMenuItemData>({
     name: '',
@@ -115,13 +116,11 @@ export default function MenuProducts() {
   }, [activeTab, searchQuery]);
 
   // Generate description from image using Claude API
-  const generateDescriptionFromImage = async (imageUrl: string) => {
+  const generateDescriptionFromImage = async (file: File) => {
     try {
       setGeneratingDescription(true);
       
-      // Convert image URL to base64
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
+      // Convert file to base64
       const base64Data = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -129,11 +128,11 @@ export default function MenuProducts() {
           resolve(result.split(',')[1]);
         };
         reader.onerror = reject;
-        reader.readAsDataURL(blob);
+        reader.readAsDataURL(file);
       });
 
       // Determine media type
-      const mediaType = blob.type || 'image/jpeg';
+      const mediaType = file.type || 'image/jpeg';
 
       // Call Claude API
       const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
@@ -215,6 +214,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
         featured: false,
       });
       setImagePreview(null);
+      setUploadedFile(null);
       setEditingItem(null);
       setIsModalOpen(false);
 
@@ -267,6 +267,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       // Show local preview immediately
       const localPreview = URL.createObjectURL(file);
       setImagePreview(localPreview);
+      setUploadedFile(file);
 
       // Upload to Firebase
       const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
@@ -279,13 +280,14 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       setFormData(prev => ({ ...prev, image: imageURL }));
       setImagePreview(imageURL);
       
-      // Generate description automatically
-      await generateDescriptionFromImage(imageURL);
+      // Generate description automatically using the original file
+      await generateDescriptionFromImage(file);
       
     } catch (err: any) {
       console.error("Error uploading image:", err);
       setError("Erreur lors du téléchargement de l'image : " + err.message);
       setImagePreview(null);
+      setUploadedFile(null);
     }
   };
 
@@ -302,6 +304,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       featured: false,
     });
     setImagePreview(null);
+    setUploadedFile(null);
     setIsModalOpen(true);
   };
 
@@ -523,6 +526,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                   setIsModalOpen(false);
                   setEditingItem(null);
                   setImagePreview(null);
+                  setUploadedFile(null);
                   setFormData({
                     name: '',
                     description: '',
@@ -670,6 +674,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                             type="button"
                             onClick={() => {
                               setImagePreview(null);
+                              setUploadedFile(null);
                               setFormData({ ...formData, image: '' });
                             }}
                             className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
@@ -720,6 +725,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                     setIsModalOpen(false);
                     setEditingItem(null);
                     setImagePreview(null);
+                    setUploadedFile(null);
                     setFormData({
                       name: '',
                       description: '',
