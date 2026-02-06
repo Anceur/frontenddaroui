@@ -186,7 +186,7 @@ export default function MenuProducts() {
   };
  
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
@@ -195,20 +195,19 @@ export default function MenuProducts() {
     setImagePreview(localPreview);
 
    
-
     const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
     await uploadBytes(imageRef, file);
 
     const imageURL = await getDownloadURL(imageRef);
     setFormData(prev => ({ ...prev, image: imageURL }));
-
     setImagePreview(imageURL);
 
-  } catch (err: any) {
-    console.error("Error uploading image:", err);
+  } catch (err) {
+    console.error(err);
     setError("Erreur lors du téléchargement de l'image");
   }
 };
+
 
 
   // Open modal for new item
