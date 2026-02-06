@@ -5,7 +5,6 @@ import type { MenuItem, CreateMenuItemData } from '../../shared/api/menu-items';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../firebase";
 
-import { getAuth } from "firebase/auth";
 
 export default function MenuProducts() {
   const [activeTab, setActiveTab] = useState<string>('All');
@@ -257,17 +256,14 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       console.error('Error deleting menu item:', err);
     }
   };
-  const auth = getAuth();
+ 
 
   // Handle image change
  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  if (!auth.currentUser) {
-    alert("Vous devez être connecté pour téléverser une image !");
-    return;
-  }
+
 
   try {
     const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
