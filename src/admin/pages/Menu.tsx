@@ -180,7 +180,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
         .join("\n")
         .trim();
 
-      setFormData({ ...formData, description });
+      setFormData(prev => ({ ...prev, description }));
       
     } catch (error) {
       console.error('Error generating description:', error);
@@ -259,24 +259,34 @@ Donnez uniquement la description, sans introduction ni conclusion.`
  
 
   // Handle image change
- const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    try {
+      // Show local preview immediately
+      const localPreview = URL.createObjectURL(file);
+      setImagePreview(localPreview);
 
+      // Upload to Firebase
+      const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+      await uploadBytes(imageRef, file);
+      const imageURL = await getDownloadURL(imageRef);
 
-  try {
-    const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
-    await uploadBytes(imageRef, file);
-    const imageURL = await getDownloadURL(imageRef);
+      // Update with Firebase URL and trigger AI description
+      setFormData(prev => ({ ...prev, image: imageURL }));
+      setImagePreview(imageURL);
+      
+      // Generate description automatically
+      await generateDescriptionFromImage(imageURL);
+      
+    } catch (err: any) {
+      console.error("Error uploading image:", err);
+      setError("Erreur lors du téléchargement de l'image : " + err.message);
+      setImagePreview(null);
+    }
+  };
 
-    setFormData({ ...formData, image: imageURL });
-    setImagePreview(imageURL);
-  } catch (err: any) {
-    console.error("Error uploading image:", err);
-    setError("Erreur lors du téléchargement de l'image : " + err.message);
-  }
-};
   // Open modal for new item
   const openNewModal = () => {
     setEditingItem(null);
@@ -658,7 +668,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                             type="button"
                             onClick={() => {
                               setImagePreview(null);
-                              setFormData({ ...formData, image: null });
+                              setFormData({ ...formData, image: undefined });
                             }}
                             className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
                           >
