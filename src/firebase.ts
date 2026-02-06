@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-
+import { getAuth } from "firebase/auth";
 const firebaseConfig = {
   apiKey: "AIzaSyDc99bkmPd7kXktvAm7gLlRuPIhf7mOaV4",
   authDomain: "daroui.firebaseapp.com",
@@ -11,5 +11,7 @@ const firebaseConfig = {
   measurementId: "G-Q0TKP8XK0K"
 };
 
+
 const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
+export const auth = getAuth(app);
