@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Search, RefreshCw, ChevronDown, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Tag, X, Save, Loader2, AlertCircle, Package } from 'lucide-react';
 import { getMenuItems, createMenuItem, patchMenuItem, deleteMenuItem } from '../../shared/api/menu-items';
 import type { MenuItem, CreateMenuItemData } from '../../shared/api/menu-items';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../firebase";
 
 export default function MenuProducts() {
   const [activeTab, setActiveTab] = useState<string>('All');
@@ -178,17 +180,25 @@ export default function MenuProducts() {
   };
 
   // Handle image change
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const imageRef = ref(
+    storage,
+    `menu/${Date.now()}-${file.name}`
+  );
+
+
+  await uploadBytes(imageRef, file);
+
+  const imageURL = await getDownloadURL(imageRef);
+
+  setFormData({ ...formData, image: imageURL });
+
+  // preview
+  setImagePreview(imageURL);
+};
 
   // Open modal for new item
   const openNewModal = () => {
