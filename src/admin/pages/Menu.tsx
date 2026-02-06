@@ -12,12 +12,13 @@ export default function MenuProducts() {
   const [sortBy, setSortBy] = useState<string>('name');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-
+  // API state
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -113,10 +114,81 @@ export default function MenuProducts() {
     setCurrentPage(1);
   }, [activeTab, searchQuery]);
 
-  // Convert File to base64
-
   // Generate description from image using Claude API
- 
+  const generateDescriptionFromImage = async (imageUrl: string) => {
+    try {
+      setGeneratingDescription(true);
+      
+      // Convert image URL to base64
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      // Determine media type
+      const mediaType = blob.type || 'image/jpeg';
+
+      // Call Claude API
+      const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: mediaType,
+                    data: base64Data
+                  }
+                },
+                {
+                  type: "text",
+                  text: `Vous êtes un expert culinaire pour un restaurant. Analysez cette image de plat et créez une description appétissante et professionnelle en français. La description doit :
+- Être courte et percutante (2-3 phrases maximum)
+- Mentionner les ingrédients principaux visibles
+- Évoquer les saveurs et textures
+- Donner envie au client de commander
+- Être écrite dans un style chaleureux et gourmand
+
+Donnez uniquement la description, sans introduction ni conclusion.`
+                }
+              ]
+            }
+          ]
+        })
+      });
+
+      const data = await apiResponse.json();
+      const description = data.content
+        .filter((item: any) => item.type === "text")
+        .map((item: any) => item.text)
+        .join("\n")
+        .trim();
+
+      setFormData(prev => ({ ...prev, description }));
+      
+    } catch (error) {
+      console.error('Error generating description:', error);
+      setError("Échec de la génération de la description. Veuillez réessayer.");
+    } finally {
+      setGeneratingDescription(false);
+    }
+  };
 
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -186,37 +258,36 @@ export default function MenuProducts() {
   };
  
 
- const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  // Handle image change
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  try {
-    // 1️⃣ preview محلي
-    const localPreview = URL.createObjectURL(file);
-    setImagePreview(localPreview);
+    try {
+      // Show local preview immediately
+      const localPreview = URL.createObjectURL(file);
+      setImagePreview(localPreview);
 
-    // 2️⃣ رفع الصورة إلى Firebase
-    const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
-    await uploadBytes(imageRef, file);
+      // Upload to Firebase
+      const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+      await uploadBytes(imageRef, file);
+      const imageURL = await getDownloadURL(imageRef);
 
-    // 3️⃣ جلب رابط الصورة
-    const imageURL = await getDownloadURL(imageRef);
-    console.log("🔥 Firebase Image URL:", imageURL);
+      console.log('Image uploaded successfully:', imageURL);
 
-    // 4️⃣ تخزين الرابط في formData
-    setFormData(prev => ({ ...prev, image: imageURL }));
-
-    // 5️⃣ تحديث preview بالرابط النهائي
-    setImagePreview(imageURL);
-
-  } catch (err) {
-    console.error("Upload error:", err);
-    setError("Erreur lors du téléchargement de l'image");
-  }
-};
-
-
-
+      // Update with Firebase URL
+      setFormData(prev => ({ ...prev, image: imageURL }));
+      setImagePreview(imageURL);
+      
+      // Generate description automatically
+      await generateDescriptionFromImage(imageURL);
+      
+    } catch (err: any) {
+      console.error("Error uploading image:", err);
+      setError("Erreur lors du téléchargement de l'image : " + err.message);
+      setImagePreview(null);
+    }
+  };
 
   // Open modal for new item
   const openNewModal = () => {
@@ -594,11 +665,7 @@ export default function MenuProducts() {
                     <div className="relative group w-40 h-40">
                       {imagePreview ? (
                         <>
-                          <img 
-                            src={imagePreview} 
-                            alt="Aperçu" 
-                            className="w-40 h-40 object-cover rounded-2xl border-2 border-orange-100 shadow-md"
-                          />
+                          <img src={imagePreview} alt="Aperçu" className="w-40 h-40 object-cover rounded-2xl border-2 border-orange-100 shadow-md" />
                           <button
                             type="button"
                             onClick={() => {
