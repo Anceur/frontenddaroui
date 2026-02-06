@@ -5,6 +5,8 @@ import type { MenuItem, CreateMenuItemData } from '../../shared/api/menu-items';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../firebase";
 
+import { getAuth } from "firebase/auth";
+
 export default function MenuProducts() {
   const [activeTab, setActiveTab] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -255,32 +257,30 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       console.error('Error deleting menu item:', err);
     }
   };
+  const auth = getAuth();
 
   // Handle image change
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    try {
-      const imageRef = ref(
-        storage,
-        `menu/${Date.now()}-${file.name}`
-      );
+  if (!auth.currentUser) {
+    alert("Vous devez être connecté pour téléverser une image !");
+    return;
+  }
 
-      await uploadBytes(imageRef, file);
-      const imageURL = await getDownloadURL(imageRef);
+  try {
+    const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+    await uploadBytes(imageRef, file);
+    const imageURL = await getDownloadURL(imageRef);
 
-      setFormData({ ...formData, image: imageURL });
-      setImagePreview(imageURL);
-
-      // Automatically generate description from image
-      await generateDescriptionFromImage(imageURL);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      setError("Échec du téléversement de l'image. Veuillez réessayer.");
-    }
-  };
-
+    setFormData({ ...formData, image: imageURL });
+    setImagePreview(imageURL);
+  } catch (err: any) {
+    console.error("Error uploading image:", err);
+    setError("Erreur lors du téléchargement de l'image : " + err.message);
+  }
+};
   // Open modal for new item
   const openNewModal = () => {
     setEditingItem(null);
