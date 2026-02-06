@@ -114,53 +114,33 @@ export default function MenuProducts() {
     setCurrentPage(1);
   }, [activeTab, searchQuery]);
 
-  // Convert image URL to base64 using Canvas (bypasses CORS)
-  const imageUrlToBase64 = (imageUrl: string): Promise<{ base64: string; mediaType: string }> => {
+  // Convert File to base64
+  const fileToBase64 = (file: File): Promise<{ base64: string; mediaType: string }> => {
     return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous'; // Important for CORS
+      const reader = new FileReader();
       
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
-        }
-        
-        ctx.drawImage(img, 0, 0);
-        
-        // Try to get the image as JPEG first
-        try {
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-          const base64 = dataUrl.split(',')[1];
-          resolve({ base64, mediaType: 'image/jpeg' });
-        } catch (e) {
-          // Fallback to PNG if JPEG fails
-          const dataUrl = canvas.toDataURL('image/png');
-          const base64 = dataUrl.split(',')[1];
-          resolve({ base64, mediaType: 'image/png' });
-        }
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(',')[1];
+        const mediaType = file.type || 'image/jpeg';
+        resolve({ base64, mediaType });
       };
       
-      img.onerror = () => {
-        reject(new Error('Failed to load image'));
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
       };
       
-      img.src = imageUrl;
+      reader.readAsDataURL(file);
     });
   };
 
   // Generate description from image using Claude API
-  const generateDescriptionFromImage = async (imageUrl: string) => {
+  const generateDescriptionFromFile = async (file: File) => {
     try {
       setGeneratingDescription(true);
       
-      // Convert image URL to base64 using canvas
-      const { base64, mediaType } = await imageUrlToBase64(imageUrl);
+      // Convert file to base64
+      const { base64, mediaType } = await fileToBase64(file);
 
       // Call Claude API
       const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
@@ -298,6 +278,9 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       const localPreview = URL.createObjectURL(file);
       setImagePreview(localPreview);
 
+      // Generate description from file BEFORE uploading
+      await generateDescriptionFromFile(file);
+
       // Upload to Firebase
       const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
       await uploadBytes(imageRef, file);
@@ -305,10 +288,9 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       const imageURL = await getDownloadURL(imageRef);
       console.log('Image uploaded successfully:', imageURL); 
       setFormData(prev => ({ ...prev, image: imageURL }));
+      
+      // Update preview with Firebase URL
       setImagePreview(imageURL);
-
-      // Generate description automatically
-      await generateDescriptionFromImage(imageURL);
 
     } catch (err: any) {
       console.error("Error uploading image:", err);
@@ -455,7 +437,6 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                       src={item.image}
                       alt={item.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      crossOrigin="anonymous"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-50">
@@ -699,7 +680,6 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                             src={imagePreview} 
                             alt="Aperçu" 
                             className="w-40 h-40 object-cover rounded-2xl border-2 border-orange-100 shadow-md"
-                            crossOrigin="anonymous"
                           />
                           <button
                             type="button"
