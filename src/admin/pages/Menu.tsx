@@ -114,26 +114,53 @@ export default function MenuProducts() {
     setCurrentPage(1);
   }, [activeTab, searchQuery]);
 
+  // Convert image URL to base64 using Canvas (bypasses CORS)
+  const imageUrlToBase64 = (imageUrl: string): Promise<{ base64: string; mediaType: string }> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous'; // Important for CORS
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0);
+        
+        // Try to get the image as JPEG first
+        try {
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          const base64 = dataUrl.split(',')[1];
+          resolve({ base64, mediaType: 'image/jpeg' });
+        } catch (e) {
+          // Fallback to PNG if JPEG fails
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64 = dataUrl.split(',')[1];
+          resolve({ base64, mediaType: 'image/png' });
+        }
+      };
+      
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = imageUrl;
+    });
+  };
+
   // Generate description from image using Claude API
   const generateDescriptionFromImage = async (imageUrl: string) => {
     try {
       setGeneratingDescription(true);
       
-      // Convert image URL to base64
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const base64Data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          resolve(result.split(',')[1]);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-
-      // Determine media type
-      const mediaType = blob.type || 'image/jpeg';
+      // Convert image URL to base64 using canvas
+      const { base64, mediaType } = await imageUrlToBase64(imageUrl);
 
       // Call Claude API
       const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
@@ -153,7 +180,7 @@ export default function MenuProducts() {
                   source: {
                     type: "base64",
                     media_type: mediaType,
-                    data: base64Data
+                    data: base64
                   }
                 },
                 {
@@ -172,6 +199,10 @@ Donnez uniquement la description, sans introduction ni conclusion.`
           ]
         })
       });
+
+      if (!apiResponse.ok) {
+        throw new Error(`API error: ${apiResponse.status}`);
+      }
 
       const data = await apiResponse.json();
       const description = data.content
@@ -258,34 +289,33 @@ Donnez uniquement la description, sans introduction ni conclusion.`
   };
  
 
- const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  try {
-    // Show local preview immediately
-    const localPreview = URL.createObjectURL(file);
-    setImagePreview(localPreview);
+    try {
+      // Show local preview immediately
+      const localPreview = URL.createObjectURL(file);
+      setImagePreview(localPreview);
 
-    // Upload to Firebase
-    const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
-    await uploadBytes(imageRef, file);
+      // Upload to Firebase
+      const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+      await uploadBytes(imageRef, file);
 
- 
-    const imageURL = await getDownloadURL(imageRef);
-    console.log('Image uploaded successfully:', imageURL); 
-    setFormData(prev => ({ ...prev, image: imageURL }));
-    setImagePreview(imageURL);
+      const imageURL = await getDownloadURL(imageRef);
+      console.log('Image uploaded successfully:', imageURL); 
+      setFormData(prev => ({ ...prev, image: imageURL }));
+      setImagePreview(imageURL);
 
-    // Generate description automatically
-    await generateDescriptionFromImage(imageURL);
+      // Generate description automatically
+      await generateDescriptionFromImage(imageURL);
 
-  } catch (err: any) {
-    console.error("Error uploading image:", err);
-    setError("Erreur lors du téléchargement de l'image : " + err.message);
-    setImagePreview(null);
-  }
-};
+    } catch (err: any) {
+      console.error("Error uploading image:", err);
+      setError("Erreur lors du téléchargement de l'image : " + err.message);
+      setImagePreview(null);
+    }
+  };
 
 
   // Open modal for new item
@@ -425,6 +455,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                       src={item.image}
                       alt={item.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      crossOrigin="anonymous"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-50">
@@ -664,7 +695,12 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                     <div className="relative group w-40 h-40">
                       {imagePreview ? (
                         <>
-                          <img src={imagePreview} alt="Aperçu" className="w-40 h-40 object-cover rounded-2xl border-2 border-orange-100 shadow-md" />
+                          <img 
+                            src={imagePreview} 
+                            alt="Aperçu" 
+                            className="w-40 h-40 object-cover rounded-2xl border-2 border-orange-100 shadow-md"
+                            crossOrigin="anonymous"
+                          />
                           <button
                             type="button"
                             onClick={() => {
