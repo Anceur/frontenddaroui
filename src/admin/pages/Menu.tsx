@@ -32,7 +32,7 @@ export default function MenuProducts() {
     price: 0,
     cost_price: 0,
     category: 'burger',
-    image: undefined,
+    image: '',
     featured: false,
   });
 
@@ -211,7 +211,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
         price: 0,
         cost_price: 0,
         category: 'burger',
-        image: undefined,
+        image: '',
         featured: false,
       });
       setImagePreview(null);
@@ -237,7 +237,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       price: Number(item.price),
       cost_price: Number(item.cost_price || 0),
       category: item.category,
-      image: undefined,
+      image: item.image || '',
       featured: item.featured || false,
     });
     setImagePreview(item.image || null);
@@ -273,7 +273,9 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       await uploadBytes(imageRef, file);
       const imageURL = await getDownloadURL(imageRef);
 
-      // Update with Firebase URL and trigger AI description
+      console.log('Image uploaded successfully:', imageURL);
+
+      // Update with Firebase URL
       setFormData(prev => ({ ...prev, image: imageURL }));
       setImagePreview(imageURL);
       
@@ -296,7 +298,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       price: 0,
       cost_price: 0,
       category: 'burger',
-      image: undefined,
+      image: '',
       featured: false,
     });
     setImagePreview(null);
@@ -527,7 +529,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                     price: 0,
                     cost_price: 0,
                     category: 'burger',
-                    image: undefined,
+                    image: '',
                     featured: false,
                   });
                 }}
@@ -668,7 +670,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                             type="button"
                             onClick={() => {
                               setImagePreview(null);
-                              setFormData({ ...formData, image: undefined });
+                              setFormData({ ...formData, image: '' });
                             }}
                             className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
                           >
@@ -724,7 +726,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
                       price: 0,
                       cost_price: 0,
                       category: 'burger',
-                      image: undefined,
+                      image: '',
                       featured: false,
                     });
                   }}
