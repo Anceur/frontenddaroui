@@ -1,7 +1,7 @@
 [
   {
-    "origin": ["*"],
-    "method": ["GET", "HEAD"],
+    "origin": ["https://frontenddaroui.onrender.com"],
+    "method": ["GET", "POST", "PUT", "DELETE"],
     "maxAgeSeconds": 3600
   }
 ]
