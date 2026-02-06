@@ -258,36 +258,35 @@ Donnez uniquement la description, sans introduction ni conclusion.`
   };
  
 
-  // Handle image change
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    try {
-      // Show local preview immediately
-      const localPreview = URL.createObjectURL(file);
-      setImagePreview(localPreview);
+  try {
+    // Show local preview immediately
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
 
-      // Upload to Firebase
-      const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
-      await uploadBytes(imageRef, file);
-      const imageURL = await getDownloadURL(imageRef);
+    // Upload to Firebase
+    const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+    await uploadBytes(imageRef, file);
 
-      console.log('Image uploaded successfully:', imageURL);
+ 
+    const imageURL = await getDownloadURL(imageRef);
+    console.log('Image uploaded successfully:', imageURL); 
+    setFormData(prev => ({ ...prev, image: imageURL }));
+    setImagePreview(imageURL);
 
-      // Update with Firebase URL
-      setFormData(prev => ({ ...prev, image: imageURL }));
-      setImagePreview(imageURL);
-      
-      // Generate description automatically
-      await generateDescriptionFromImage(imageURL);
-      
-    } catch (err: any) {
-      console.error("Error uploading image:", err);
-      setError("Erreur lors du téléchargement de l'image : " + err.message);
-      setImagePreview(null);
-    }
-  };
+    // Generate description automatically
+    await generateDescriptionFromImage(imageURL);
+
+  } catch (err: any) {
+    console.error("Error uploading image:", err);
+    setError("Erreur lors du téléchargement de l'image : " + err.message);
+    setImagePreview(null);
+  }
+};
+
 
   // Open modal for new item
   const openNewModal = () => {
