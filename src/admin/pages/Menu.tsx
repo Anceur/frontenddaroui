@@ -12,13 +12,12 @@ export default function MenuProducts() {
   const [sortBy, setSortBy] = useState<string>('name');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // API state
+
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -115,91 +114,9 @@ export default function MenuProducts() {
   }, [activeTab, searchQuery]);
 
   // Convert File to base64
-  const fileToBase64 = (file: File): Promise<{ base64: string; mediaType: string }> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = () => {
-        const result = reader.result as string;
-        const base64 = result.split(',')[1];
-        const mediaType = file.type || 'image/jpeg';
-        resolve({ base64, mediaType });
-      };
-      
-      reader.onerror = () => {
-        reject(new Error('Failed to read file'));
-      };
-      
-      reader.readAsDataURL(file);
-    });
-  };
 
   // Generate description from image using Claude API
-  const generateDescriptionFromFile = async (file: File) => {
-    try {
-      setGeneratingDescription(true);
-      
-      // Convert file to base64
-      const { base64, mediaType } = await fileToBase64(file);
-
-      // Call Claude API
-      const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: mediaType,
-                    data: base64
-                  }
-                },
-                {
-                  type: "text",
-                  text: `Vous êtes un expert culinaire pour un restaurant. Analysez cette image de plat et créez une description appétissante et professionnelle en français. La description doit :
-- Être courte et percutante (2-3 phrases maximum)
-- Mentionner les ingrédients principaux visibles
-- Évoquer les saveurs et textures
-- Donner envie au client de commander
-- Être écrite dans un style chaleureux et gourmand
-
-Donnez uniquement la description, sans introduction ni conclusion.`
-                }
-              ]
-            }
-          ]
-        })
-      });
-
-      if (!apiResponse.ok) {
-        throw new Error(`API error: ${apiResponse.status}`);
-      }
-
-      const data = await apiResponse.json();
-      const description = data.content
-        .filter((item: any) => item.type === "text")
-        .map((item: any) => item.text)
-        .join("\n")
-        .trim();
-
-      setFormData(prev => ({ ...prev, description }));
-      
-    } catch (error) {
-      console.error('Error generating description:', error);
-      setError("Échec de la génération de la description. Veuillez réessayer.");
-    } finally {
-      setGeneratingDescription(false);
-    }
-  };
+ 
 
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -270,34 +187,28 @@ Donnez uniquement la description, sans introduction ni conclusion.`
  
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    try {
-      // Show local preview immediately
-      const localPreview = URL.createObjectURL(file);
-      setImagePreview(localPreview);
+  try {
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
 
-      // Generate description from file BEFORE uploading
-      await generateDescriptionFromFile(file);
+   
 
-      // Upload to Firebase
-      const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
-      await uploadBytes(imageRef, file);
+    const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+    await uploadBytes(imageRef, file);
 
-      const imageURL = await getDownloadURL(imageRef);
-      console.log('Image uploaded successfully:', imageURL); 
-      setFormData(prev => ({ ...prev, image: imageURL }));
-      
-      // Update preview with Firebase URL
-      setImagePreview(imageURL);
+    const imageURL = await getDownloadURL(imageRef);
+    setFormData(prev => ({ ...prev, image: imageURL }));
 
-    } catch (err: any) {
-      console.error("Error uploading image:", err);
-      setError("Erreur lors du téléchargement de l'image : " + err.message);
-      setImagePreview(null);
-    }
-  };
+    setImagePreview(imageURL);
+
+  } catch (err: any) {
+    console.error("Error uploading image:", err);
+    setError("Erreur lors du téléchargement de l'image");
+  }
+};
 
 
   // Open modal for new item
