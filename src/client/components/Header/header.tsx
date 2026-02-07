@@ -86,7 +86,7 @@ export default function Header({
           />
 
           {/* 🧹 Bouton Filtrer */}
-          <button
+          {/* <button
             onClick={handleFilterClick}
             className="
               absolute
@@ -119,7 +119,7 @@ export default function Header({
               <path d="M3 4h18l-7 8v6l-4 2v-8L3 4z" />
             </svg>
             Filtrer
-          </button>
+          </button> */}
         </div>
 
         {/* 🛒 Bouton Panier */}
