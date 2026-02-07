@@ -20,7 +20,7 @@ export interface CreateStaffData {
   role: string;
   phone?: string;
   address?: string;
-  image?: File | null;
+  image?: string;  
   has_account: boolean;
   username?: string;
   password?: string;
@@ -37,6 +37,30 @@ export async function getAllStaff(): Promise<StaffMember[]> {
   }
 }
 
+
+export async function uploadStaffImage(file: File): Promise<string> {
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('timestamp', Date.now().toString());
+
+    console.log('🚀 جاري رفع صورة Staff...');
+    const response = await axios.post(`${API}/staff/upload-image/`, formData, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    console.log('✅ تم رفع صورة Staff بنجاح:', response.data.imageUrl);
+    return response.data.imageUrl;
+  } catch (error) {
+    console.error('❌ خطأ في رفع صورة Staff:', error);
+    throw error;
+  }
+}
+
+
 // Create a new staff member
 export async function createStaff(staffData: CreateStaffData): Promise<StaffMember> {
   try {
@@ -49,7 +73,7 @@ export async function createStaff(staffData: CreateStaffData): Promise<StaffMemb
     if (staffData.password) formData.append('password', staffData.password);
     if (staffData.phone) formData.append('phone', staffData.phone);
     if (staffData.address) formData.append('address', staffData.address);
-    if (staffData.image) formData.append('image', staffData.image);
+    if (staffData.image) formData.append('image', staffData.image);  // 🔥 نرسل URL وليس File
 
     const response = await axios.post<StaffMember>(`${API}/staff/`, formData, {
       withCredentials: true,
@@ -63,7 +87,6 @@ export async function createStaff(staffData: CreateStaffData): Promise<StaffMemb
     throw error;
   }
 }
-
 // Update staff member
 export async function updateStaff(staffId: number, staffData: Partial<CreateStaffData>): Promise<StaffMember> {
   try {
@@ -73,7 +96,7 @@ export async function updateStaff(staffId: number, staffData: Partial<CreateStaf
     if (staffData.phone !== undefined) formData.append('phone', staffData.phone || '');
     if (staffData.address !== undefined) formData.append('address', staffData.address || '');
     if (staffData.password) formData.append('password', staffData.password);
-    if (staffData.image) formData.append('image', staffData.image);
+    if (staffData.image) formData.append('image', staffData.image);  // 🔥 نرسل URL
 
     const response = await axios.patch<StaffMember>(`${API}/staff/${staffId}/`, formData, {
       withCredentials: true,
@@ -87,7 +110,6 @@ export async function updateStaff(staffId: number, staffData: Partial<CreateStaf
     throw error;
   }
 }
-
 // Delete staff member (delete user)
 export async function deleteStaff(staffId: number): Promise<void> {
   try {

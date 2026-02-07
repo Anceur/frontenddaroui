@@ -46,7 +46,7 @@ export default function StaffManagement() {
     password: '',
     phone: '',
     address: '',
-    image: null,
+    image: '',
     confirmPassword: ''
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -342,28 +342,49 @@ export default function StaffManagement() {
     setPasswordStrength(0);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError("Veuillez sélectionner un fichier image");
-        return;
-      }
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("La taille de l'image doit être inférieure à 5 Mo");
-        return;
-      }
-      setFormData({ ...formData, image: file });
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setError('');
+    console.log('📤 بدء رفع صورة Staff:', file.name);
+    
+    // عرض معاينة محلية فوراً
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
+
+    // رفع الصورة إلى Firebase عبر Django Backend
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('timestamp', Date.now().toString());
+
+    console.log('🚀 جاري الرفع إلى الخادم...');
+    const uploadResponse = await fetch(`${API}/staff/upload-image/`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!uploadResponse.ok) {
+      const errorData = await uploadResponse.json();
+      throw new Error(errorData.error || 'فشل رفع الصورة');
     }
-  };
+
+    const uploadData = await uploadResponse.json();
+    const imageUrl = uploadData.imageUrl;
+    console.log('✅ تم رفع صورة Staff بنجاح:', imageUrl);
+
+    // 🔥 المهم: احفظ رابط URL وليس الملف
+    setFormData(prev => ({ ...prev, image: imageUrl }));
+    setImagePreview(imageUrl);
+    
+  } catch (err: any) {
+    console.error("❌ خطأ:", err);
+    setError("خطأ في رفع الصورة: " + err.message);
+    setImagePreview(null);
+  }
+};
 
   const getPasswordStrengthColor = () => {
     if (passwordStrength <= 2) return '#EF4444'; // red
