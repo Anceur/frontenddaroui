@@ -219,20 +219,29 @@ export async function updateMenuItem(itemId: number, itemData: UpdateMenuItemDat
 // Partially update a menu item
 export async function patchMenuItem(itemId: number, itemData: UpdateMenuItemData): Promise<MenuItem> {
   try {
+    console.log('🔧 PATCH MenuItem - ID:', itemId);
+    console.log('🔧 البيانات:', itemData);
+    
     const formData = new FormData();
     if (itemData.name) formData.append('name', itemData.name);
     if (itemData.description !== undefined) formData.append('description', itemData.description);
     if (itemData.price !== undefined) formData.append('price', itemData.price.toString());
     if (itemData.cost_price !== undefined) formData.append('cost_price', itemData.cost_price.toString());
     if (itemData.category) formData.append('category', itemData.category);
-    if (itemData.image && itemData.image instanceof File) {
+    
+    if (itemData.image) {
       formData.append('image', itemData.image);
+      console.log('🖼️ PATCH - إرسال رابط الصورة:', itemData.image);
     } else if (itemData.image === null) {
       formData.append('image', '');
     }
+    
     if (itemData.featured !== undefined) {
       formData.append('featured', itemData.featured.toString());
     }
+
+    console.log('📤 PATCH إرسال إلى:', `${API}/menu-items/${itemId}/`);
+    console.log('⏳ انتظار الاستجابة...');
 
     const response = await axios.patch<MenuItem>(`${API}/menu-items/${itemId}/`, formData, {
       withCredentials: true,
@@ -240,24 +249,30 @@ export async function patchMenuItem(itemId: number, itemData: UpdateMenuItemData
         'Content-Type': 'multipart/form-data',
       },
     });
+
+    console.log('✅ PATCH نجح!');
+    console.log('✅ النتيجة:', response.data);
     return response.data;
+    
   } catch (error: any) {
-    console.error('Error updating menu item:', error);
+    console.error('❌ خطأ في PATCH:', error);
     if (error.response) {
+      console.error('📛 Status:', error.response.status);
+      console.error('📛 الاستجابة:', error.response.data);
+      
       if (error.response.status === 404) {
-        throw new Error('Menu item not found');
+        throw new Error('المنتج غير موجود');
       }
-      const errorMessage = error.response.data?.error || 'Failed to update menu item';
+      const errorMessage = error.response.data?.error || 'فشل تحديث المنتج';
       const details = error.response.data?.details;
       if (details) {
         throw new Error(`${errorMessage}: ${JSON.stringify(details)}`);
       }
       throw new Error(errorMessage);
     }
-    throw new Error('Network error: Failed to update menu item');
+    throw new Error('خطأ في الشبكة: فشل تحديث المنتج');
   }
 }
-
 // Delete a menu item
 export async function deleteMenuItem(itemId: number): Promise<void> {
   try {

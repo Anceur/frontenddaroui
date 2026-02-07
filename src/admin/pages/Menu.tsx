@@ -192,11 +192,13 @@ Donnez uniquement la description, sans introduction ni conclusion.`
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+  
+  console.log('🚀 بدء عملية الحفظ...');
+  
   try {
     setSubmitting(true);
     setError(null);
 
-    // إنشاء نسخة من البيانات بدون كائنات File
     const submitData: UpdateMenuItemData = {
       name: formData.name,
       description: formData.description,
@@ -204,19 +206,26 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       cost_price: formData.cost_price,
       category: formData.category,
       featured: formData.featured,
-      image: formData.image, // الآن هذا رابط URL نصي
+      image: formData.image,
     };
 
-     console.log('📦 البيانات التي سيتم إرسالها:', submitData);
+    console.log('📦 البيانات التي سيتم إرسالها:', submitData);
     console.log('🖼️ رابط الصورة:', submitData.image);
-    
+    console.log('📡 استدعاء API...');
+
+    let result;
     if (editingItem) {
-      await patchMenuItem(editingItem.id, submitData);
+      console.log('✏️ تحديث منتج موجود ID:', editingItem.id);
+      result = await patchMenuItem(editingItem.id, submitData);
     } else {
-      await createMenuItem(submitData);
+      console.log('➕ إنشاء منتج جديد');
+      result = await createMenuItem(submitData);
     }
 
-    // إعادة تعيين النموذج
+    console.log('🎉 نجحت العملية! النتيجة:', result);
+    console.log('🖼️ الصورة في النتيجة:', result.image);
+
+    // Reset form
     setFormData({
       name: '',
       description: '',
@@ -231,12 +240,20 @@ Donnez uniquement la description, sans introduction ni conclusion.`
     setEditingItem(null);
     setIsModalOpen(false);
 
+    console.log('🔄 إعادة تحميل قائمة المنتجات...');
     await fetchMenuItems();
+    console.log('✅ تم تحديث القائمة بنجاح!');
+    
   } catch (err: any) {
+    console.error('❌❌❌ خطأ في handleSubmit ❌❌❌');
+    console.error('الخطأ:', err);
+    console.error('رسالة الخطأ:', err.message);
+    console.error('Stack:', err.stack);
+    
     setError(err.message || "فشل حفظ المنتج");
-    console.error('خطأ في حفظ المنتج:', err);
   } finally {
     setSubmitting(false);
+    console.log('🏁 انتهت عملية الحفظ');
   }
 };
   // Handle edit
