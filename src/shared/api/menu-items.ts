@@ -108,18 +108,22 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
     }
     formData.append('category', itemData.category);
     
-    // 🔥 فقط أضف الصورة كنص (URL) وليس كملف
     if (itemData.image) {
-      formData.append('image', itemData.image); // رابط URL
-            console.log('🖼️ إرسال رابط الصورة:', itemData.image); // 🔥 تحقق
-
+      formData.append('image', itemData.image);
+      console.log('🖼️ إرسال رابط الصورة:', itemData.image);
     }
     
     if (itemData.featured !== undefined) {
       formData.append('featured', itemData.featured.toString());
     }
 
-        console.log('📤 إرسال البيانات إلى الخادم...'); // 🔥 تحقق
+    console.log('📤 إرسال البيانات إلى:', `${API}/menu-items/`);
+    
+    // 🔥 اطبع جميع محتويات FormData
+    console.log('📋 محتويات FormData:');
+    for (let pair of formData.entries()) {
+      console.log(`  ${pair[0]}: ${pair[1]}`);
+    }
 
     const response = await axios.post<MenuItem>(`${API}/menu-items/`, formData, {
       withCredentials: true,
@@ -128,12 +132,17 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
       },
     });
 
-        console.log('✅ استجابة الخادم:', response.data); // 🔥 تحقق
-
+    console.log('✅ استجابة الخادم:', response.data);
+    console.log('🖼️ الصورة المحفوظة:', response.data.image);
+    
     return response.data;
   } catch (error: any) {
-    console.error('خطأ في إنشاء المنتج:', error);
-    throw new Error('فشل إنشاء المنتج');
+    console.error('❌ خطأ في إنشاء المنتج:', error);
+    if (error.response) {
+      console.error('📛 Status:', error.response.status);
+      console.error('📛 تفاصيل الخطأ:', error.response.data);
+    }
+    throw new Error(error.response?.data?.error || 'فشل إنشاء المنتج');
   }
 }
 // Update a menu item (full update)
