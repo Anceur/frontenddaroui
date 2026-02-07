@@ -107,9 +107,12 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
       formData.append('cost_price', itemData.cost_price.toString());
     }
     formData.append('category', itemData.category);
-    if (itemData.image && itemData.image instanceof File) {
-      formData.append('image', itemData.image);
+    
+    // 🔥 فقط أضف الصورة كنص (URL) وليس كملف
+    if (itemData.image) {
+      formData.append('image', itemData.image); // رابط URL
     }
+    
     if (itemData.featured !== undefined) {
       formData.append('featured', itemData.featured.toString());
     }
@@ -122,21 +125,10 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
     });
     return response.data;
   } catch (error: any) {
-    console.error('Error creating menu item:', error);
-    if (error.response) {
-      const errorMessage = error.response.data?.error || 'Failed to create menu item';
-      const details = error.response.data?.details || error.response.data?.detail;
-      if (details) {
-        console.error('Validation errors:', details);
-        throw new Error(`${errorMessage}: ${JSON.stringify(details)}`);
-      }
-      console.error('Error response:', error.response.data);
-      throw new Error(errorMessage);
-    }
-    throw new Error('Network error: Failed to create menu item');
+    console.error('خطأ في إنشاء المنتج:', error);
+    throw new Error('فشل إنشاء المنتج');
   }
 }
-
 // Update a menu item (full update)
 export async function updateMenuItem(itemId: number, itemData: UpdateMenuItemData): Promise<MenuItem> {
   try {

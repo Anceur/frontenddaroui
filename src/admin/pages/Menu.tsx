@@ -191,43 +191,51 @@ Donnez uniquement la description, sans introduction ni conclusion.`
 
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setSubmitting(true);
-      setError(null);
+  e.preventDefault();
+  try {
+    setSubmitting(true);
+    setError(null);
 
-      if (editingItem) {
-        // Update existing item
-        await patchMenuItem(editingItem.id, formData);
-      } else {
-        // Create new item
-        await createMenuItem(formData);
-      }
+    // إنشاء نسخة من البيانات بدون كائنات File
+    const submitData: UpdateMenuItemData = {
+      name: formData.name,
+      description: formData.description,
+      price: formData.price,
+      cost_price: formData.cost_price,
+      category: formData.category,
+      featured: formData.featured,
+      image: formData.image, // الآن هذا رابط URL نصي
+    };
 
-      setFormData({
-        name: '',
-        description: '',
-        price: 0,
-        cost_price: 0,
-        category: 'burger',
-        image: '',
-        featured: false,
-      });
-      setImagePreview(null);
-      setUploadedFile(null);
-      setEditingItem(null);
-      setIsModalOpen(false);
-
-      // Refresh menu items
-      await fetchMenuItems();
-    } catch (err: any) {
-      setError(err.message || "Échec de l'enregistrement de l'article du menu");
-      console.error('Error saving menu item:', err);
-    } finally {
-      setSubmitting(false);
+    if (editingItem) {
+      await patchMenuItem(editingItem.id, submitData);
+    } else {
+      await createMenuItem(submitData);
     }
-  };
 
+    // إعادة تعيين النموذج
+    setFormData({
+      name: '',
+      description: '',
+      price: 0,
+      cost_price: 0,
+      category: 'burger',
+      image: '',
+      featured: false,
+    });
+    setImagePreview(null);
+    setUploadedFile(null);
+    setEditingItem(null);
+    setIsModalOpen(false);
+
+    await fetchMenuItems();
+  } catch (err: any) {
+    setError(err.message || "فشل حفظ المنتج");
+    console.error('خطأ في حفظ المنتج:', err);
+  } finally {
+    setSubmitting(false);
+  }
+};
   // Handle edit
   const handleEdit = (item: MenuItem) => {
     setEditingItem(item);
@@ -279,45 +287,45 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   try {
     setError(null);
-    console.log('📤 Starting upload for:', file.name);
+    console.log('📤 بدء الرفع:', file.name);
     
-    // عرض معاينة محلية فورية
+    // عرض معاينة محلية فوراً
     const localPreview = URL.createObjectURL(file);
     setImagePreview(localPreview);
-    setUploadedFile(file);
 
-    // رفع الصورة عبر Django Backend
+    // رفع الصورة إلى Firebase عبر Django Backend
     const formData = new FormData();
     formData.append('image', file);
     formData.append('timestamp', Date.now().toString());
 
-    console.log('🚀 Uploading to Django backend...');
+    console.log('🚀 جاري الرفع إلى الخادم...');
     const uploadResponse = await fetch(`${API_BASE_URL}/menu-items/upload-image/`, {
       method: 'POST',
       body: formData,
+      credentials: 'include', // مهم للكوكيز
     });
 
     if (!uploadResponse.ok) {
       const errorData = await uploadResponse.json();
-      throw new Error(errorData.error || 'Failed to upload image');
+      throw new Error(errorData.error || 'فشل رفع الصورة');
     }
 
     const uploadData = await uploadResponse.json();
     const imageUrl = uploadData.imageUrl;
-    console.log('✅ Image uploaded successfully:', imageUrl);
+    console.log('✅ تم رفع الصورة بنجاح:', imageUrl);
 
-    // تحديث البيانات بالرابط من Backend
+    // 🔥 المهم: احفظ رابط URL وليس الملف
     setFormData(prev => ({ ...prev, image: imageUrl }));
     setImagePreview(imageUrl);
+    setUploadedFile(null); // امسح الملف لأننا الآن لدينا الرابط
     
   } catch (err: any) {
-    console.error("❌ Error:", err);
+    console.error("❌ خطأ:", err);
     setError("خطأ في رفع الصورة: " + err.message);
     setImagePreview(null);
     setUploadedFile(null);
   }
 };
-
 // احذف دالة generateDescriptionFromImage تماماً إن وجدت
   // const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const file = e.target.files?.[0];
