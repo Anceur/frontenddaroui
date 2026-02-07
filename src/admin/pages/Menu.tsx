@@ -259,37 +259,96 @@ Donnez uniquement la description, sans introduction ni conclusion.`
  
 
   // Handle image change
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    try {
-      // Show local preview immediately
-      const localPreview = URL.createObjectURL(file);
-      setImagePreview(localPreview);
-      setUploadedFile(file);
 
-      // Upload to Firebase
-      const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
-      await uploadBytes(imageRef, file);
-      const imageURL = await getDownloadURL(imageRef);
 
-      console.log('Image uploaded successfully:', imageURL);
+  // frontend/src/components/MenuProducts.tsx
 
-      // Update with Firebase URL
-      setFormData(prev => ({ ...prev, image: imageURL }));
-      setImagePreview(imageURL);
-      
-      // Generate description automatically using the original file
-      await generateDescriptionFromImage(file);
-      
-    } catch (err: any) {
-      console.error("Error uploading image:", err);
-      setError("Erreur lors du téléchargement de l'image : " + err.message);
-      setImagePreview(null);
-      setUploadedFile(null);
+// احذف هذه السطور من الاستيرادات (إن وجدت):
+// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { storage } from "../../firebase";
+
+// في أعلى الملف، أضف:
+
+
+// استبدل دالة handleImageChange كاملة:
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setError(null);
+    console.log('📤 Starting upload for:', file.name);
+    
+    // عرض معاينة محلية فورية
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
+    setUploadedFile(file);
+
+    // رفع الصورة عبر Django Backend
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('timestamp', Date.now().toString());
+
+    console.log('🚀 Uploading to Django backend...');
+    const uploadResponse = await fetch(`${API_BASE_URL}/menu-items/upload-image/`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!uploadResponse.ok) {
+      const errorData = await uploadResponse.json();
+      throw new Error(errorData.error || 'Failed to upload image');
     }
-  };
+
+    const uploadData = await uploadResponse.json();
+    const imageUrl = uploadData.imageUrl;
+    console.log('✅ Image uploaded successfully:', imageUrl);
+
+    // تحديث البيانات بالرابط من Backend
+    setFormData(prev => ({ ...prev, image: imageUrl }));
+    setImagePreview(imageUrl);
+    
+  } catch (err: any) {
+    console.error("❌ Error:", err);
+    setError("خطأ في رفع الصورة: " + err.message);
+    setImagePreview(null);
+    setUploadedFile(null);
+  }
+};
+
+// احذف دالة generateDescriptionFromImage تماماً إن وجدت
+  // const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+
+  //   try {
+  //     // Show local preview immediately
+  //     const localPreview = URL.createObjectURL(file);
+  //     setImagePreview(localPreview);
+  //     setUploadedFile(file);
+
+  //     // Upload to Firebase
+  //     const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+  //     await uploadBytes(imageRef, file);
+  //     const imageURL = await getDownloadURL(imageRef);
+
+  //     console.log('Image uploaded successfully:', imageURL);
+
+  //     // Update with Firebase URL
+  //     setFormData(prev => ({ ...prev, image: imageURL }));
+  //     setImagePreview(imageURL);
+      
+  //     // Generate description automatically using the original file
+  //     await generateDescriptionFromImage(file);
+      
+  //   } catch (err: any) {
+  //     console.error("Error uploading image:", err);
+  //     setError("Erreur lors du téléchargement de l'image : " + err.message);
+  //     setImagePreview(null);
+  //     setUploadedFile(null);
+  //   }
+  // };
 
   // Open modal for new item
   const openNewModal = () => {
