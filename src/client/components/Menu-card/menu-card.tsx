@@ -190,44 +190,60 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
         <div className="flex-grow"></div>
 
         {/* Footer */}
-        <div className="pt-4 mt-2 border-t border-gray-100">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              {activePromo && (
-                <span className="text-sm text-gray-400 line-through font-semibold block">
-                  {getOriginalPrice().toFixed(0)} DA
-                </span>
-              )}
-              <div className="text-3xl font-bold text-gray-900">
-                {getCurrentPrice().toFixed(0)} DA
-              </div>
-            </div>
+        {/* Footer */}
+<div className="pt-4 mt-2 border-t border-gray-100">
+  <div className="flex items-end justify-between gap-4">
+    
+    {/* Price */}
+    <div className="min-h-[64px]">
+      {activePromo && (
+        <span className="text-sm text-gray-400 line-through font-semibold block">
+          {getOriginalPrice().toFixed(0)} DA
+        </span>
+      )}
+      <div className="text-3xl font-bold text-gray-900 leading-none">
+        {getCurrentPrice().toFixed(0)} DA
+      </div>
+    </div>
 
-            <button
-              onClick={handleAddToCart}
-              disabled={isButtonDisabled}
-              className={`px-8 py-3.5 rounded-2xl font-bold text-sm transition-all flex items-center gap-2 shadow-lg ${
-                isAdding
-                  ? "bg-[#fe9a00] text-white scale-95"
-                  : isButtonDisabled
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-[#fe9a00] hover:brightness-110 text-white hover:scale-105"
-              }`}
-            >
-              {isAdding ? (
-                <>
-                  <span>✓</span>
-                  <span>Ajouté</span>
-                </>
-              ) : (
-                <>
-                  <span>🛒</span>
-                  <span>Ajouter au panier</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+    {/* Button */}
+    <button
+      onClick={handleAddToCart}
+      disabled={isButtonDisabled}
+      className={`
+        min-w-[190px]
+        h-[52px]
+        flex items-center justify-center gap-2
+        rounded-2xl
+        font-bold text-sm
+        transition-all
+        shadow-lg
+        flex-shrink-0
+        ${
+          isAdding
+            ? "bg-[#fe9a00] text-white scale-95"
+            : isButtonDisabled
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+            : "bg-[#fe9a00] hover:brightness-110 text-white hover:scale-105"
+        }
+      `}
+    >
+      {isAdding ? (
+        <>
+          <span>✓</span>
+          <span>Ajouté</span>
+        </>
+      ) : (
+        <>
+          <span>🛒</span>
+          <span>Ajouter au panier</span>
+        </>
+      )}
+    </button>
+
+  </div>
+</div>
+
       </div>
     </div>
   )
