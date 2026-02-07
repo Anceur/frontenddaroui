@@ -270,6 +270,7 @@ Donnez uniquement la description, sans introduction ni conclusion.`
 
 // في أعلى الملف، أضف:
 
+const API_BASE_URL = "https://backenddaroui.onrender.com";
 
 // استبدل دالة handleImageChange كاملة:
 const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
