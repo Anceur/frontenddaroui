@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, RefreshCw, ChevronDown, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Tag, X, Save, Loader2, AlertCircle, Package } from 'lucide-react';
+import { Search, RefreshCw, ChevronDown, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Tag, X, Save, Loader2, AlertCircle, Package, Sparkles } from 'lucide-react';
 import { getMenuItems, createMenuItem, patchMenuItem, deleteMenuItem } from '../../shared/api/menu-items';
-import type { MenuItem, CreateMenuItemData } from '../../shared/api/menu-items';
+import type { MenuItem, CreateMenuItemData, UpdateMenuItemData } from '../../shared/api/menu-items';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../firebase";
+
 
 export default function MenuProducts() {
   const [activeTab, setActiveTab] = useState<string>('All');
@@ -21,6 +24,8 @@ export default function MenuProducts() {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [generatingDescription, setGeneratingDescription] = useState<boolean>(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState<CreateMenuItemData>({
     name: '',
@@ -28,7 +33,7 @@ export default function MenuProducts() {
     price: 0,
     cost_price: 0,
     category: 'burger',
-    image: undefined,
+    image: '',
     featured: false,
   });
 
@@ -110,44 +115,147 @@ export default function MenuProducts() {
     setCurrentPage(1);
   }, [activeTab, searchQuery]);
 
-  // Handle form submit
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Generate description from image using Claude API
+  const generateDescriptionFromImage = async (file: File) => {
     try {
-      setSubmitting(true);
-      setError(null);
-
-      if (editingItem) {
-        // Update existing item
-        await patchMenuItem(editingItem.id, formData);
-      } else {
-        // Create new item
-        await createMenuItem(formData);
-      }
-
-      setFormData({
-        name: '',
-        description: '',
-        price: 0,
-        cost_price: 0,
-        category: 'burger',
-        image: undefined,
-        featured: false,
+      setGeneratingDescription(true);
+      
+      // Convert file to base64
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
-      setImagePreview(null);
-      setEditingItem(null);
-      setIsModalOpen(false);
 
-      // Refresh menu items
-      await fetchMenuItems();
-    } catch (err: any) {
-      setError(err.message || "Échec de l'enregistrement de l'article du menu");
-      console.error('Error saving menu item:', err);
+      // Determine media type
+      const mediaType = file.type || 'image/jpeg';
+
+      // Call Claude API
+      const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: mediaType,
+                    data: base64Data
+                  }
+                },
+                {
+                  type: "text",
+                  text: `Vous êtes un expert culinaire pour un restaurant. Analysez cette image de plat et créez une description appétissante et professionnelle en français. La description doit :
+- Être courte et percutante (2-3 phrases maximum)
+- Mentionner les ingrédients principaux visibles
+- Évoquer les saveurs et textures
+- Donner envie au client de commander
+- Être écrite dans un style chaleureux et gourmand
+
+Donnez uniquement la description, sans introduction ni conclusion.`
+                }
+              ]
+            }
+          ]
+        })
+      });
+
+      const data = await apiResponse.json();
+      const description = data.content
+        .filter((item: any) => item.type === "text")
+        .map((item: any) => item.text)
+        .join("\n")
+        .trim();
+
+      setFormData(prev => ({ ...prev, description }));
+      
+    } catch (error) {
+      console.error('Error generating description:', error);
+      setError("Échec de la génération de la description. Veuillez réessayer.");
     } finally {
-      setSubmitting(false);
+      setGeneratingDescription(false);
     }
   };
 
+  // Handle form submit
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  console.log('🚀 بدء عملية الحفظ...');
+  
+  try {
+    setSubmitting(true);
+    setError(null);
+
+    const submitData: UpdateMenuItemData = {
+      name: formData.name,
+      description: formData.description,
+      price: formData.price,
+      cost_price: formData.cost_price,
+      category: formData.category,
+      featured: formData.featured,
+      image: formData.image,
+    };
+
+    console.log('📦 البيانات التي سيتم إرسالها:', submitData);
+    console.log('🖼️ رابط الصورة:', submitData.image);
+    console.log('📡 استدعاء API...');
+
+    let result;
+    if (editingItem) {
+      console.log('✏️ تحديث منتج موجود ID:', editingItem.id);
+      result = await patchMenuItem(editingItem.id, submitData);
+    } else {
+      console.log('➕ إنشاء منتج جديد');
+      result = await createMenuItem(submitData);
+    }
+
+    console.log('🎉 نجحت العملية! النتيجة:', result);
+    console.log('🖼️ الصورة في النتيجة:', result.image);
+
+    // Reset form
+    setFormData({
+      name: '',
+      description: '',
+      price: 0,
+      cost_price: 0,
+      category: 'burger',
+      image: '',
+      featured: false,
+    });
+    setImagePreview(null);
+    setUploadedFile(null);
+    setEditingItem(null);
+    setIsModalOpen(false);
+
+    console.log('🔄 إعادة تحميل قائمة المنتجات...');
+    await fetchMenuItems();
+    console.log('✅ تم تحديث القائمة بنجاح!');
+    
+  } catch (err: any) {
+    console.error('❌❌❌ خطأ في handleSubmit ❌❌❌');
+    console.error('الخطأ:', err);
+    console.error('رسالة الخطأ:', err.message);
+    console.error('Stack:', err.stack);
+    
+    setError(err.message || "فشل حفظ المنتج");
+  } finally {
+    setSubmitting(false);
+    console.log('🏁 انتهت عملية الحفظ');
+  }
+};
   // Handle edit
   const handleEdit = (item: MenuItem) => {
     setEditingItem(item);
@@ -157,7 +265,7 @@ export default function MenuProducts() {
       price: Number(item.price),
       cost_price: Number(item.cost_price || 0),
       category: item.category,
-      image: undefined,
+      image: item.image || '',
       featured: item.featured || false,
     });
     setImagePreview(item.image || null);
@@ -176,19 +284,100 @@ export default function MenuProducts() {
       console.error('Error deleting menu item:', err);
     }
   };
+ 
 
   // Handle image change
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+
+
+
+  // frontend/src/components/MenuProducts.tsx
+
+// احذف هذه السطور من الاستيرادات (إن وجدت):
+// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { storage } from "../../firebase";
+
+// في أعلى الملف، أضف:
+
+const API_BASE_URL = "https://backenddaroui.onrender.com";
+
+// استبدل دالة handleImageChange كاملة:
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setError(null);
+    console.log('📤 بدء الرفع:', file.name);
+    
+    // عرض معاينة محلية فوراً
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
+
+    // رفع الصورة إلى Firebase عبر Django Backend
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('timestamp', Date.now().toString());
+
+    console.log('🚀 جاري الرفع إلى الخادم...');
+    const uploadResponse = await fetch(`${API_BASE_URL}/menu-items/upload-image/`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include', // مهم للكوكيز
+    });
+
+    if (!uploadResponse.ok) {
+      const errorData = await uploadResponse.json();
+      throw new Error(errorData.error || 'فشل رفع الصورة');
     }
-  };
+
+    const uploadData = await uploadResponse.json();
+    const imageUrl = uploadData.imageUrl;
+    console.log('✅ تم رفع الصورة بنجاح:', imageUrl);
+
+    // 🔥 المهم: احفظ رابط URL وليس الملف
+    setFormData(prev => ({ ...prev, image: imageUrl }));
+    setImagePreview(imageUrl);
+    setUploadedFile(null); // امسح الملف لأننا الآن لدينا الرابط
+    
+  } catch (err: any) {
+    console.error("❌ خطأ:", err);
+    setError("خطأ في رفع الصورة: " + err.message);
+    setImagePreview(null);
+    setUploadedFile(null);
+  }
+};
+// احذف دالة generateDescriptionFromImage تماماً إن وجدت
+  // const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+
+  //   try {
+  //     // Show local preview immediately
+  //     const localPreview = URL.createObjectURL(file);
+  //     setImagePreview(localPreview);
+  //     setUploadedFile(file);
+
+  //     // Upload to Firebase
+  //     const imageRef = ref(storage, `menu/${Date.now()}-${file.name}`);
+  //     await uploadBytes(imageRef, file);
+  //     const imageURL = await getDownloadURL(imageRef);
+
+  //     console.log('Image uploaded successfully:', imageURL);
+
+  //     // Update with Firebase URL
+  //     setFormData(prev => ({ ...prev, image: imageURL }));
+  //     setImagePreview(imageURL);
+      
+  //     // Generate description automatically using the original file
+  //     await generateDescriptionFromImage(file);
+      
+  //   } catch (err: any) {
+  //     console.error("Error uploading image:", err);
+  //     setError("Erreur lors du téléchargement de l'image : " + err.message);
+  //     setImagePreview(null);
+  //     setUploadedFile(null);
+  //   }
+  // };
 
   // Open modal for new item
   const openNewModal = () => {
@@ -199,10 +388,11 @@ export default function MenuProducts() {
       price: 0,
       cost_price: 0,
       category: 'burger',
-      image: undefined,
+      image: '',
       featured: false,
     });
     setImagePreview(null);
+    setUploadedFile(null);
     setIsModalOpen(true);
   };
 
@@ -424,13 +614,14 @@ export default function MenuProducts() {
                   setIsModalOpen(false);
                   setEditingItem(null);
                   setImagePreview(null);
+                  setUploadedFile(null);
                   setFormData({
                     name: '',
                     description: '',
                     price: 0,
                     cost_price: 0,
                     category: 'burger',
-                    image: undefined,
+                    image: '',
                     featured: false,
                   });
                 }}
@@ -461,6 +652,12 @@ export default function MenuProducts() {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                       Description
+                      {generatingDescription && (
+                        <span className="flex items-center gap-1 text-orange-500 text-xs">
+                          <Sparkles size={12} className="animate-pulse" />
+                          Génération en cours...
+                        </span>
+                      )}
                     </label>
                     <textarea
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 outline-none transition-all resize-none"
@@ -468,7 +665,14 @@ export default function MenuProducts() {
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       placeholder="Décrivez les saveurs, les ingrédients et la magie..."
+                      disabled={generatingDescription}
                     />
+                    {generatingDescription && (
+                      <p className="text-xs text-orange-500 mt-2 flex items-center gap-1">
+                        <Loader2 size={12} className="animate-spin" />
+                        L'IA analyse votre image et génère une description appétissante...
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -544,6 +748,10 @@ export default function MenuProducts() {
                 <div className="md:col-span-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-4">
                     Image du produit
+                    <span className="flex items-center gap-1 text-orange-500 text-xs">
+                      <Sparkles size={12} />
+                      Description auto-générée par IA
+                    </span>
                   </label>
                   <div className="flex flex-col md:flex-row gap-6 items-center">
                     <div className="relative group w-40 h-40">
@@ -554,7 +762,8 @@ export default function MenuProducts() {
                             type="button"
                             onClick={() => {
                               setImagePreview(null);
-                              setFormData({ ...formData, image: null });
+                              setUploadedFile(null);
+                              setFormData({ ...formData, image: '' });
                             }}
                             className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
                           >
@@ -576,13 +785,20 @@ export default function MenuProducts() {
                           onChange={handleImageChange}
                           className="hidden"
                           id="image-upload"
+                          disabled={generatingDescription}
                         />
                         <label
                           htmlFor="image-upload"
-                          className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 hover:border-orange-400 transition-all"
+                          className={`flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 hover:border-orange-400 transition-all ${generatingDescription ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                          <span className="text-sm font-bold text-orange-600 mb-1">Cliquez pour téléverser la photo</span>
+                          <span className="text-sm font-bold text-orange-600 mb-1">
+                            {generatingDescription ? 'Traitement en cours...' : 'Cliquez pour téléverser la photo'}
+                          </span>
                           <span className="text-xs text-gray-400">PNG, JPG ou WebP (Max. 5 Mo)</span>
+                          <span className="text-xs text-orange-500 mt-2 flex items-center gap-1">
+                            <Sparkles size={10} />
+                            Description générée automatiquement
+                          </span>
                         </label>
                       </div>
                     </div>
@@ -597,18 +813,19 @@ export default function MenuProducts() {
                     setIsModalOpen(false);
                     setEditingItem(null);
                     setImagePreview(null);
+                    setUploadedFile(null);
                     setFormData({
                       name: '',
                       description: '',
                       price: 0,
                       cost_price: 0,
                       category: 'burger',
-                      image: undefined,
+                      image: '',
                       featured: false,
                     });
                   }}
                   className="flex-1 px-6 py-3 border border-gray-200 rounded-xl text-gray-600 font-bold hover:bg-gray-50 transition-all"
-                  disabled={submitting}
+                  disabled={submitting || generatingDescription}
                 >
                   Annuler
                 </button>
@@ -616,7 +833,7 @@ export default function MenuProducts() {
                   type="submit"
                   className="flex-[2] px-6 py-3 rounded-xl text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 hover:-translate-y-0.5 transition-all"
                   style={{ backgroundColor: '#FF8C00' }}
-                  disabled={submitting}
+                  disabled={submitting || generatingDescription}
                 >
                   {submitting ? (
                     <>

@@ -129,3 +129,97 @@ button:focus-visible {
     scroll-behavior: smooth;
   }
 }
+
+/* Shop Button Styles */
+.shop-btn {
+  --active: 0;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.shop-btn:hover {
+  --active: 1;
+  transform: scale(1.08);
+}
+
+.shop-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #3A2C1C; 
+  border-radius: 999px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.35);
+  z-index: 0;
+}
+
+.shop-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, #ffd86a, #e5c348);
+  opacity: var(--active);
+  transition: opacity 0.3s ease;
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.dots_border {
+  position: absolute;
+  inset: -2px;
+  border-radius: 999px;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.dots_border::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 32px;
+  background: white;
+  animation: spin 2s linear infinite;
+  mask: linear-gradient(transparent, white, transparent);
+  -webkit-mask: linear-gradient(transparent, white, transparent);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cart-icon {
+  width: 22px;
+  color: white;
+  z-index: 2;
+}
+
+.text_button {
+  color: white;
+  font-weight: 800;
+  letter-spacing: 1px;
+  z-index: 2;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: white;
+  color: #111;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 7px;
+  border-radius: 999px;
+  z-index: 3;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+}

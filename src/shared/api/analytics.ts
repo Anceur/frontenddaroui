@@ -44,15 +44,34 @@ export type MenuItemMovement = {
   category: string;
   price: number;
   cost_price: number;
-  today: number;
-  month: number;
-  year: number;
+  quantity_sold: number;
+  revenue: number;
+  total_cost: number;
+  profit: number;
+  profit_margin: number;
+  order_count: number;
+  avg_quantity_per_order: number;
 };
 
-// Get menu item movement statistics
-export async function getMenuItemMovement(): Promise<MenuItemMovement[]> {
+export type MenuItemMovementResponse = {
+  items: MenuItemMovement[];
+  start_date: string;
+  end_date: string;
+  total_items: number;
+  items_with_sales: number;
+};
+
+// Get menu item movement statistics with date range
+export async function getMenuItemMovement(startDate?: string, endDate?: string): Promise<MenuItemMovementResponse> {
   try {
-    const response = await axios.get<MenuItemMovement[]>(`${API}/analytics/menu-item-movement/`, { withCredentials: true });
+    let url = `${API}/analytics/menu-item-movement/`;
+    
+    // Add query parameters if dates are provided
+    if (startDate && endDate) {
+      url += `?start_date=${startDate}&end_date=${endDate}`;
+    }
+    
+    const response = await axios.get<MenuItemMovementResponse>(url, { withCredentials: true });
     return response.data;
   } catch (error: any) {
     console.error('Error fetching menu item movement:', error);

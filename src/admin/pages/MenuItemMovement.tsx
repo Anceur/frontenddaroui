@@ -1,18 +1,31 @@
 import { useState, useEffect } from 'react';
-import { Package, Search, Download, ArrowUpRight, Activity, Filter, RefreshCw, Loader2 } from 'lucide-react';
-import { getMenuItemMovement, type MenuItemMovement } from '../../shared/api/analytics';
+import { Package, Search, Download, TrendingUp, DollarSign, Activity, Filter, RefreshCw, Loader2, Calendar, ShoppingCart } from 'lucide-react';
+import { getMenuItemMovement, type MenuItemMovement, type MenuItemMovementResponse } from '../../shared/api/analytics';
 
 export default function MenuItemMovement() {
-    const [movement, setMovement] = useState<MenuItemMovement[]>([]);
+    const [data, setData] = useState<MenuItemMovementResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [refreshing, setRefreshing] = useState(false);
+    
+    // Date range state - default to last 30 days
+    const getDefaultDates = () => {
+        const end = new Date();
+        const start = new Date();
+        start.setDate(start.getDate() - 30);
+        return {
+            start: start.toISOString().split('T')[0],
+            end: end.toISOString().split('T')[0]
+        };
+    };
+    
+    const [dateRange, setDateRange] = useState(getDefaultDates());
 
     const fetchMovement = async () => {
         try {
-            const data = await getMenuItemMovement();
-            setMovement(data);
+            const result = await getMenuItemMovement(dateRange.start, dateRange.end);
+            setData(result);
         } catch (error) {
             console.error('Error:', error);
         } finally {
@@ -23,23 +36,26 @@ export default function MenuItemMovement() {
 
     useEffect(() => {
         fetchMovement();
-    }, []);
+    }, [dateRange]);
 
     const handleRefresh = () => {
         setRefreshing(true);
         fetchMovement();
     };
 
-    const filteredMovement = movement.filter(item => {
+    const filteredMovement = data?.items.filter(item => {
         const matchesSearch = (item.name || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
         return matchesSearch && matchesCategory;
-    });
+    }) || [];
 
-    const categories = ['All', ...new Set(movement.map(item => item.category))];
-
-    // Affichage des libellés de catégories (valeur 'All' conservée pour la logique)
+    const categories = ['All', ...new Set(data?.items.map(item => item.category) || [])];
     const categoryLabel = (cat: string) => (cat === 'All' ? 'Tous' : cat);
+
+    // Calculate summary stats
+    const totalRevenue = filteredMovement.reduce((sum, item) => sum + item.revenue, 0);
+    const totalProfit = filteredMovement.reduce((sum, item) => sum + item.profit, 0);
+    const totalQuantity = filteredMovement.reduce((sum, item) => sum + item.quantity_sold, 0);
 
     if (loading) {
         return (
@@ -57,7 +73,7 @@ export default function MenuItemMovement() {
                     <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Mouvements des produits</h1>
                     <p className="text-gray-600 mt-2 flex items-center gap-2 font-medium">
                         <Activity className="w-4 h-4 text-orange-500" />
-                        Suivez le volume des ventes sur des intervalles quotidien, mensuel et annuel
+                        Suivez les ventes détaillées par période personnalisée
                     </p>
                 </div>
 
@@ -72,18 +88,90 @@ export default function MenuItemMovement() {
 
                     <button className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-all duration-200 shadow-lg shadow-orange-200/50 hover:shadow-orange-300/50 hover:-translate-y-0.5 active:translate-y-0">
                         <Download className="w-4 h-4" />
-                        Exporter les données
+                        Exporter
                     </button>
                 </div>
             </div>
 
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-5 border border-blue-200">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                            <ShoppingCart className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-blue-600 text-sm font-bold">Quantité totale</p>
+                            <p className="text-2xl font-black text-blue-900">{totalQuantity}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-5 border border-green-200">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                            <DollarSign className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-green-600 text-sm font-bold">Revenu total</p>
+                            <p className="text-2xl font-black text-green-900">{totalRevenue.toFixed(2)} DA</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-5 border border-purple-200">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                            <TrendingUp className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-purple-600 text-sm font-bold">Profit total</p>
+                            <p className="text-2xl font-black text-purple-900">{totalProfit.toFixed(2)} DA</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-5 border border-orange-200">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
+                            <Package className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-orange-600 text-sm font-bold">Produits vendus</p>
+                            <p className="text-2xl font-black text-orange-900">{data?.items_with_sales || 0}/{data?.total_items || 0}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="relative group md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                {/* Date Range Pickers */}
+                <div className="relative group">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                    <input
+                        type="date"
+                        value={dateRange.start}
+                        onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all duration-200 text-gray-700 font-medium"
+                    />
+                </div>
+
+                <div className="relative group">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                    <input
+                        type="date"
+                        value={dateRange.end}
+                        onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all duration-200 text-gray-700 font-medium"
+                    />
+                </div>
+
+                <div className="relative group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                     <input
                         type="text"
-                        placeholder="Rechercher par nom de produit..."
+                        placeholder="Rechercher..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all duration-200 text-gray-700 font-medium placeholder:text-gray-400"
@@ -110,52 +198,63 @@ export default function MenuItemMovement() {
                     <table className="w-full">
                         <thead>
                             <tr className="bg-gray-50/50">
-                                <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Détails du produit</th>
-                                <th className="px-8 py-5 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Catégorie</th>
-                                <th className="px-8 py-5 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap bg-orange-50/30">Aujourd'hui</th>
-                                <th className="px-8 py-5 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Ce mois-ci</th>
-                                <th className="px-8 py-5 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Cette année</th>
+                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Produit</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Catégorie</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap bg-blue-50/30">Qté vendue</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Commandes</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap bg-green-50/30">Revenu</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Coût</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap bg-purple-50/30">Profit</th>
+                                <th className="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest whitespace-nowrap">Marge %</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {filteredMovement.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-50/80 transition-all duration-150 group">
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                                <Package className="w-6 h-6 text-orange-600" />
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                                <Package className="w-5 h-5 text-orange-600" />
                                             </div>
                                             <div>
-                                                <p className="text-gray-900 font-extrabold text-lg">{item.name}</p>
-                                                <p className="text-gray-500 text-sm font-medium">{item.price?.toFixed(2)} DA</p>
+                                                <p className="text-gray-900 font-bold">{item.name}</p>
+                                                <p className="text-gray-500 text-xs font-medium">{item.price?.toFixed(2)} DA</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-center">
-                                        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 uppercase tracking-wider">
+                                    <td className="px-6 py-4 text-center">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 uppercase">
                                             {item.category}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 text-center bg-orange-50/10">
+                                    <td className="px-6 py-4 text-center bg-blue-50/10">
                                         <div className="flex flex-col items-center gap-1">
-                                            <span className={`text-xl font-black ${item.today > 10 ? 'text-orange-600' : 'text-gray-700'}`}>
-                                                {item.today}
+                                            <span className="text-lg font-black text-blue-600">{item.quantity_sold}</span>
+                                            <span className="text-[10px] font-medium text-gray-400">
+                                                {item.avg_quantity_per_order.toFixed(1)}/cmd
                                             </span>
-                                            {item.today > 0 && (
-                                                <span className="text-[10px] font-bold text-orange-400 flex items-center gap-0.5">
-                                                    <ArrowUpRight className="w-3 h-3" />
-                                                    ACTIF
-                                                </span>
-                                            )}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-center">
-                                        <span className="text-xl font-black text-gray-700">{item.month}</span>
+                                    <td className="px-6 py-4 text-center">
+                                        <span className="text-base font-bold text-gray-700">{item.order_count}</span>
                                     </td>
-                                    <td className="px-8 py-5 text-center">
+                                    <td className="px-6 py-4 text-center bg-green-50/10">
+                                        <span className="text-base font-black text-green-600">{item.revenue.toFixed(2)} DA</span>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <span className="text-base font-bold text-gray-600">{item.total_cost.toFixed(2)} DA</span>
+                                    </td>
+                                    <td className="px-6 py-4 text-center bg-purple-50/10">
+                                        <span className={`text-base font-black ${item.profit >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+                                            {item.profit.toFixed(2)} DA
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
                                         <div className="flex items-center justify-center gap-2">
-                                            <span className="text-xl font-black text-gray-900">{item.year}</span>
-                                            {item.year > 100 && (
+                                            <span className={`text-base font-black ${item.profit_margin >= 50 ? 'text-green-600' : item.profit_margin >= 20 ? 'text-orange-600' : 'text-red-600'}`}>
+                                                {item.profit_margin.toFixed(1)}%
+                                            </span>
+                                            {item.profit_margin >= 50 && (
                                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                             )}
                                         </div>

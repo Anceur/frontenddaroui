@@ -23,8 +23,7 @@ export default function RoleRouter() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/:tableNumber/*" element={<OfflineClientApp />} />
-        <Route path="/" element={<ClientApp />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/*" element={<ClientApp />} />
       </Routes>
     )
   }
