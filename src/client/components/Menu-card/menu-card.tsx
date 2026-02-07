@@ -188,62 +188,48 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
         )}
 
         <div className="flex-grow"></div>
+        {/*footer*/}
+        
+        <div className="pt-4 border-t border-gray-100">
+          <div className="flex items-end justify-between gap-4">
 
-        {/* Footer */}
-        {/* Footer */}
-<div className="pt-4 mt-2 border-t border-gray-100">
-  <div className="flex items-end justify-between gap-4">
-    
-    {/* Price */}
-    <div className="min-h-[64px]">
-      {activePromo && (
-        <span className="text-sm text-gray-400 line-through font-semibold block">
-          {getOriginalPrice().toFixed(0)} DA
-        </span>
-      )}
-      <div className="text-3xl font-bold text-gray-900 leading-none">
-        {getCurrentPrice().toFixed(0)} DA
-      </div>
-    </div>
+            {/* PRICE (FIXED HEIGHT) */}
+            <div className="flex flex-col justify-end min-h-[72px]">
+              {activePromo && (
+                <span className="text-sm text-gray-400 line-through font-semibold">
+                  {getOriginalPrice().toFixed(0)} DA
+                </span>
+              )}
+              <div className="text-3xl font-bold text-gray-900 leading-none whitespace-nowrap">
+                {getCurrentPrice().toFixed(0)} DA
+              </div>
+            </div>
 
-    {/* Button */}
-    <button
-      onClick={handleAddToCart}
-      disabled={isButtonDisabled}
-      className={`
-        min-w-[190px]
-        h-[52px]
-        flex items-center justify-center gap-2
-        rounded-2xl
-        font-bold text-sm
-        transition-all
-        shadow-lg
-        flex-shrink-0
-        ${
-          isAdding
-            ? "bg-[#fe9a00] text-white scale-95"
-            : isButtonDisabled
-            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-            : "bg-[#fe9a00] hover:brightness-110 text-white hover:scale-105"
-        }
-      `}
-    >
-      {isAdding ? (
-        <>
-          <span>✓</span>
-          <span>Ajouté</span>
-        </>
-      ) : (
-        <>
-          <span>🛒</span>
-          <span>Ajouter au panier</span>
-        </>
-      )}
-    </button>
+            {/* BUTTON (FIXED SIZE) */}
+            <button
+              onClick={handleAddToCart}
+              disabled={isButtonDisabled}
+              className={`
+                min-w-[200px]
+                h-[54px]
+                flex items-center justify-center gap-2
+                rounded-2xl
+                font-bold text-sm
+                shadow-lg
+                transition-all
+                flex-shrink-0
+                ${
+                  isButtonDisabled
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-[#fe9a00] text-white hover:brightness-110 hover:scale-105"
+                }
+              `}
+            >
+              {isAdding ? "✓ Ajouté" : "🛒 Ajouter au panier"}
+            </button>
 
-  </div>
-</div>
-
+          </div>
+        </div>
       </div>
     </div>
   )
