@@ -188,13 +188,13 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
         )}
 
         <div className="flex-grow"></div>
-        {/*footer*/}
+   {/*footer*/}
         
         <div className="pt-4 border-t border-gray-100">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex items-end justify-between gap-3">
 
             {/* PRICE (FIXED HEIGHT) */}
-            <div className="flex flex-col justify-end min-h-[72px]">
+            <div className="flex flex-col justify-end min-h-[72px] flex-shrink-0">
               {activePromo && (
                 <span className="text-sm text-gray-400 line-through font-semibold">
                   {getOriginalPrice().toFixed(0)} DA
@@ -205,19 +205,22 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
               </div>
             </div>
 
-            {/* BUTTON (FIXED SIZE) */}
+            {/* BUTTON (CHROME-COMPATIBLE) */}
             <button
               onClick={handleAddToCart}
               disabled={isButtonDisabled}
               className={`
-                min-w-[200px]
+                flex-shrink
+                min-w-[140px]
+                max-w-[180px]
                 h-[54px]
-                flex items-center justify-center gap-2
+                flex items-center justify-center gap-1.5
                 rounded-2xl
                 font-bold text-sm
                 shadow-lg
                 transition-all
-                flex-shrink-0
+                px-3
+                overflow-hidden
                 ${
                   isButtonDisabled
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -225,7 +228,10 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
                 }
               `}
             >
-              {isAdding ? "✓ Ajouté" : "🛒 Ajouter au panier"}
+              <span className="text-base leading-none">🛒</span>
+              <span className="leading-none">
+                {isAdding ? "Ajouté" : "Ajouter"}
+              </span>
             </button>
 
           </div>

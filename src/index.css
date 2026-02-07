@@ -95,6 +95,10 @@ button:focus-visible {
   scrollbar-width: none;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 /* Thin scrollbar utilities for responsive tables */
 .scrollbar-thin::-webkit-scrollbar {
   width: 8px;
