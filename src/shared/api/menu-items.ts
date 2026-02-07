@@ -117,13 +117,15 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
       formData.append('featured', itemData.featured.toString());
     }
 
-    console.log('📤 إرسال البيانات إلى:', `${API}/menu-items/`);
+    console.log('📤 إرسال إلى:', `${API}/menu-items/`);
     
-    // 🔥 اطبع جميع محتويات FormData
+    // طباعة محتويات FormData
     console.log('📋 محتويات FormData:');
-    for (let pair of formData.entries()) {
-      console.log(`  ${pair[0]}: ${pair[1]}`);
+    for (let [key, value] of formData.entries()) {
+      console.log(`  ${key}: ${value}`);
     }
+
+    console.log('⏳ انتظار الاستجابة...');
 
     const response = await axios.post<MenuItem>(`${API}/menu-items/`, formData, {
       withCredentials: true,
@@ -132,19 +134,48 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
       },
     });
 
+    console.log('🎉 نجح الطلب!');
     console.log('✅ استجابة الخادم:', response.data);
-    console.log('🖼️ الصورة المحفوظة:', response.data.image);
+    console.log('🖼️ الصورة المحفوظة في قاعدة البيانات:', response.data.image);
+    console.log('🆔 معرف المنتج:', response.data.id);
     
     return response.data;
+    
   } catch (error: any) {
-    console.error('❌ خطأ في إنشاء المنتج:', error);
+    console.error('❌❌❌ حدث خطأ! ❌❌❌');
+    console.error('نوع الخطأ:', error.message);
+    
     if (error.response) {
-      console.error('📛 Status:', error.response.status);
-      console.error('📛 تفاصيل الخطأ:', error.response.data);
+      // الخادم رد بخطأ
+      console.error('📛 Status Code:', error.response.status);
+      console.error('📛 استجابة الخادم:', error.response.data);
+      console.error('📛 Headers:', error.response.headers);
+      
+      const errorMessage = error.response.data?.error 
+        || error.response.data?.detail 
+        || error.response.data?.message
+        || 'فشل إنشاء المنتج';
+      
+      const details = error.response.data?.details;
+      if (details) {
+        console.error('📋 تفاصيل الخطأ:', details);
+        throw new Error(`${errorMessage}: ${JSON.stringify(details)}`);
+      }
+      
+      throw new Error(errorMessage);
+    } else if (error.request) {
+      // الطلب تم إرساله لكن لا توجد استجابة
+      console.error('📛 لا توجد استجابة من الخادم');
+      console.error('📛 Request:', error.request);
+      throw new Error('لا يمكن الوصول إلى الخادم. تحقق من الاتصال بالإنترنت.');
+    } else {
+      // خطأ في إعداد الطلب
+      console.error('📛 خطأ في إعداد الطلب:', error.message);
+      throw new Error('خطأ في إرسال البيانات');
     }
-    throw new Error(error.response?.data?.error || 'فشل إنشاء المنتج');
   }
-}
+  }
+
 // Update a menu item (full update)
 export async function updateMenuItem(itemId: number, itemData: UpdateMenuItemData): Promise<MenuItem> {
   try {
