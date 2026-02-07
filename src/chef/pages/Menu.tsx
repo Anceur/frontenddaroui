@@ -32,7 +32,7 @@ export default function Menu() {
         price: 0,
         cost_price: 0,
         category: 'burger',
-        image: null,
+        image: '',
         featured: false,
     })
     const [submitting, setSubmitting] = useState(false)
@@ -135,7 +135,7 @@ export default function Menu() {
                 price: 0,
                 cost_price: 0,
                 category: 'burger',
-                image: null,
+                image: '',
                 featured: false,
             });
             setImagePreview(null);
@@ -315,7 +315,7 @@ export default function Menu() {
                                 price: 0,
                                 cost_price: 0,
                                 category: 'burger',
-                                image: null,
+                                image: '',
                                 featured: false,
                             });
                             setImagePreview(null);

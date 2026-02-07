@@ -248,63 +248,73 @@ export default function StaffManagement() {
   };
 
   const handleEditStaff = async () => {
-    if (!editingStaff) return;
+  if (!editingStaff) return;
 
-    // Validate password fields if password is being changed
-    if (formData.password) {
-      validateField('password', formData.password);
-      validateField('confirmPassword', formData.confirmPassword);
+  // Validate password fields if password is being changed
+  if (formData.password) {
+    validateField('password', formData.password);
+    validateField('confirmPassword', formData.confirmPassword);
 
-      if (formData.password !== formData.confirmPassword) {
-        setError('Les mots de passe ne correspondent pas');
-        return;
-      }
-
-      if (Object.keys(validationErrors).length > 0) {
-        setError('Veuillez corriger les erreurs dans le formulaire');
-        return;
-      }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
+      return;
     }
 
-    // Validate phone if provided
-    if (formData.phone) {
-      validateField('phone', formData.phone);
-      if (validationErrors.phone) {
-        setError('Veuillez corriger les erreurs dans le formulaire');
-        return;
-      }
+    if (Object.keys(validationErrors).length > 0) {
+      setError('Veuillez corriger les erreurs dans le formulaire');
+      return;
+    }
+  }
+
+  // Validate phone if provided
+  if (formData.phone) {
+    validateField('phone', formData.phone);
+    if (validationErrors.phone) {
+      setError('Veuillez corriger les erreurs dans le formulaire');
+      return;
+    }
+  }
+
+  try {
+    setLoading(true);
+    setError('');
+    
+    console.log('🚀 بدء تحديث Staff...');
+    
+    const updateData: any = {
+      name: formData.name,
+      role: formData.role,
+      phone: formData.phone,
+      address: formData.address
+    };
+
+    // 🔥 إرسال الصورة كـ URL string
+    if (formData.image) updateData.image = formData.image;
+    
+    if (formData.password && formData.password === formData.confirmPassword) {
+      updateData.password = formData.password;
     }
 
-    try {
-      setLoading(true);
-      setError('');
-      const updateData: any = {
-        name: formData.name,
-        role: formData.role,
-        phone: formData.phone,
-        address: formData.address
-      };
+    console.log('📦 بيانات التحديث:', updateData);
 
-      if (formData.image instanceof File) updateData.image = formData.image;
-      if (formData.password && formData.password === formData.confirmPassword) {
-        updateData.password = formData.password;
-      }
-
-      await updateStaff(editingStaff.id, updateData);
-      setShowEditModal(false);
-      setEditingStaff(null);
-      resetForm();
-      setImagePreview(null);
-      setValidationErrors({});
-      setPasswordStrength(0);
-      fetchStaff();
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Échec de la mise à jour de l'employé");
-      console.error('Erreur mise à jour personnel:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    await updateStaff(editingStaff.id, updateData);
+    
+    console.log('✅ تم تحديث Staff بنجاح!');
+    
+    setShowEditModal(false);
+    setEditingStaff(null);
+    resetForm();
+    setImagePreview(null);
+    setValidationErrors({});
+    setPasswordStrength(0);
+    fetchStaff();
+  } catch (err: any) {
+    setError(err.response?.data?.error || "Échec de la mise à jour de l'employé");
+    console.error('❌ Erreur mise à jour personnel:', err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDeleteStaff = async (id: number) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')) {
@@ -333,7 +343,7 @@ export default function StaffManagement() {
       password: '',
       phone: '',
       address: '',
-      image: null,
+      image: '',
       confirmPassword: ''
     });
     setError('');
@@ -408,7 +418,7 @@ export default function StaffManagement() {
       password: '',
       phone: member.phone !== 'N/A' ? member.phone : '',
       address: '',
-      image: null,
+      image: '',
       confirmPassword: ''
     });
     setImagePreview(member.avatar);
