@@ -111,11 +111,15 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
     // 🔥 فقط أضف الصورة كنص (URL) وليس كملف
     if (itemData.image) {
       formData.append('image', itemData.image); // رابط URL
+            console.log('🖼️ إرسال رابط الصورة:', itemData.image); // 🔥 تحقق
+
     }
     
     if (itemData.featured !== undefined) {
       formData.append('featured', itemData.featured.toString());
     }
+
+        console.log('📤 إرسال البيانات إلى الخادم...'); // 🔥 تحقق
 
     const response = await axios.post<MenuItem>(`${API}/menu-items/`, formData, {
       withCredentials: true,
@@ -123,6 +127,9 @@ export async function createMenuItem(itemData: CreateMenuItemData): Promise<Menu
         'Content-Type': 'multipart/form-data',
       },
     });
+
+        console.log('✅ استجابة الخادم:', response.data); // 🔥 تحقق
+
     return response.data;
   } catch (error: any) {
     console.error('خطأ في إنشاء المنتج:', error);

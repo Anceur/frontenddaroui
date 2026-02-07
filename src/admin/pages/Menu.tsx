@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, RefreshCw, ChevronDown, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Tag, X, Save, Loader2, AlertCircle, Package, Sparkles } from 'lucide-react';
 import { getMenuItems, createMenuItem, patchMenuItem, deleteMenuItem } from '../../shared/api/menu-items';
-import type { MenuItem, CreateMenuItemData } from '../../shared/api/menu-items';
+import type { MenuItem, CreateMenuItemData, UpdateMenuItemData } from '../../shared/api/menu-items';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../firebase";
 
@@ -207,6 +207,9 @@ Donnez uniquement la description, sans introduction ni conclusion.`
       image: formData.image, // الآن هذا رابط URL نصي
     };
 
+     console.log('📦 البيانات التي سيتم إرسالها:', submitData);
+    console.log('🖼️ رابط الصورة:', submitData.image);
+    
     if (editingItem) {
       await patchMenuItem(editingItem.id, submitData);
     } else {
