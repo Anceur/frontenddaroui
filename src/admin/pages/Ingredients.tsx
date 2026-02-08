@@ -160,36 +160,38 @@ export default function IngredientsManagement() {
 
       {/* Actions Bar */}
       <div className="bg-white/70 backdrop-blur-md rounded-[2.5rem] p-4 mb-8 flex flex-col lg:flex-row gap-4 shadow-xl shadow-orange-500/5 border border-white">
-        <div className="relative flex-grow">
-          <Search size={20} className="absolute left-6 top-1/2 transform -translate-y-1/2 text-orange-400" />
-          <input
-            type="text"
-            placeholder="Rechercher des matières premières..."
-            className="w-full pl-14 pr-6 py-4 bg-gray-50/50 border-none rounded-[2rem] focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-semibold text-gray-700"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={fetchIngredients}
-            className="p-4 bg-white border-2 border-orange-50 rounded-[1.5rem] hover:border-orange-200 transition-all hover:bg-orange-50 group active:scale-95"
-            disabled={loading}
-          >
-            <RefreshCw
-              size={22}
-              className={`${loading ? 'animate-spin' : ''} text-orange-500 group-hover:rotate-45 transition-transform`}
-            />
-          </button>
-          <button
-            onClick={openNewModal}
-            className="flex items-center gap-3 px-8 py-4 bg-orange-500 text-white rounded-[1.5rem] font-bold hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 transition-all active:scale-95 whitespace-nowrap"
-          >
-            <Plus size={22} strokeWidth={3} />
-            ENREGISTRER L'INGRÉDIENT
-          </button>
-        </div>
-      </div>
+  <div className="relative flex-grow">
+    <Search size={20} className="absolute left-6 top-1/2 transform -translate-y-1/2 text-orange-400" />
+    <input
+      type="text"
+      placeholder="Rechercher des matières premières..."
+      className="w-full pl-14 pr-6 py-4 bg-gray-50/50 border-none rounded-[2rem] focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-semibold text-gray-700"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+  </div>
+  
+  <div className="flex gap-3">
+    <button
+      onClick={fetchIngredients}
+      className="p-4 bg-white border-2 border-orange-50 rounded-[1.5rem] hover:border-orange-200 transition-all hover:bg-orange-50 group active:scale-95"
+      disabled={loading}
+    >
+      <RefreshCw
+        size={22}
+        className={`${loading ? 'animate-spin' : ''} text-orange-500 group-hover:rotate-45 transition-transform`}
+      />
+    </button>
+    
+    <button
+      onClick={openNewModal}
+      className="flex items-center justify-center gap-2 lg:gap-3 px-4 lg:px-8 py-4 bg-orange-500 text-white rounded-[1.5rem] font-bold hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 transition-all active:scale-95 flex-1 lg:flex-initial"
+    >
+      <Plus size={22} strokeWidth={3} />
+      <span className="text-xs lg:text-base lg:whitespace-nowrap">ENREGISTRER L'INGRÉDIENT</span>
+    </button>
+  </div>
+</div>
 
       {/* Ingredients List */}
       {loading ? (
