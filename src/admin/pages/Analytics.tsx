@@ -162,40 +162,44 @@ const Analytics: React.FC = () => {
       {/* Onglets */}
       <div className="bg-white rounded-lg shadow mb-6">
         <div className="border-b border-gray-200">
-          <nav className="flex -mb-px">
+          <nav className="flex -mb-px overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-6 text-sm font-medium ${activeTab === 'overview'
+              className={`py-3 sm:py-4 px-4 sm:px-6 text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0 ${
+                activeTab === 'overview'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+              }`}
             >
               Vue d'ensemble
             </button>
             <button
               onClick={() => setActiveTab('sales')}
-              className={`py-4 px-6 text-sm font-medium ${activeTab === 'sales'
+              className={`py-3 sm:py-4 px-4 sm:px-6 text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0 ${
+                activeTab === 'sales'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+              }`}
             >
               Ventes
             </button>
             <button
               onClick={() => setActiveTab('customers')}
-              className={`py-4 px-6 text-sm font-medium ${activeTab === 'customers'
+              className={`py-3 sm:py-4 px-4 sm:px-6 text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0 ${
+                activeTab === 'customers'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+              }`}
             >
               Clients
             </button>
             <button
               onClick={() => setActiveTab('products')}
-              className={`py-4 px-6 text-sm font-medium ${activeTab === 'products'
+              className={`py-3 sm:py-4 px-4 sm:px-6 text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0 ${
+                activeTab === 'products'
                   ? 'border-b-2 border-orange-500 text-orange-600'
                   : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+              }`}
             >
               Produits
             </button>
