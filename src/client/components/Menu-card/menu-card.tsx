@@ -191,7 +191,7 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
    {/*footer*/}
         
         <div className="pt-4 border-t border-gray-100">
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex items-end justify-between gap-1">
 
             {/* PRICE (FIXED HEIGHT) */}
             <div className="flex flex-col justify-end min-h-[72px] flex-shrink-0">
