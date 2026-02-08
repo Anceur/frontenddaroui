@@ -254,7 +254,7 @@ export default function ExpensesDashboard() {
                         </button>
                         <button
                             onClick={() => handleOpenModal()}
-                            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"
+                            className="flex-1 sm:flex-initial flex itemToutes les catégoriess-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"
                         >
                             <Plus className="w-5 h-5" />
                             <span className="text-sm sm:text-base">Ajouter une dépense</span>
@@ -415,29 +415,29 @@ export default function ExpensesDashboard() {
 
             {/* Expenses Table */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 className="text-xl font-bold">Historique des dépenses</h2>
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            <input
-                                type="text"
-                                placeholder="Rechercher une dépense..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-9 pr-4 py-2 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500/20 outline-none w-64 font-medium"
-                            />
-                        </div>
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="px-3 py-2 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500/20 outline-none font-bold text-gray-700"
-                        >
-                            <option value="Toutes les catégories">Toutes les catégories</option>
-                            {CATEGORIES.map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
-                        </select>
+                <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h2 className="text-lg md:text-xl font-bold">Historique des dépenses</h2>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                    <div className="relative flex-1 sm:flex-initial">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <input
+                            type="text"
+                            placeholder="Rechercher une dépense..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 pr-4 py-2 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500/20 outline-none w-full sm:w-64 font-medium text-sm md:text-base"
+                        />
                     </div>
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="px-3 py-2 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500/20 outline-none font-bold text-gray-700 text-sm md:text-base w-full sm:w-auto"
+                    >
+                        <option value="Toutes les catégories">Toutes les catégories</option>
+                        {CATEGORIES.map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
+                    </select>
                 </div>
+            </div>
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
