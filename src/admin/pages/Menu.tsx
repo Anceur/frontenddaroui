@@ -424,48 +424,59 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       )}
 
       {/* Actions Bar */}
-      <div className="bg-white/70 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 flex flex-col lg:flex-row gap-4 items-center transition-all">
-        <div className="relative flex-grow w-full">
-          <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Rechercher dans votre menu..."
-            className="pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl w-full focus:ring-2 focus:ring-orange-500/20 transition-all outline-none"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-3 w-full lg:w-auto items-stretch">
-          <div className="relative min-w-[140px]">
-            <select
-              className="appearance-none bg-gray-50 border border-transparent rounded-xl px-5 py-3 pr-10 w-full cursor-pointer focus:ring-2 focus:ring-orange-500/20 focus:bg-white outline-none transition-all font-bold text-gray-700 hover:bg-gray-100"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="name">Nom</option>
-              <option value="price">Prix</option>
-              <option value="category">Catégorie</option>
-              <option value="popular">Popularité</option>
-            </select>
-            <ChevronDown size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-          </div>
-          <button
-            onClick={handleRefresh}
-            className="px-4 bg-gray-50 border border-transparent rounded-xl hover:bg-gray-100 transition-all active:scale-95 flex items-center justify-center"
-            disabled={refreshing || loading}
-          >
-            <RefreshCw size={20} className={refreshing || loading ? 'animate-spin' : ''} style={{ color: '#FF8C00' }} />
-          </button>
-          <button
-            onClick={openNewModal}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:-translate-y-0.5 transition-all whitespace-nowrap"
-            style={{ backgroundColor: '#FF8C00' }}
-          >
-            <Plus size={20} />
-            <span>Ajouter un article</span>
-          </button>
-        </div>
-      </div>
+      <div className="bg-white/70 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-8 flex flex-col gap-4 transition-all"> 
+  {/* Search Input */}
+  <div className="relative w-full"> 
+    <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" /> 
+    <input 
+      type="text" 
+      placeholder="Rechercher dans votre menu..." 
+      className="pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl w-full focus:ring-2 focus:ring-orange-500/20 transition-all outline-none" 
+      value={searchQuery} 
+      onChange={(e) => setSearchQuery(e.target.value)} 
+    /> 
+  </div> 
+  
+  {/* Controls Row */}
+  <div className="flex flex-col sm:flex-row gap-3 w-full"> 
+    {/* Sort Dropdown */}
+    <div className="relative flex-1 sm:flex-initial sm:min-w-[140px]"> 
+      <select 
+        className="appearance-none bg-gray-50 border border-transparent rounded-xl px-5 py-3 pr-10 w-full cursor-pointer focus:ring-2 focus:ring-orange-500/20 focus:bg-white outline-none transition-all font-bold text-gray-700 hover:bg-gray-100" 
+        value={sortBy} 
+        onChange={(e) => setSortBy(e.target.value)} 
+      > 
+        <option value="name">Nom</option> 
+        <option value="price">Prix</option> 
+        <option value="category">Catégorie</option> 
+        <option value="popular">Popularité</option> 
+      </select> 
+      <ChevronDown size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" /> 
+    </div>
+    
+    {/* Refresh and Add Buttons Container */}
+    <div className="flex gap-3 flex-1 sm:flex-initial">
+      {/* Refresh Button */}
+      <button 
+        onClick={handleRefresh} 
+        className="px-4 sm:px-4 bg-gray-50 border border-transparent rounded-xl hover:bg-gray-100 transition-all active:scale-95 flex items-center justify-center" 
+        disabled={refreshing || loading} 
+      > 
+        <RefreshCw size={20} className={refreshing || loading ? 'animate-spin' : ''} style={{ color: '#FF8C00' }} /> 
+      </button> 
+      
+      {/* Add Article Button */}
+      <button 
+        onClick={openNewModal} 
+        className="flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-xl text-white font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:-translate-y-0.5 transition-all flex-1 sm:flex-initial" 
+        style={{ backgroundColor: '#FF8C00' }} 
+      > 
+        <Plus size={20} /> 
+        <span className="text-sm sm:text-base">Ajouter un article</span> 
+      </button> 
+    </div>
+  </div> 
+</div>
 
       {/* Category Tabs */}
       <div className="mb-8 overflow-x-auto pb-2 scrollbar-hide">
