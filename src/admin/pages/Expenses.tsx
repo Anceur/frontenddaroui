@@ -223,14 +223,14 @@ export default function ExpensesDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Analyse des dépenses</h1>
-                    <p className="text-gray-500 font-medium">Surveillez et gérez les dépenses du restaurant</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Analyse des dépenses</h1>
+                    <p className="text-sm md:text-base text-gray-500 font-medium">Surveillez et gérez les dépenses du restaurant</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div className="flex items-center bg-white rounded-xl px-4 py-2 border border-gray-200 shadow-sm">
-                        <Calendar className="h-5 w-5 text-gray-500 mr-2" />
+                        <Calendar className="h-5 w-5 text-gray-500 mr-2 flex-shrink-0" />
                         <select
-                            className="bg-transparent border-none text-sm font-bold text-gray-700 focus:outline-none"
+                            className="bg-transparent border-none text-sm font-bold text-gray-700 focus:outline-none w-full"
                             value={dateRange}
                             onChange={(e) => setDateRange(e.target.value)}
                         >
@@ -242,21 +242,24 @@ export default function ExpensesDashboard() {
                             <option>Cette année</option>
                         </select>
                     </div>
-                    <button
-                        onClick={() => fetchData(true)}
-                        disabled={loading}
-                        className="flex items-center bg-white rounded-xl px-4 py-2 shadow-sm border border-gray-100 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                        <RefreshCw className={`h-5 w-5 text-gray-500 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                        <span className="text-sm font-bold text-gray-700">Actualiser</span>
-                    </button>
-                    <button
-                        onClick={() => handleOpenModal()}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Ajouter une dépense
-                    </button>
+                    
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => fetchData(true)}
+                            disabled={loading}
+                            className="flex-1 sm:flex-initial flex items-center justify-center bg-white rounded-xl px-4 py-2 shadow-sm border border-gray-100 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            <RefreshCw className={`h-5 w-5 text-gray-500 sm:mr-2 ${loading ? 'animate-spin' : ''}`} />
+                            <span className="hidden sm:inline text-sm font-bold text-gray-700">Actualiser</span>
+                        </button>
+                        <button
+                            onClick={() => handleOpenModal()}
+                            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"
+                        >
+                            <Plus className="w-5 h-5" />
+                            <span className="text-sm sm:text-base">Ajouter une dépense</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
