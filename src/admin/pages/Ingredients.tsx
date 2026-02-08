@@ -363,30 +363,30 @@ export default function IngredientsManagement() {
                 <p className="text-[10px] text-gray-400 font-bold px-1 italic">Associer les matériaux aux fournisseurs enregistrés</p>
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-8 py-4 bg-gray-100 text-gray-500 rounded-2xl font-bold hover:bg-gray-200 transition-all active:scale-95"
-                  disabled={submitting}
-                >
-                  ANNULER
-                </button>
-                <button
-                  type="submit"
-                  className="flex-grow-[1.5] px-8 py-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-500/20 hover:bg-orange-600 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
-                  disabled={submitting}
-                >
-                  {submitting ? (
-                    <Loader2 size={24} className="animate-spin" />
-                  ) : (
-                    <>
-                      <Save size={24} />
-                      ENREGISTRER
-                    </>
-                  )}
-                </button>
-              </div>
+             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="w-full sm:flex-1 px-6 sm:px-8 py-3.5 sm:py-4 bg-gray-100 text-gray-500 rounded-2xl font-bold hover:bg-gray-200 transition-all active:scale-95 text-sm sm:text-base"
+                    disabled={submitting}
+                  >
+                    ANNULER
+                  </button>
+                  <button
+                    type="submit"
+                    className="w-full sm:flex-grow-[1.5] px-6 sm:px-8 py-3.5 sm:py-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-500/20 hover:bg-orange-600 transition-all active:scale-95 flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50 text-sm sm:text-base"
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <Loader2 size={20} className="animate-spin sm:w-6 sm:h-6" />
+                    ) : (
+                      <>
+                        <Save size={20} className="sm:w-6 sm:h-6" />
+                        ENREGISTRER
+                      </>
+                    )}
+                  </button>
+                </div>
             </form>
           </div>
         </div>
