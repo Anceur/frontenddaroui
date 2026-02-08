@@ -208,30 +208,32 @@ export default function SuppliersManagement() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-4 border-t" style={{ borderColor: '#FFD700' }}>
-                  <button
-                    onClick={() => handleViewHistory(supplier.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-all hover:bg-gray-50"
-                    style={{ borderColor: '#FFD700' }}
-                  >
-                    <History size={16} style={{ color: '#FF8C00' }} />
-                    Historique
-                  </button>
+               <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t" style={{ borderColor: '#FFD700' }}>
+                <button
+                  onClick={() => handleViewHistory(supplier.id)}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-all hover:bg-gray-50 text-sm"
+                  style={{ borderColor: '#FFD700' }}
+                >
+                  <History size={16} style={{ color: '#FF8C00' }} />
+                  <span>Historique</span>
+                </button>
+                <div className="flex gap-2 sm:flex-1">
                   <button
                     onClick={() => handleEdit(supplier)}
-                    className="text-blue-600 hover:text-blue-700 flex items-center gap-1 px-3 py-2"
+                    className="flex-1 sm:flex-initial text-blue-600 hover:text-blue-700 flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-transparent hover:border-blue-200 hover:bg-blue-50 transition-all text-sm"
                   >
                     <Edit size={16} />
-                    Modifier
+                    <span>Modifier</span>
                   </button>
                   <button
                     onClick={() => setDeleteConfirm(supplier.id)}
-                    className="text-red-600 hover:text-red-700 flex items-center gap-1 px-3 py-2"
+                    className="flex-1 sm:flex-initial text-red-600 hover:text-red-700 flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-transparent hover:border-red-200 hover:bg-red-50 transition-all text-sm"
                   >
                     <Trash2 size={16} />
-                    Supprimer
+                    <span>Supprimer</span>
                   </button>
                 </div>
+              </div>
               </div>
             </div>
           ))}
