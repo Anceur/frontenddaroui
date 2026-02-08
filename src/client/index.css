@@ -37,3 +37,7 @@ body {
   min-height: 100vh;
 }
 
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
