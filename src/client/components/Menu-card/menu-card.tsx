@@ -211,9 +211,9 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
               disabled={isButtonDisabled}
               className={`
                 flex-shrink
-                min-w-[140px]
+                min-w-[130px]
                 max-w-[180px]
-                h-[54px]
+                h-[40px]
                 flex items-center justify-center gap-1.5
                 rounded-2xl
                 font-bold text-sm
