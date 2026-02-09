@@ -177,7 +177,7 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
               "
             >
               <img
-                  src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo.png?alt=media&token=baa79678-993f-4229-bf66-a89f5fa28a8a"
+                  src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo%20(2).webp?alt=media&token=d8d493fa-55c4-4780-ba54-0fa6fa8bbd45"
                 alt="logo"
                 className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
               />

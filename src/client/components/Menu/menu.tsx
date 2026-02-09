@@ -82,7 +82,7 @@ export default function SweetcoMenu({ isOpen, onClose }: MenuProps) {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-[#392c1c] rounded-full flex items-center justify-center overflow-hidden shadow-md">
                     <img
-                      src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo.png?alt=media&token=baa79678-993f-4229-bf66-a89f5fa28a8a"
+                      src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo%20(2).webp?alt=media&token=d8d493fa-55c4-4780-ba54-0fa6fa8bbd45"
                       className="w-10 h-10 object-contain"
                       alt="logo"
                     />
