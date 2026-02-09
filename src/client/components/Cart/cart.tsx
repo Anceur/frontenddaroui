@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { useCart } from "./../../context/CartContext"
 import DeliveryDetailsDrawer from "../DeliveryDetails/DeliveryDetailsDrawer"
-import { ChevronDown, ChevronUp } from "lucide-react"
 
 interface CartDrawerProps {
   isOpen: boolean
@@ -14,8 +13,6 @@ interface CartDrawerProps {
 export default function CartDrawer({ isOpen, onClose, tableNumber }: CartDrawerProps) {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart()
   const [showDeliveryDetails, setShowDeliveryDetails] = useState(false)
-  const [showNotes, setShowNotes] = useState(false)
-  const [notes, setNotes] = useState("")
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const tax = 100
@@ -43,17 +40,7 @@ export default function CartDrawer({ isOpen, onClose, tableNumber }: CartDrawerP
             >
               {/* En-tête */}
               <div className="flex justify-between items-center mb-4 sm:mb-5 pb-3 sm:pb-4 border-b border-gray-200 flex-shrink-0">
-                <button
-                  onClick={() => setShowNotes(!showNotes)}
-                  className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-gray-800 hover:text-amber-600 transition-colors"
-                >
-                  <span>Votre panier</span>
-                  {showNotes ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Votre panier</h2>
                 <div className="flex items-center gap-2">
                   {cartItems.length > 0 && (
                     <button
@@ -72,32 +59,6 @@ export default function CartDrawer({ isOpen, onClose, tableNumber }: CartDrawerP
                   </button>
                 </div>
               </div>
-
-              {/* Notes / Instructions - Collapsible */}
-              <AnimatePresence>
-                {showNotes && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden mb-4 flex-shrink-0"
-                  >
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Notes / Instructions
-                      </label>
-                      <textarea
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                        rows={3}
-                        placeholder="Ex : appeler avant d'arriver, pas épicé…"
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               {/* Articles */}
               <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-3 pr-1 sm:pr-2 min-h-0">
@@ -151,7 +112,7 @@ export default function CartDrawer({ isOpen, onClose, tableNumber }: CartDrawerP
                         <button
                           onClick={() => removeFromCart(item.id)}
                           className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs sm:text-sm transition-all shadow-sm"
-                          title="Supprimer l'article"
+                          title="Supprimer l’article"
                         >
                           ×
                         </button>
@@ -201,7 +162,6 @@ export default function CartDrawer({ isOpen, onClose, tableNumber }: CartDrawerP
           onClose()
         }}
         onBack={() => setShowDeliveryDetails(false)}
-        notes={notes}
       />
     </>
   )
