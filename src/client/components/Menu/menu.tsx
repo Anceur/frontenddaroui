@@ -53,7 +53,7 @@ export default function SweetcoMenu({ isOpen, onClose }: MenuProps) {
     },
   ];
 
-  // const bottomItems = [{ icon: Moon, label: "Mode sombre" }];
+  const bottomItems = [{ icon: Moon, label: "Mode sombre" }];
 
   return (
     <AnimatePresence>
