@@ -10,14 +10,21 @@ export type LoyalCustomer = {
   loyaltyCardNumber: string;
 };
 
+export type OrderItemDetail = {
+  name: string;
+  size?: string;
+  price?: number;
+  quantity?: number;
+};
+
 export type Order = {
   id: string;
   customer: string;
   phone: string;
   address: string;
-  items: string[];
+  items: (string | OrderItemDetail)[];
   total: number;
-  status: 'Pending' | 'Preparing' | 'Ready' | 'Delivered' | 'Canceled';
+  status: 'Pending' | 'Preparing' | 'Ready' | 'Delivered' | 'Canceled' | 'Confirmed';
   date: string;
   time: string;
   paymentMethod: string;

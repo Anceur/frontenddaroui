@@ -369,9 +369,18 @@ export default function OrdersManagement() {
                             <span className="text-sm font-semibold" style={{ color: '#FF8C00' }}>Articles :</span>
                           </div>
                           <ul className="text-sm space-y-1" style={{ color: '#666666' }}>
-                            {order.items.map((item, idx) => (
-                              <li key={idx}>• {item}</li>
-                            ))}
+                            {order.items.map((item, idx) => {
+                              if (typeof item === 'string') {
+                                return <li key={idx}>• {item}</li>;
+                              }
+                              const detail = item as any;
+                              return (
+                                <li key={idx} className="flex justify-between">
+                                  <span>• {detail.name} {detail.size ? `[${detail.size}]` : ''}</span>
+                                  <span className="font-bold">x{detail.quantity || 1}</span>
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
 

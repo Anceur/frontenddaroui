@@ -47,12 +47,17 @@ export type MenuItemMovement = {
   today: number;
   month: number;
   year: number;
+  period: number;
 };
 
 // Get menu item movement statistics
-export async function getMenuItemMovement(): Promise<MenuItemMovement[]> {
+export async function getMenuItemMovement(startDate?: string, endDate?: string): Promise<MenuItemMovement[]> {
   try {
-    const response = await axios.get<MenuItemMovement[]>(`${API}/analytics/menu-item-movement/`, { withCredentials: true });
+    let url = `${API}/analytics/menu-item-movement/`;
+    if (startDate && endDate) {
+      url += `?start_date=${startDate}&end_date=${endDate}`;
+    }
+    const response = await axios.get<MenuItemMovement[]>(url, { withCredentials: true });
     return response.data;
   } catch (error: any) {
     console.error('Error fetching menu item movement:', error);

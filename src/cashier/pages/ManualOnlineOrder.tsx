@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Minus, ShoppingCart, X, Loader2, CheckCircle, User, Phone, MapPin, Truck, ShoppingBag, ChefHat } from 'lucide-react';
+import { Plus, Minus, ShoppingCart, Loader2, CheckCircle, User, Phone, MapPin, Truck, ShoppingBag } from 'lucide-react';
 import { createManualOnlineOrder, type ManualOnlineOrderData } from '../../shared/api/cashier';
 import { getMenuItems, getPublicPromotions, type MenuItem, type Promotion } from '../../shared/api/menu-items';
 
@@ -190,7 +190,7 @@ export default function ManualOnlineOrder() {
   };
 
   const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
-  const tax = 100; // Fixed tax for online orders
+  const tax = orderType === 'delivery' ? 100 : 0;
   const total = subtotal + tax;
 
   const handleSubmit = async () => {
@@ -226,7 +226,7 @@ export default function ManualOnlineOrder() {
         notes
       };
 
-      const result = await createManualOnlineOrder(orderData);
+      await createManualOnlineOrder(orderData);
       
       setSuccess(true);
       // Reset form
@@ -516,10 +516,12 @@ export default function ManualOnlineOrder() {
                     <span>Subtotal</span>
                     <span>{subtotal.toFixed(2)} DA</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Tax (Fixed)</span>
-                    <span>{tax.toFixed(2)} DA</span>
-                  </div>
+                  {orderType === 'delivery' && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>Delivery Fee</span>
+                      <span>{tax.toFixed(2)} DA</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t">
                     <span>Total</span>
                     <span className="text-orange-600">{total.toFixed(2)} DA</span>
