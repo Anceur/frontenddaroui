@@ -147,21 +147,7 @@ export default function SweetcoMenu({ isOpen, onClose }: MenuProps) {
               ))}
             </div>
 
-            {/* BOTTOM SECTION */}
-            <div className="flex-shrink-0 border-t border-gray-200 p-4">
-              {bottomItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.label}
-                    className="w-full flex items-center gap-4 px-4 py-4 text-base text-gray-800 bg-gray-50 rounded-xl hover:bg-gray-100 active:scale-95 transition-all"
-                  >
-                    <Icon className="w-5 h-5" />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
+          
           </motion.div>
         </>
       )}
