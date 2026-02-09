@@ -20,7 +20,7 @@ export default function DeliveryDetailsDrawer({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ orderId: string; message: string } | null>(null);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
-  const [showCartItems, setShowCartItems] = useState(false); // New state for toggling cart items
+  const [showNotesField, setShowNotesField] = useState(false); // New state for toggling notes
 
   // 📍 Récupérer automatiquement l'adresse à l'ouverture du tiroir
   useEffect(() => {
@@ -210,25 +210,23 @@ export default function DeliveryDetailsDrawer({
                     />
                   </div>
 
-                  {/* Votre panier - Collapsible Section */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  {/* Votre panier - Clickable to show Notes */}
+                  <div>
                     <button
                       type="button"
-                      onClick={() => setShowCartItems(!showCartItems)}
-                      className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                      onClick={() => setShowNotesField(!showNotesField)}
+                      className="w-full flex items-center justify-between text-sm font-semibold mb-1 hover:text-amber-600 transition-colors"
                     >
-                      <span className="text-sm font-semibold">
-                        Votre panier ({cartItems.length} article{cartItems.length > 1 ? 's' : ''})
-                      </span>
-                      {showCartItems ? (
-                        <ChevronUp className="w-5 h-5 text-gray-600" />
+                      <span>Votre panier</span>
+                      {showNotesField ? (
+                        <ChevronUp className="w-4 h-4" />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-600" />
+                        <ChevronDown className="w-4 h-4" />
                       )}
                     </button>
                     
                     <AnimatePresence>
-                      {showCartItems && (
+                      {showNotesField && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -236,35 +234,18 @@ export default function DeliveryDetailsDrawer({
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="p-4 space-y-3 bg-white border-t border-gray-200">
-                            {cartItems.map((item) => (
-                              <div key={item.id} className="flex justify-between items-center text-sm">
-                                <div className="flex-1">
-                                  <p className="font-medium text-gray-800">{item.name}</p>
-                                  <p className="text-gray-500 text-xs">
-                                    {item.price.toFixed(2)} DA × {item.quantity}
-                                  </p>
-                                </div>
-                                <p className="font-semibold text-amber-600">
-                                  {(item.price * item.quantity).toFixed(2)} DA
-                                </p>
-                              </div>
-                            ))}
-                            
-                            {/* Notes / Instructions inside cart */}
-                            <div className="pt-3 border-t border-gray-100">
-                              <label className="block text-sm font-semibold mb-2">
-                                Notes / Instructions
-                              </label>
-                              <textarea
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                disabled={isSubmitting}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none text-sm"
-                                rows={2}
-                                placeholder="Ex : appeler avant d'arriver, pas épicé…"
-                              />
-                            </div>
+                          <div className="pt-2">
+                            <label className="block text-xs text-gray-600 mb-1">
+                              Notes / Instructions
+                            </label>
+                            <textarea
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              disabled={isSubmitting}
+                              className="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none"
+                              rows={2}
+                              placeholder="Ex : appeler avant d'arriver, pas épicé…"
+                            />
                           </div>
                         </motion.div>
                       )}
