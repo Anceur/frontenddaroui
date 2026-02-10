@@ -43,7 +43,7 @@ export default function ManualOnlineOrder() {
         setMenuItems(menuData);
         setPromotions(promotionsData);
       } catch (err: any) {
-        setError(err.message || 'Failed to load data');
+        setError(err.message || 'Échec du chargement des données');
       } finally {
         setLoading(false);
       }
@@ -195,15 +195,15 @@ export default function ManualOnlineOrder() {
 
   const handleSubmit = async () => {
     if (!customerName || !customerPhone) {
-      setError('Customer Name and Phone are required');
+      setError('Le nom et le téléphone du client sont requis');
       return;
     }
     if (orderType === 'delivery' && !customerAddress) {
-      setError('Address is required for delivery');
+      setError("L'adresse est requise pour la livraison");
       return;
     }
     if (cart.length === 0) {
-      setError('Cart is empty');
+      setError('Le panier est vide');
       return;
     }
 
@@ -240,7 +240,7 @@ export default function ManualOnlineOrder() {
       // Auto-hide success message
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to create order');
+      setError(err.message || 'Échec de la création de la commande');
     } finally {
       setSubmitting(false);
     }
@@ -259,9 +259,9 @@ export default function ManualOnlineOrder() {
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
           <Truck className="text-orange-500" size={28} />
-          Manual Online Order
+          Commande en ligne manuelle
         </h2>
-        <p className="text-gray-600 mt-1">Create Delivery or Takeaway orders</p>
+        <p className="text-gray-600 mt-1">Créer des commandes à livrer ou à emporter</p>
       </div>
 
       {error && (
@@ -273,7 +273,7 @@ export default function ManualOnlineOrder() {
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
           <CheckCircle size={20} />
-          Order created successfully!
+          Commande créée avec succès !
         </div>
       )}
 
@@ -281,12 +281,12 @@ export default function ManualOnlineOrder() {
         {/* Left Column: Menu Items */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Select Items</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Sélectionner des articles</h3>
             
             <div className="relative mb-6">
-              <input
+                <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Rechercher des produits..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm"
@@ -296,14 +296,14 @@ export default function ManualOnlineOrder() {
              {/* Boxes Section */}
             {boxes.length > 0 && (
               <div className="mb-8">
-                <h4 className="text-lg font-bold text-blue-800 mb-4 bg-blue-50 p-2 rounded flex items-center gap-2">
+                  <h4 className="text-lg font-bold text-blue-800 mb-4 bg-blue-50 p-2 rounded flex items-center gap-2">
                   <ShoppingBag size={18} className="text-blue-600" />
-                  Combos & Boxes
+                  Combos et Coffrets
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {boxes.map((promo) => (
                     <div key={promo.id} className="border-2 border-blue-200 bg-blue-50 rounded-lg p-4 relative overflow-hidden">
-                       <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl">BOX</div>
+                       <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl">COFFRET</div>
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <h4 className="font-bold text-blue-900">{promo.name}</h4>
@@ -317,7 +317,7 @@ export default function ManualOnlineOrder() {
                         onClick={() => addPromotionToCart(promo)}
                         className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
                       >
-                        Add Box
+                        Ajouter le coffret
                       </button>
                     </div>
                   ))}
@@ -364,7 +364,7 @@ export default function ManualOnlineOrder() {
                                   onClick={() => addToCart(item, size.id)}
                                   className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
                                 >
-                                  Add
+                                  Ajouter
                                 </button>
                               </div>
                             </div>
@@ -376,7 +376,7 @@ export default function ManualOnlineOrder() {
                         onClick={() => addToCart(item)}
                         className="w-full mt-3 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                       >
-                        Add to Cart
+                        Ajouter au panier
                       </button>
                     )}
                   </div>
@@ -392,11 +392,11 @@ export default function ManualOnlineOrder() {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <User size={20} />
-              Customer Details
+              Détails du client
             </h3>
             <div className="space-y-4">
                <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Order Type</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Type de commande</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setOrderType('delivery')}
@@ -406,7 +406,7 @@ export default function ManualOnlineOrder() {
                         : 'bg-white border-gray-300 text-gray-700'
                     }`}
                   >
-                    <Truck size={16} /> Delivery
+                    <Truck size={16} /> Livraison
                   </button>
                   <button
                     onClick={() => setOrderType('takeaway')}
@@ -416,13 +416,13 @@ export default function ManualOnlineOrder() {
                         : 'bg-white border-gray-300 text-gray-700'
                     }`}
                   >
-                    <ShoppingBag size={16} /> Takeaway
+                    <ShoppingBag size={16} /> À emporter
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
                 <div className="relative">
                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                   <input
@@ -430,13 +430,13 @@ export default function ManualOnlineOrder() {
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Customer Name"
+                    placeholder="Nom du client"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
                  <div className="relative">
                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                   <input
@@ -444,21 +444,21 @@ export default function ManualOnlineOrder() {
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Phone Number"
+                    placeholder="Numéro de téléphone"
                   />
                 </div>
               </div>
 
               {orderType === 'delivery' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Adresse *</label>
                    <div className="relative">
                    <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
                     <textarea
                       value={customerAddress}
                       onChange={(e) => setCustomerAddress(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Delivery Address"
+                      placeholder="Adresse de livraison"
                       rows={2}
                     />
                   </div>
@@ -466,12 +466,12 @@ export default function ManualOnlineOrder() {
               )}
               
                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Remarques</label>
                    <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Special instructions..."
+                      placeholder="Instructions spéciales..."
                       rows={2}
                     />
                </div>
@@ -482,12 +482,12 @@ export default function ManualOnlineOrder() {
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <ShoppingCart size={20} />
-              Cart
+              Panier
             </h3>
 
             {cart.length === 0 ? (
               <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
-                <p>Cart is empty</p>
+                <p>Le panier est vide</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -505,7 +505,7 @@ export default function ManualOnlineOrder() {
                       </div>
                       <div className="text-right">
                          <div className="text-sm font-bold text-gray-800">{(item.price * item.quantity).toFixed(2)} DA</div>
-                         <button onClick={() => removeFromCart(index)} className="text-red-500 hover:text-red-700 text-xs mt-1">Remove</button>
+                         <button onClick={() => removeFromCart(index)} className="text-red-500 hover:text-red-700 text-xs mt-1">Supprimer</button>
                       </div>
                     </div>
                   ))}
@@ -513,12 +513,12 @@ export default function ManualOnlineOrder() {
 
                 <div className="border-t pt-2 space-y-1">
                   <div className="flex justify-between text-gray-600">
-                    <span>Subtotal</span>
+                    <span>Sous-total</span>
                     <span>{subtotal.toFixed(2)} DA</span>
                   </div>
                   {orderType === 'delivery' && (
                     <div className="flex justify-between text-gray-600">
-                      <span>Delivery Fee</span>
+                      <span>Frais de livraison</span>
                       <span>{tax.toFixed(2)} DA</span>
                     </div>
                   )}
@@ -534,18 +534,18 @@ export default function ManualOnlineOrder() {
                   className="w-full py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {submitting ? (
-                    <>
+                      <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Creating Order...
+                      Création de la commande...
                     </>
                   ) : (
                     <>
                       <CheckCircle size={20} />
                       Confirm Order
+                      <>
+                      <CheckCircle size={20} />
+                      Confirmer la commande
                     </>
-                  )}
-                </button>
-              </div>
             )}
           </div>
         </div>

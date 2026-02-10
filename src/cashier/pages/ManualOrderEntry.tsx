@@ -37,7 +37,7 @@ export default function ManualOrderEntry() {
         setMenuItems(menuData);
         setPromotions(promotionsData);
       } catch (err: any) {
-        setError(err.message || 'Failed to load data');
+        setError(err.message || 'Échec du chargement des données');
       } finally {
         setLoading(false);
       }
@@ -207,12 +207,12 @@ export default function ManualOrderEntry() {
   // Submit order
   const handleSubmit = async () => {
     if (!isImported && !selectedTable) {
-      setError('Please select a table or mark as Imported Order');
+      setError('Veuillez sélectionner une table ou cocher « Commande importée »');
       return;
     }
 
     if (cart.length === 0) {
-      setError('Please add at least one item to the cart');
+      setError('Veuillez ajouter au moins un article au panier');
       return;
     }
 
@@ -250,7 +250,7 @@ export default function ManualOrderEntry() {
       // Reset success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.message || 'Failed to create order');
+      setError(err.message || 'Échec de la création de la commande');
     } finally {
       setSubmitting(false);
     }
@@ -269,9 +269,9 @@ export default function ManualOrderEntry() {
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
           <ShoppingCart className="text-orange-500" size={28} />
-          Manual Order Entry
+          Saisie de commande manuelle
         </h2>
-        <p className="text-gray-600 mt-1">Create orders manually for tables</p>
+        <p className="text-gray-600 mt-1">Créer manuellement des commandes pour les tables</p>
       </div>
 
       {error && (
@@ -283,7 +283,7 @@ export default function ManualOrderEntry() {
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
           <CheckCircle size={20} />
-          Order created successfully!
+          Commande créée avec succès !
         </div>
       )}
 
@@ -293,11 +293,11 @@ export default function ManualOrderEntry() {
           {/* Table Selection */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                 <TableIcon size={20} />
-                Select Table
+                Sélectionner une table
               </h3>
-              <label className="flex items-center gap-2 cursor-pointer bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+                <label className="flex items-center gap-2 cursor-pointer bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
                 <input
                   type="checkbox"
                   checked={isImported}
@@ -307,7 +307,7 @@ export default function ManualOrderEntry() {
                   }}
                   className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
                 />
-                <span className="text-sm font-semibold text-blue-700">Imported Order (No Table)</span>
+                <span className="text-sm font-semibold text-blue-700">Commande importée (sans table)</span>
               </label>
             </div>
 
@@ -337,8 +337,8 @@ export default function ManualOrderEntry() {
               </div>
             ) : (
               <div className="bg-blue-50 border border-blue-100 p-8 rounded-lg text-center">
-                <p className="text-blue-700 font-medium">Imported order mode active. No table selection required.</p>
-                <p className="text-blue-600 text-sm mt-1">Order will be marked as "Imported" in the administration.</p>
+                <p className="text-blue-700 font-medium">Mode commande importée activé. Aucune sélection de table requise.</p>
+                <p className="text-blue-600 text-sm mt-1">La commande sera marquée comme « Importée » dans l'administration.</p>
               </div>
             )}
 
@@ -352,8 +352,8 @@ export default function ManualOrderEntry() {
                   <TableIcon size={18} />
                   <span className="font-bold">
                     {table?.is_available
-                      ? `New Order: Table ${table?.number}`
-                      : `Appeding to Table ${table?.number}: New items will be added to the current open order`}
+                      ? `Nouvelle commande : Table ${table?.number}`
+                      : `Ajout à la table ${table?.number} : Les nouveaux articles seront ajoutés à la commande ouverte`}
                   </span>
                 </div>
               );
@@ -362,13 +362,13 @@ export default function ManualOrderEntry() {
 
           {/* Menu Items */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Menu Items & Promotions</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Articles du menu et promotions</h3>
 
             {/* Search */}
             <div className="relative mb-6">
               <input
                 type="text"
-                placeholder="Search products or promotions..."
+                placeholder="Rechercher produits ou promotions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm"
@@ -380,13 +380,13 @@ export default function ManualOrderEntry() {
               <div className="mb-8">
                 <h4 className="text-lg font-bold text-blue-800 mb-4 bg-blue-50 p-2 rounded flex items-center gap-2">
                   <ShoppingCart size={18} className="text-blue-600" />
-                  Combos & Boxes
+                  Combos et Coffrets
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {boxes.map((promo) => (
                     <div key={promo.id} className="border-2 border-blue-200 bg-blue-50 rounded-lg p-4 hover:shadow-md transition-shadow relative overflow-hidden">
                       <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl">
-                        BOX
+                        COFFRET
                       </div>
                       <div className="flex justify-between items-start mb-2">
                         <div>
@@ -402,7 +402,7 @@ export default function ManualOrderEntry() {
                         onClick={() => addPromotionToCart(promo)}
                         className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
                       >
-                        Add Box
+                        Ajouter le coffret
                       </button>
                     </div>
                   ))}
@@ -410,7 +410,7 @@ export default function ManualOrderEntry() {
               </div>
             )}
 
-            <h4 className="text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-2 rounded">All Products</h4>
+            <h4 className="text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-2 rounded">Tous les produits</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
               {filteredMenuItems.map((item) => {
                 const { originalPrice, bestPrice } = getItemPriceInfo(item);
@@ -462,7 +462,7 @@ export default function ManualOrderEntry() {
                                   onClick={() => addToCart(item, size.id)}
                                   className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
                                 >
-                                  Add
+                                  Ajouter
                                 </button>
                               </div>
                             </div>
@@ -474,7 +474,7 @@ export default function ManualOrderEntry() {
                         onClick={() => addToCart(item)}
                         className="w-full mt-3 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                       >
-                        Add to Cart
+                        Ajouter au panier
                       </button>
                     )}
                   </div>
@@ -484,7 +484,7 @@ export default function ManualOrderEntry() {
 
             {filteredMenuItems.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                No menu items found
+                Aucun article trouvé
               </div>
             )}
           </div>
@@ -493,12 +493,12 @@ export default function ManualOrderEntry() {
         {/* Right Column: Cart */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow p-6 sticky top-4">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Cart</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Panier</h3>
 
             {cart.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <ShoppingCart size={48} className="mx-auto mb-2 opacity-50" />
-                <p>Cart is empty</p>
+                <p>Le panier est vide</p>
               </div>
             ) : (
               <>
@@ -509,7 +509,7 @@ export default function ManualOrderEntry() {
                         <div className="flex-1">
                           <div className="font-medium text-gray-800">{item.name}</div>
                           {item.sizeName && (
-                            <div className="text-sm text-gray-600">Size: {item.sizeName}</div>
+                            <div className="text-sm text-gray-600">Taille : {item.sizeName}</div>
                           )}
                           <div className="text-sm text-gray-600">
                             {item.price.toFixed(2)} DA × {item.quantity}
@@ -548,7 +548,7 @@ export default function ManualOrderEntry() {
 
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-semibold">Total:</span>
+                    <span className="text-lg font-semibold">Total :</span>
                     <span className="text-2xl font-bold text-orange-600">
                       {cartTotal.toFixed(2)} DA
                     </span>
@@ -562,12 +562,12 @@ export default function ManualOrderEntry() {
                     {submitting ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Creating Order...
+                        Création de la commande...
                       </>
                     ) : (
                       <>
                         <ShoppingCart size={20} />
-                        Create Order
+                        Créer la commande
                       </>
                     )}
                   </button>
