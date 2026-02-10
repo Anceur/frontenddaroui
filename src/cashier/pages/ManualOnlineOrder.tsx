@@ -29,7 +29,6 @@ export default function ManualOnlineOrder() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [orderType, setOrderType] = useState<'delivery' | 'takeaway'>('delivery');
-  const [deliveryFee, setDeliveryFee] = useState(0);
   const [notes, setNotes] = useState('');
 
   // Fetch menu items and promotions
@@ -196,15 +195,15 @@ export default function ManualOnlineOrder() {
 
   const handleSubmit = async () => {
     if (!customerName || !customerPhone) {
-      setError('Le nom et le téléphone du client sont obligatoires');
+      setError('Customer Name and Phone are required');
       return;
     }
     if (orderType === 'delivery' && !customerAddress) {
-      setError('L\'adresse est obligatoire pour la livraison');
+      setError('Address is required for delivery');
       return;
     }
     if (cart.length === 0) {
-      setError('Le panier est vide');
+      setError('Cart is empty');
       return;
     }
 
@@ -249,163 +248,155 @@ export default function ManualOnlineOrder() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Chargement...</span>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Commande en ligne manuelle</h1>
-      
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+          <Truck className="text-orange-500" size={28} />
+          Manual Online Order
+        </h2>
+        <p className="text-gray-600 mt-1">Create Delivery or Takeaway orders</p>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
+          <CheckCircle size={20} />
+          Order created successfully!
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Colonne de gauche - Articles du menu */}
+        {/* Left Column: Menu Items */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Recherche */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Rechercher des articles..."
-              className="w-full p-3 border rounded-lg pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <svg
-              className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Select Items</h3>
+            
+            <div className="relative mb-6">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm"
               />
-            </svg>
-          </div>
-
-          {/* Boxes */}
-          {boxes.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-4">
-              <h2 className="text-lg font-semibold mb-4">Boxes & Menus</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {boxes.map((promo) => (
-                  <div key={promo.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium">{promo.name}</h3>
-                        <p className="text-sm text-gray-600">{promo.description}</p>
-                        <div className="mt-2">
-                          <span className="font-medium">{Number(promo.value).toFixed(2)} DA</span>
-                          <button
-                            onClick={() => addPromotionToCart(promo)}
-                            className="ml-2 p-1 text-primary hover:bg-primary/10 rounded-full"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                      {promo.image_url && (
-                        <div className="ml-4 flex-shrink-0">
-                          <img
-                            src={promo.image_url}
-                            alt={promo.name}
-                            className="h-16 w-16 object-cover rounded"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
-          )}
+            
+             {/* Boxes Section */}
+            {boxes.length > 0 && (
+              <div className="mb-8">
+                <h4 className="text-lg font-bold text-blue-800 mb-4 bg-blue-50 p-2 rounded flex items-center gap-2">
+                  <ShoppingBag size={18} className="text-blue-600" />
+                  Combos & Boxes
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {boxes.map((promo) => (
+                    <div key={promo.id} className="border-2 border-blue-200 bg-blue-50 rounded-lg p-4 relative overflow-hidden">
+                       <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl">BOX</div>
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-bold text-blue-900">{promo.name}</h4>
+                          <p className="text-sm text-blue-700 mt-1 line-clamp-2">{promo.description}</p>
+                        </div>
+                        <span className="font-bold text-blue-600 text-lg">
+                          {Number(promo.value).toFixed(2)} DA
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => addPromotionToCart(promo)}
+                        className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
+                      >
+                        Add Box
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto">
+              {filteredMenuItems.map((item) => {
+                const { originalPrice, bestPrice } = getItemPriceInfo(item);
+                const hasDiscount = bestPrice < originalPrice;
 
-          {/* Articles du menu */}
-          {filteredMenuItems.length > 0 && (
-            <div className="bg-white rounded-lg shadow p-4">
-              <h2 className="text-lg font-semibold mb-4">Articles du menu</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredMenuItems.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
+                return (
+                  <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-medium">{item.name}</h3>
-                        <p className="text-sm text-gray-600">{item.description}</p>
-                        {item.sizes && item.sizes.length > 0 ? (
-                          <div className="mt-2 space-y-2">
-                            {item.sizes.map((size) => {
-                              const { originalPrice, bestPrice, applicablePromo } = getItemPriceInfo(item, size.id);
-                              const hasDiscount = bestPrice < originalPrice;
-                              return (
-                                <div key={size.id} className="flex justify-between items-center">
-                                  <div>
-                                    <span className="text-sm">{size.size}</span>
-                                    {hasDiscount && (
-                                      <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded">
-                                        {applicablePromo?.name}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center">
-                                    {hasDiscount && (
-                                      <span className="text-sm text-gray-400 line-through mr-2">
-                                        {originalPrice.toFixed(2)} DA
-                                      </span>
-                                    )}
-                                    <span className="font-medium">{bestPrice.toFixed(2)} DA</span>
-                                    <button
-                                      onClick={() => addToCart(item, size.id)}
-                                      className="ml-2 p-1 text-primary hover:bg-primary/10 rounded-full"
-                                    >
-                                      <Plus className="h-4 w-4" />
-                                    </button>
-                                  </div>
+                        <h4 className="font-semibold text-gray-800">{item.name}</h4>
+                        {item.description && <p className="text-sm text-gray-600 mt-1">{item.description}</p>}
+                      </div>
+                      <div className="text-right">
+                         {hasDiscount && <div className="text-xs text-gray-400 line-through">{originalPrice.toFixed(2)} DA</div>}
+                        <span className={`font-bold ${hasDiscount ? 'text-red-500' : 'text-orange-600'}`}>
+                          {bestPrice.toFixed(2)} DA
+                        </span>
+                      </div>
+                    </div>
+
+                    {item.sizes && item.sizes.length > 0 ? (
+                      <div className="space-y-2 mt-3">
+                        {item.sizes.map((size) => {
+                          const { originalPrice: sOrig, bestPrice: sBest } = getItemPriceInfo(item, size.id);
+                          const sDiscount = sBest < sOrig;
+                          return (
+                            <div key={size.id} className="flex justify-between items-center">
+                              <span className="text-sm text-gray-700">{size.size}</span>
+                              <div className="flex items-center gap-3">
+                                <div className="text-right">
+                                  {sDiscount && <div className="text-[10px] text-gray-400 line-through">{sOrig.toFixed(2)} DA</div>}
+                                  <span className={`font-semibold ${sDiscount ? 'text-red-500' : 'text-gray-800'}`}>
+                                    {sBest.toFixed(2)} DA
+                                  </span>
                                 </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <div className="mt-2 flex justify-between items-center">
-                            <span className="font-medium">{item.price.toFixed(2)} DA</span>
-                            <button
-                              onClick={() => addToCart(item)}
-                              className="p-1 text-primary hover:bg-primary/10 rounded-full"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </button>
-                          </div>
-                        )}
+                                <button
+                                  onClick={() => addToCart(item, size.id)}
+                                  className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
+                                >
+                                  Add
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      {item.image_url && (
-                        <div className="ml-4 flex-shrink-0">
-                          <img
-                            src={item.image_url}
-                            alt={item.name}
-                            className="h-16 w-16 object-cover rounded"
-                          />
-                        </div>
-                      )}
-                    </div>
+                    ) : (
+                      <button
+                        onClick={() => addToCart(item)}
+                        className="w-full mt-3 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                      >
+                        Add to Cart
+                      </button>
+                    )}
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Colonne de droite - Détails de la commande */}
+        {/* Right Column: Order Details & Cart */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Détails du client */}
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold mb-4">Détails du client</h2>
+          {/* Customer Details */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <User size={20} />
+              Customer Details
+            </h3>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type de commande</label>
+               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Order Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setOrderType('delivery')}
@@ -415,7 +406,7 @@ export default function ManualOnlineOrder() {
                         : 'bg-white border-gray-300 text-gray-700'
                     }`}
                   >
-                    <Truck size={16} /> Livraison
+                    <Truck size={16} /> Delivery
                   </button>
                   <button
                     onClick={() => setOrderType('takeaway')}
@@ -425,111 +416,96 @@ export default function ManualOnlineOrder() {
                         : 'bg-white border-gray-300 text-gray-700'
                     }`}
                   >
-                    <ShoppingBag size={16} /> À emporter
+                    <ShoppingBag size={16} /> Takeaway
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                   <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                   <input
                     type="text"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Nom du client"
+                    placeholder="Customer Name"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+                 <div className="relative">
+                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                   <input
                     type="tel"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    placeholder="Téléphone du client"
+                    placeholder="Phone Number"
                   />
                 </div>
               </div>
 
               {orderType === 'delivery' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Adresse *</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+                   <div className="relative">
+                   <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
                     <textarea
                       value={customerAddress}
                       onChange={(e) => setCustomerAddress(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Adresse de livraison"
+                      placeholder="Delivery Address"
                       rows={2}
                     />
                   </div>
                 </div>
               )}
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Remarques..."
-                  rows={2}
-                />
-              </div>
+               <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                   <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      placeholder="Special instructions..."
+                      rows={2}
+                    />
+               </div>
             </div>
           </div>
 
-          {/* Résumé de la commande */}
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold mb-4">Résumé de la commande</h2>
+          {/* Cart Summary */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <ShoppingCart size={20} />
+              Cart
+            </h3>
 
             {cart.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">Votre panier est vide</p>
+              <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+                <p>Cart is empty</p>
+              </div>
             ) : (
-              <>
-                <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4">
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                   {cart.map((item, index) => (
-                    <div key={index} className="border-b pb-3 last:border-0 last:pb-0">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="font-medium">{item.name}</div>
-                          {item.sizeName && (
-                            <div className="text-sm text-gray-500">Taille: {item.sizeName}</div>
-                          )}
-                          <div className="flex items-center mt-1">
-                            <button
-                              onClick={() => updateQuantity(index, -1)}
-                              className="p-1 text-gray-500 hover:bg-gray-100 rounded-full"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="mx-2 w-6 text-center">{item.quantity}</span>
-                            <button
-                              onClick={() => updateQuantity(index, 1)}
-                              className="p-1 text-gray-500 hover:bg-gray-100 rounded-full"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
+                    <div key={index} className="flex justify-between items-start border-b pb-2">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-800">{item.name}</div>
+                        {item.sizeName && <div className="text-xs text-gray-500">{item.sizeName}</div>}
+                        <div className="flex items-center gap-2 mt-1">
+                            <button onClick={() => updateQuantity(index, -1)} className="p-1 text-gray-500 hover:bg-gray-100 rounded"><Minus size={14}/></button>
+                            <span className="text-sm font-semibold w-6 text-center">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(index, 1)} className="p-1 text-gray-500 hover:bg-gray-100 rounded"><Plus size={14}/></button>
                         </div>
-                        <div className="text-right">
-                          <div className="font-medium">{item.total.toFixed(2)} DA</div>
-                          <div className="text-sm text-gray-500">{item.price.toFixed(2)} DA l'unité</div>
-                          <button
-                            onClick={() => removeFromCart(index)}
-                            className="text-red-500 text-xs hover:underline mt-1"
-                          >
-                            Supprimer
-                          </button>
-                        </div>
+                      </div>
+                      <div className="text-right">
+                         <div className="text-sm font-bold text-gray-800">{(item.price * item.quantity).toFixed(2)} DA</div>
+                         <button onClick={() => removeFromCart(index)} className="text-red-500 hover:text-red-700 text-xs mt-1">Remove</button>
                       </div>
                     </div>
                   ))}
@@ -537,12 +513,12 @@ export default function ManualOnlineOrder() {
 
                 <div className="border-t pt-2 space-y-1">
                   <div className="flex justify-between text-gray-600">
-                    <span>Sous-total</span>
+                    <span>Subtotal</span>
                     <span>{subtotal.toFixed(2)} DA</span>
                   </div>
                   {orderType === 'delivery' && (
                     <div className="flex justify-between text-gray-600">
-                      <span>Frais de livraison</span>
+                      <span>Delivery Fee</span>
                       <span>{tax.toFixed(2)} DA</span>
                     </div>
                   )}
@@ -554,23 +530,22 @@ export default function ManualOnlineOrder() {
 
                 <button
                   onClick={handleSubmit}
-                  disabled={submitting || cart.length === 0}
-                  className={`w-full py-3 px-4 mt-6 rounded-lg font-medium flex items-center justify-center ${
-                    submitting || cart.length === 0
-                      ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-primary text-white hover:bg-primary-dark'
-                  }`}
+                  disabled={submitting}
+                  className="w-full py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Traitement...
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Creating Order...
                     </>
                   ) : (
-                    `Valider la commande • ${total.toFixed(2)} DA`
+                    <>
+                      <CheckCircle size={20} />
+                      Confirm Order
+                    </>
                   )}
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>

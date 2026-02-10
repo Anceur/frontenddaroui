@@ -23,12 +23,12 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
                 <Package size={20} className="text-orange-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-800">
-                Commande #{order.id}
+                Order #{order.id}
               </h3>
             </div>
             {orderType === 'offline' && (
               <p className="text-sm text-gray-500 font-medium">
-                 {order.is_imported ? 'Commande importée' : `Table ${order.table?.number || order.table_id}`}
+                {order.is_imported ? 'Imported Order' : `Table ${order.table?.number || order.table_id}`}
               </p>
             )}
           </div>
@@ -46,27 +46,27 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
           {orderType === 'online' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Client</p>
-                  <p className="font-semibold text-gray-800">{order.customer}</p>
+                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Customer</p>
+                <p className="font-semibold text-gray-800">{order.customer}</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Téléphone</p>
-                  <p className="font-semibold text-gray-800">{order.phone}</p>
+                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Phone</p>
+                <p className="font-semibold text-gray-800">{order.phone}</p>
               </div>
               {order.address && (
                 <div className="bg-gray-50 rounded-xl p-4 md:col-span-2">
-                  <p className="text-xs text-gray-500 uppercase font-bold mb-1">Adresse</p>
-                    <p className="font-semibold text-gray-800">{order.address}</p>
+                  <p className="text-xs text-gray-500 uppercase font-bold mb-1">Address</p>
+                  <p className="font-semibold text-gray-800">{order.address}</p>
                 </div>
               )}
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Type de commande</p>
-                  <p className="font-semibold text-gray-800 capitalize">{order.order_type || order.orderType}</p>
+                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Order Type</p>
+                <p className="font-semibold text-gray-800 capitalize">{order.order_type || order.orderType}</p>
               </div>
               {order.table_number && (
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 uppercase font-bold mb-1">Numéro de table</p>
-                    <p className="font-semibold text-gray-800">{order.table_number}</p>
+                  <p className="text-xs text-gray-500 uppercase font-bold mb-1">Table Number</p>
+                  <p className="font-semibold text-gray-800">{order.table_number}</p>
                 </div>
               )}
             </div>
@@ -76,7 +76,7 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
           {order.notes && (
             <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
               <p className="text-xs text-blue-700 uppercase font-bold mb-2">Special Notes</p>
-                <p className="font-semibold text-gray-800">{order.notes}</p>
+              <p className="font-semibold text-gray-800">{order.notes}</p>
             </div>
           )}
 
@@ -89,7 +89,7 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
                   <div key={idx} className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
                     <div>
                       <p className="font-bold text-gray-800">{item.name || item}</p>
-                        {item.quantity && <p className="text-sm text-gray-600">Qté: {item.quantity}</p>}
+                      {item.quantity && <p className="text-sm text-gray-600">Qty: {item.quantity}</p>}
                     </div>
                     {item.price && <p className="text-lg font-bold text-orange-600">{Number(item.price).toFixed(2)} DA</p>}
                   </div>
@@ -100,15 +100,15 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
                     <div>
                       <p className="font-bold text-gray-800">{item.item?.name || item.name}</p>
                       <div className="flex gap-3 mt-1">
-                          {item.size && <p className="text-xs text-gray-600 bg-white px-2 py-1 rounded">Taille: {item.size.size || item.size}</p>}
-                          <p className="text-xs text-gray-600 bg-white px-2 py-1 rounded">Qté: {item.quantity}</p>
+                        {item.size && <p className="text-xs text-gray-600 bg-white px-2 py-1 rounded">Size: {item.size.size || item.size}</p>}
+                        <p className="text-xs text-gray-600 bg-white px-2 py-1 rounded">Qty: {item.quantity}</p>
                       </div>
                     </div>
                     <p className="text-lg font-bold text-orange-600">{Number(item.price).toFixed(2)} DA</p>
                   </div>
                 ))
               ) : (
-                  <p className="text-gray-500 text-center py-4">Aucun article trouvé</p>
+                <p className="text-gray-500 text-center py-4">No items found</p>
               )}
             </div>
           </div>
@@ -118,15 +118,15 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
             {orderType === 'online' ? (
               <>
                 <div className="flex justify-between items-center text-gray-700">
-                    <span className="font-semibold">Sous-total (HT)</span>
+                  <span className="font-semibold">Subtotal (Without Tax)</span>
                   <span className="text-xl font-bold">{Number(order.subtotal || (Number(order.total) - Number(order.tax_amount || 0))).toFixed(2)} DA</span>
                 </div>
                 <div className="flex justify-between items-center text-gray-600">
-                    <span className="font-medium">Taxe</span>
+                  <span className="font-medium">Tax</span>
                   <span className="font-bold">{Number(order.tax_amount || 0).toFixed(2)} DA</span>
                 </div>
                 <div className="flex justify-between items-center pt-3 border-t-2 border-orange-300 text-orange-700">
-                    <span className="text-lg font-bold">Total (TTC)</span>
+                  <span className="text-lg font-bold">Total (With Tax)</span>
                   <span className="text-2xl font-bold">{Number(order.total).toFixed(2)} DA</span>
                 </div>
               </>
@@ -142,11 +142,11 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-50 rounded-xl p-4">
               <p className="text-xs text-gray-500 uppercase font-bold mb-1">Status</p>
-                <p className="font-semibold capitalize text-gray-800">{order.status}</p>
+              <p className="font-semibold capitalize text-gray-800">{order.status}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-4">
               <p className="text-xs text-gray-500 uppercase font-bold mb-1">Created At</p>
-                <p className="font-semibold text-gray-800">{new Date(order.created_at).toLocaleString()}</p>
+              <p className="font-semibold text-gray-800">{new Date(order.created_at).toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -162,7 +162,7 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
     const printWindow = window.open('', '_blank', 'width=400,height=600');
     if (printWindow) {
       const itemsHtml = (order.items || []).map((item: any) => {
-        let name = 'Article';
+        let name = 'Item';
         let price = '0.00';
         let qty = 1;
         let size = '';
@@ -170,7 +170,7 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
         if (typeof item === 'string') {
           name = item;
         } else if (item && typeof item === 'object') {
-          name = item.name || item.item?.name || 'Article';
+          name = item.name || item.item?.name || 'Item';
           qty = Number(item.quantity || 1);
           let unitPrice = 0;
           if (item.price !== undefined && item.price !== null) {
@@ -202,24 +202,24 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
       }).join('');
 
       const customerName = order.loyalCustomer?.name || order.customer || '';
-      const customerInfo = customerName ? `<p><strong>Client :</strong> ${customerName}</p>` : '';
-      const phoneInfo = order.phone ? `<p><strong>Téléphone :</strong> ${order.phone}</p>` : '';
+      const customerInfo = customerName ? `<p><strong>Client:</strong> ${customerName}</p>` : '';
+      const phoneInfo = order.phone ? `<p><strong>Phone:</strong> ${order.phone}</p>` : '';
       const loyalCustomerInfo = order.loyalCustomer ? `
-        <p><strong>⭐ Client fidèle :</strong> ${order.loyalCustomer.name}</p>
-        <p><strong>Carte de fidélité :</strong> ${order.loyalCustomer.loyaltyCardNumber || order.loyalCustomer.loyalty_card_number || 'N/A'}</p>
+        <p><strong>⭐ Loyal Customer:</strong> ${order.loyalCustomer.name}</p>
+        <p><strong>Loyalty Card:</strong> ${order.loyalCustomer.loyaltyCardNumber || order.loyalCustomer.loyalty_card_number || 'N/A'}</p>
       ` : '';
-      const addressInfo = order.address ? `<p><strong>Adresse :</strong> ${order.address}</p>` : '';
-      const tableInfo = order.is_imported ? '<p><strong>Source :</strong> commande importée</p>' : (order.tableNumber || order.table?.number || order.table) ? `<p><strong>Table :</strong> ${order.tableNumber || order.table?.number || order.table}</p>` : '';
-      const typeInfo = order.order_type || order.orderType ? `<p><strong>Type :</strong> ${(order.order_type || order.orderType).charAt(0).toUpperCase() + (order.order_type || order.orderType).slice(1)}</p>` : '';
+      const addressInfo = order.address ? `<p><strong>Address:</strong> ${order.address}</p>` : '';
+      const tableInfo = order.is_imported ? '<p><strong>Source:</strong> Imported Order</p>' : (order.tableNumber || order.table?.number || order.table) ? `<p><strong>Table:</strong> ${order.tableNumber || order.table?.number || order.table}</p>` : '';
+      const typeInfo = order.order_type || order.orderType ? `<p><strong>Type:</strong> ${(order.order_type || order.orderType).charAt(0).toUpperCase() + (order.order_type || order.orderType).slice(1)}</p>` : '';
       const notesHtml = order.notes ? `
             <div class="notes">
-                <strong>REMARQUE :</strong> ${order.notes}
+                <strong>NOTE:</strong> ${order.notes}
             </div>` : '';
 
       printWindow.document.write(`
         <html>
           <head>
-            <title>Ticket #${order.id}</title>
+            <title>Receipt #${order.id}</title>
             <style>
               @page { margin: 0; }
               body { font-family: 'Courier New', monospace; padding: 20px; width: 300px; margin: 0 auto; color: #000; }
@@ -243,11 +243,11 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
           <body>
             <div class="header">
                 <h1 class="title">RESTAURANT</h1>
-                <p class="subtitle">Ticket / Reçu</p>
+                <p class="subtitle">Receipt / Ticket</p>
             </div>
             <div class="info">
-                <p><strong>Commande :</strong> ${order.id}</p>
-                <p><strong>Date :</strong> ${new Date(order.created_at || Date.now()).toLocaleString()}</p>
+                <p><strong>Order:</strong> ${order.id}</p>
+                <p><strong>Date:</strong> ${new Date(order.created_at || Date.now()).toLocaleString()}</p>
                 ${customerInfo}
                 ${phoneInfo}
                 ${loyalCustomerInfo}
@@ -259,9 +259,9 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
             <table>
                 <thead>
                     <tr>
-                    <th class="qty">Qté</th>
-                    <th class="item">Article</th>
-                    <th class="price">Prix</th>
+                        <th class="qty">Qty</th>
+                        <th class="item">Item</th>
+                        <th class="price">Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -271,22 +271,22 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
             <div class="totals">
                 ${order.tax_amount ? `
                 <div class="row">
-                  <span>Sous-total</span>
-                  <span>${Number(order.subtotal || order.total).toFixed(2)} DA</span>
+                    <span>Subtotal</span>
+                    <span>${Number(order.subtotal || order.total).toFixed(2)} DA</span>
                 </div>
                 <div class="row">
-                  <span>Taxe</span>
-                  <span>${Number(order.tax_amount).toFixed(2)} DA</span>
+                    <span>Tax</span>
+                    <span>${Number(order.tax_amount).toFixed(2)} DA</span>
                 </div>
                 ` : ''}
                 <div class="row grand-total">
-                  <span>TOTAL</span>
-                  <span>${Number(order.total).toFixed(2)} DA</span>
+                    <span>TOTAL</span>
+                    <span>${Number(order.total).toFixed(2)} DA</span>
                 </div>
             </div>
             <div class="footer">
-                <p>Merci pour votre visite !</p>
-                <p>À bientôt !</p>
+                <p>Thank you for your visit!</p>
+                <p>See you soon!</p>
             </div>
             <script>
                 window.onload = function() { window.print(); }
@@ -320,8 +320,8 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
             </div>
           </div>
 
-          <h3 className="text-3xl font-bold text-gray-800 mb-2">Commande confirmée !</h3>
-          <p className="text-green-700 font-semibold">La commande a été confirmée avec succès et envoyée en cuisine.</p>
+          <h3 className="text-3xl font-bold text-gray-800 mb-2">Order Confirmed!</h3>
+          <p className="text-green-700 font-semibold">The order has been successfully confirmed and sent to the kitchen.</p>
         </div>
 
         {/* Buttons Section */}
@@ -334,7 +334,7 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
             <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-all">
               <Printer size={20} strokeWidth={2.5} />
             </div>
-            <span className="text-lg">Imprimer le reçu</span>
+            <span className="text-lg">Print Receipt</span>
           </button>
 
           {/* Close Button */}
@@ -342,12 +342,12 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
             onClick={onClose}
             className="w-full bg-gray-100 text-gray-700 py-4 rounded-2xl hover:bg-gray-200 transition-all font-semibold text-lg border-2 border-gray-200 hover:border-gray-300"
           >
-            Fermer
+            Close
           </button>
 
           {/* Info Text */}
           <p className="text-center text-sm text-gray-500 mt-4">
-            Le reçu peut être imprimé ou consulté ultérieurement dans l'historique des commandes
+            Receipt can be printed or viewed later in order history
           </p>
         </div>
       </div>
@@ -369,9 +369,9 @@ export default function PendingOrders() {
       setError(null);
       const data = await getPendingOrders();
       setPendingOrders(data);
-      } catch (err: any) {
-        console.error('Error fetching pending orders:', err);
-        setError(err.message || 'Échec du chargement des commandes');
+    } catch (err: any) {
+      console.error('Error fetching pending orders:', err);
+      setError(err.message || 'Failed to load pending orders');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -385,7 +385,7 @@ export default function PendingOrders() {
   }, [fetchPendingOrders]);
 
   const handleConfirm = async (orderType: 'online' | 'offline', orderId: number) => {
-    if (!window.confirm(`Confirmer cette commande ${orderType} ?`)) {
+    if (!window.confirm(`Are you sure you want to confirm this ${orderType} order?`)) {
       return;
     }
 
@@ -395,12 +395,12 @@ export default function PendingOrders() {
       await fetchPendingOrders();
       setReceiptOrder(response.order);
     } catch (err: any) {
-      alert(err.message || 'Échec de la confirmation de la commande');
+      alert(err.message || 'Failed to confirm order');
     }
   };
 
   const handleDecline = async (orderType: 'online' | 'offline', orderId: number) => {
-    const reason = window.prompt(`Voulez-vous REFUSER cette commande ${orderType} ?\nVeuillez saisir un motif :`, 'Refusée par le caissier');
+    const reason = window.prompt(`Are you sure you want to DECLINE this ${orderType} order?\nPlease enter a reason:`, 'Declined by cashier');
 
     if (reason === null) return;
 
@@ -409,7 +409,7 @@ export default function PendingOrders() {
       await declineOrder(orderType, orderId, reason);
       await fetchPendingOrders();
     } catch (err: any) {
-      alert(err.message || 'Échec du refus de la commande');
+      alert(err.message || 'Failed to decline order');
     } finally {
       setConfirming(null);
     }
@@ -420,7 +420,7 @@ export default function PendingOrders() {
       const order = await getOrderDetails(orderType, orderId);
       setSelectedOrder({ order, type: orderType });
     } catch (err: any) {
-      alert(err.message || 'Échec du chargement des détails de la commande');
+      alert(err.message || 'Failed to load order details');
     }
   };
 
@@ -434,7 +434,7 @@ export default function PendingOrders() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-orange-50/20">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-orange-500 mx-auto mb-4" />
-          <p className="text-gray-500 font-medium">Chargement des commandes...</p>
+          <p className="text-gray-500 font-medium">Loading orders...</p>
         </div>
       </div>
     );
@@ -448,9 +448,9 @@ export default function PendingOrders() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 tracking-tight">Commandes en attente</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 tracking-tight">Pending Orders</h2>
             <p className="text-gray-500 font-medium mt-1">
-              {totalPending} {totalPending === 1 ? 'commande' : 'commandes'} en attente de confirmation
+              {totalPending} {totalPending === 1 ? 'order' : 'orders'} waiting for confirmation
             </p>
           </div>
           <button
@@ -459,7 +459,7 @@ export default function PendingOrders() {
             className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-orange-100 rounded-xl font-bold text-orange-600 hover:bg-orange-50 hover:border-orange-300 transition-all shadow-sm disabled:opacity-50 group"
           >
             <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
-            <span>Actualiser</span>
+            <span>Refresh</span>
           </button>
         </div>
       </div>
@@ -478,8 +478,8 @@ export default function PendingOrders() {
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-200">
             <CheckCircle className="w-12 h-12 text-green-600" strokeWidth={2.5} />
           </div>
-          <h3 className="text-3xl font-bold text-gray-800 mb-3">Aucune commande en attente</h3>
-          <p className="text-gray-600 font-medium text-lg">Toutes les commandes ont été confirmées.</p>
+          <h3 className="text-3xl font-bold text-gray-800 mb-3">All Clear!</h3>
+          <p className="text-gray-600 font-medium text-lg">All orders have been confirmed.</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -491,7 +491,7 @@ export default function PendingOrders() {
                   <ShoppingCart className="w-6 h-6 text-blue-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800">
-                  Commandes en ligne ({pendingOrders.online_orders.length})
+                  Online Orders ({pendingOrders.online_orders.length})
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -506,11 +506,11 @@ export default function PendingOrders() {
                               <Star size={20} className="text-yellow-500 fill-yellow-500" />
                               <h4 className="text-lg font-bold text-orange-600">{order.loyalCustomer.name}</h4>
                             </div>
-                            <p className="text-xs text-gray-500 font-semibold">Carte : {order.loyalCustomer.loyaltyCardNumber}</p>
-                            <p className="text-xs text-gray-400">Commande #{order.id}</p>
+                            <p className="text-xs text-gray-500 font-semibold">Card: {order.loyalCustomer.loyaltyCardNumber}</p>
+                            <p className="text-xs text-gray-400">Order #{order.id}</p>
                           </div>
                         ) : (
-                          <h4 className="text-lg font-bold text-gray-800">Commande #{order.id}</h4>
+                          <h4 className="text-lg font-bold text-gray-800">Order #{order.id}</h4>
                         )}
                       </div>
                       <span className="px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold uppercase">
@@ -522,11 +522,11 @@ export default function PendingOrders() {
                     <div className="space-y-2 mb-4">
                       {!order.loyalCustomer && (
                         <>
-                          <p className="text-sm text-gray-600"><span className="font-semibold">Client :</span> {order.customer}</p>
-                          <p className="text-sm text-gray-600"><span className="font-semibold">Téléphone :</span> {order.phone}</p>
+                          <p className="text-sm text-gray-600"><span className="font-semibold">Customer:</span> {order.customer}</p>
+                          <p className="text-sm text-gray-600"><span className="font-semibold">Phone:</span> {order.phone}</p>
                         </>
                       )}
-                      <p className="text-sm text-gray-600"><span className="font-semibold">Type :</span> {order.order_type || order.orderType || 'N/A'}</p>
+                      <p className="text-sm text-gray-600"><span className="font-semibold">Type:</span> {order.order_type || order.orderType || 'N/A'}</p>
                       {order.notes && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-2">
                           <p className="text-xs font-semibold text-blue-900">{order.notes}</p>
@@ -548,13 +548,13 @@ export default function PendingOrders() {
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>Voir</span>
+                        <span>View</span>
                       </button>
                       <button
                         onClick={() => handleDecline('online', order.id)}
                         disabled={confirming?.type === 'online' && confirming.id === order.id}
                         className="w-12 flex items-center justify-center bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition-all font-semibold disabled:opacity-50"
-                        title="Refuser"
+                        title="Decline"
                       >
                         <X className="w-5 h-5" />
                       </button>
@@ -568,7 +568,7 @@ export default function PendingOrders() {
                         ) : (
                           <CheckCircle className="w-4 h-4" />
                         )}
-                        <span>Confirmer</span>
+                        <span>Confirm</span>
                       </button>
                     </div>
                   </div>
@@ -585,7 +585,7 @@ export default function PendingOrders() {
                   <ShoppingCart className="w-6 h-6 text-purple-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800">
-                  Commandes hors ligne ({pendingOrders.offline_orders.length})
+                  Offline Orders ({pendingOrders.offline_orders.length})
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -593,11 +593,11 @@ export default function PendingOrders() {
                   <div key={order.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all p-6 border-2 border-gray-100 hover:border-purple-200">
                     {/* Header */}
                     <div className="flex items-start justify-between mb-4">
-                      <h4 className="text-lg font-bold text-gray-800">Commande #{order.id}</h4>
+                      <h4 className="text-lg font-bold text-gray-800">Order #{order.id}</h4>
                       <div className="flex flex-col gap-1 items-end">
                         {order.is_imported && (
                           <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">
-                            Importée
+                            Imported
                           </span>
                         )}
                         <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold uppercase">
@@ -609,7 +609,7 @@ export default function PendingOrders() {
                     {/* Details */}
                     <div className="space-y-2 mb-4">
                       <p className="text-sm text-gray-600">
-                        <span className="font-semibold">Source :</span> {order.is_imported ? 'Commande importée' : `Table ${order.table?.number || order.table_id}`}
+                        <span className="font-semibold">Source:</span> {order.is_imported ? 'Imported Order' : `Table ${order.table?.number || order.table_id}`}
                       </p>
                     </div>
 
@@ -627,13 +627,13 @@ export default function PendingOrders() {
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all font-semibold"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>Voir</span>
+                        <span>View</span>
                       </button>
                       <button
                         onClick={() => handleDecline('offline', order.id)}
                         disabled={confirming?.type === 'offline' && confirming.id === order.id}
                         className="w-12 flex items-center justify-center bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition-all font-semibold disabled:opacity-50"
-                        title="Refuser"
+                        title="Decline"
                       >
                         <X className="w-5 h-5" />
                       </button>
@@ -647,7 +647,7 @@ export default function PendingOrders() {
                         ) : (
                           <CheckCircle className="w-4 h-4" />
                         )}
-                        <span>Confirmer</span>
+                        <span>Confirm</span>
                       </button>
                     </div>
                   </div>
