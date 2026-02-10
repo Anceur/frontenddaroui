@@ -22,7 +22,7 @@ export default function TablesStatus() {
       });
     } catch (err: any) {
       console.error('Error fetching tables:', err);
-      setError(err.message || 'Failed to load tables');
+      setError(err.message || 'Échec du chargement des tables');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -44,7 +44,7 @@ export default function TablesStatus() {
   const handleToggleOccupancy = async (tableId: number, currentStatus: boolean) => {
     // If marking as available (freeing the table), also end the session
     if (currentStatus) {
-      if (!confirm(`Libérer Table et terminer la session?`)) {
+      if (!confirm(`Libérer la table et terminer la session ?`)) {
         return;
       }
     }
@@ -59,7 +59,7 @@ export default function TablesStatus() {
       await updateTableOccupancy(tableId, !currentStatus);
       await fetchTables();
     } catch (error: any) {
-      alert(error.message || 'Failed to update table status');
+      alert(error.message || 'Échec de la mise à jour du statut de la table');
     } finally {
       setUpdatingTable(null);
     }
@@ -71,7 +71,7 @@ export default function TablesStatus() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-orange-50/20">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-orange-500 mx-auto mb-4" />
-          <p className="text-gray-500 font-medium">Loading tables...</p>
+          <p className="text-gray-500 font-medium">Chargement des tables...</p>
         </div>
       </div>
     );
@@ -85,8 +85,8 @@ export default function TablesStatus() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 tracking-tight">Table Status</h2>
-            <p className="text-gray-500 font-medium mt-1">Monitor and manage table availability</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 tracking-tight">Statut des Tables</h2>
+            <p className="text-gray-500 font-medium mt-1">Surveiller et gérer la disponibilité des tables</p>
           </div>
           <button
             onClick={handleRefresh}
@@ -94,7 +94,7 @@ export default function TablesStatus() {
             className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-orange-100 rounded-xl font-bold text-orange-600 hover:bg-orange-50 hover:border-orange-300 transition-all shadow-sm disabled:opacity-50 group"
           >
             <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
-            <span>Refresh</span>
+            <span>Actualiser</span>
           </button>
         </div>
       </div>
@@ -117,7 +117,7 @@ export default function TablesStatus() {
             </div>
           </div>
           <div>
-            <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider mb-1">Total Tables</p>
+            <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider mb-1">Total des Tables</p>
             <p className="text-4xl font-bold text-gray-800">{stats.total}</p>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default function TablesStatus() {
             </div>
           </div>
           <div>
-            <p className="text-green-700 text-sm font-semibold uppercase tracking-wider mb-1">Available</p>
+            <p className="text-green-700 text-sm font-semibold uppercase tracking-wider mb-1">Disponibles</p>
             <p className="text-4xl font-bold text-green-700">{stats.available}</p>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function TablesStatus() {
             </div>
           </div>
           <div>
-            <p className="text-red-700 text-sm font-semibold uppercase tracking-wider mb-1">Occupied</p>
+            <p className="text-red-700 text-sm font-semibold uppercase tracking-wider mb-1">Occupées</p>
             <p className="text-4xl font-bold text-red-700">{stats.occupied}</p>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function TablesStatus() {
             </div>
           </div>
           <div>
-            <p className="text-orange-700 text-sm font-semibold uppercase tracking-wider mb-1">Occupancy</p>
+            <p className="text-orange-700 text-sm font-semibold uppercase tracking-wider mb-1">Taux d'Occupation</p>
             <p className="text-4xl font-bold text-orange-700">{occupancyRate}%</p>
           </div>
         </div>
@@ -195,7 +195,7 @@ export default function TablesStatus() {
               <div className="space-y-2 mb-4">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Users size={16} className="shrink-0" />
-                  <span className="text-sm font-semibold">Capacity: {table.capacity}</span>
+                  <span className="text-sm font-semibold">Capacité : {table.capacity}</span>
                 </div>
                 {table.location && (
                   <div className="flex items-center gap-2 text-gray-600">
@@ -215,7 +215,7 @@ export default function TablesStatus() {
                         : 'bg-green-200 text-green-800'
                       }`}
                   >
-                    {isOccupied ? 'Occupied' : 'Available'}
+                    {isOccupied ? 'Occupée' : 'Disponible'}
                   </span>
                   <button
                     onClick={() => handleToggleOccupancy(table.id, isOccupied)}
@@ -224,7 +224,7 @@ export default function TablesStatus() {
                         ? 'bg-green-500 text-white hover:bg-green-600'
                         : 'bg-red-500 text-white hover:bg-red-600'
                       }`}
-                    title={isOccupied ? 'Mark as Available' : 'Mark as Occupied'}
+                    title={isOccupied ? 'Marquer comme Disponible' : 'Marquer comme Occupée'}
                   >
                     {isUpdating ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -245,8 +245,8 @@ export default function TablesStatus() {
       {tables.length === 0 && (
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center border-2 border-dashed border-gray-200">
           <Table size={64} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="text-2xl font-bold text-gray-800 mb-2">No Tables Found</h3>
-          <p className="text-gray-500">Add tables to start managing your restaurant seating.</p>
+          <h3 className="text-2xl font-bold text-gray-800 mb-2">Aucune Table Trouvée</h3>
+          <p className="text-gray-500">Ajoutez des tables pour commencer à gérer les places de votre restaurant.</p>
         </div>
       )}
     </div>
