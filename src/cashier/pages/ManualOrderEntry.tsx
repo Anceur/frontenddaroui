@@ -204,15 +204,15 @@ export default function ManualOrderEntry() {
   // Calculate total
   const cartTotal = cart.reduce((sum, item) => sum + item.total, 0);
 
-  // Soumettre la commande
+  // Submit order
   const handleSubmit = async () => {
     if (!isImported && !selectedTable) {
-      setError('Veuillez sélectionner une table ou marquer comme commande importée');
+      setError('Please select a table or mark as Imported Order');
       return;
     }
 
     if (cart.length === 0) {
-      setError('Veuillez ajouter au moins un article au panier');
+      setError('Please add at least one item to the cart');
       return;
     }
 
@@ -254,249 +254,327 @@ export default function ManualOrderEntry() {
     } finally {
       setSubmitting(false);
     }
+  };
 
-    // Reset success message after 3 seconds
-    setTimeout(() => setSuccess(false), 3000);
-  } catch (err: any) {
-    setError(err.message || 'Failed to create order');
-  } finally {
-    setSubmitting(false);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
   }
-};
 
-if (loading) {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-      <span className="ml-2">Chargement...</span>
-    </div>
-  );
-}
-
-return (
-  <div className="container mx-auto px-4 py-8">
-    <div className="mb-6">
-      <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-        <ShoppingCart className="text-orange-500" size={28} />
-        Saisie manuelle de commande
-      </h2>
-      <p className="text-gray-600 mt-1">Créer des commandes manuellement pour les tables</p>
-    </div>
-
-    {error && (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-        <strong className="font-bold">Erreur: </strong>
-        <span className="block sm:inline">{error}</span>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6">
+        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+          <ShoppingCart className="text-orange-500" size={28} />
+          Manual Order Entry
+        </h2>
+        <p className="text-gray-600 mt-1">Create orders manually for tables</p>
       </div>
-    )}
 
-    {success && (
-      <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
-        <CheckCircle size={20} />
-        Commande créée avec succès !
-      </div>
-    )}
-
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left Column: Table Selection & Menu Items */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* Table Selection */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-              <TableIcon size={20} />
-              Sélectionner une table
-            </h3>
-            <label className="flex items-center gap-2 cursor-pointer bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
-              <input
-                type="checkbox"
-                checked={isImported}
-                onChange={(e) => {
-                  setIsImported(e.target.checked);
-                  if (e.target.checked) setSelectedTable(null);
-                }}
-                className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-              />
-              <span className="text-sm font-semibold text-blue-700">Importé (pas de table)</span>
-            </label>
-          </div>
-
-          {!isImported ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {tables.map((table) => (
-                <button
-                  key={table.id}
-                  onClick={() => setSelectedTable(table.id)}
-                  className={`p-4 rounded-lg border-2 transition-all ${selectedTable === table.id
-                    ? 'border-orange-500 bg-orange-50 shadow-md transform scale-105 z-10'
-                    : !table.is_available
-                      ? 'border-red-500 bg-red-50 hover:bg-red-100 hover:border-red-600'
-                      : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="font-bold text-lg">Table {table.number}</div>
-                    <div className="text-sm mt-1">
-                      {table.is_available
-                        ? <span className="text-green-600">Disponible</span>
-                        : <span className="text-red-600 font-semibold">Occupée (ajouter des articles)</span>}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-blue-50 border border-blue-100 p-8 rounded-lg text-center">
-              <p className="text-blue-700 font-medium">Mode importé activé. Aucune sélection de table requise.</p>
-              <p className="text-blue-600 text-sm mt-1">La commande sera marquée comme « Importée » dans l'administration.</p>
-            </div>
-          )}
-
-          {!isImported && selectedTable && (() => {
-            const table = tables.find(t => t.id === selectedTable);
-            return (
-              <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${table?.is_available
-                ? 'bg-orange-50 text-orange-800 border border-orange-100'
-                : 'bg-red-50 text-red-800 border border-red-200 animate-pulse'
-              }`}>
-                <TableIcon size={18} />
-                <span className="font-bold">
-                  {table?.is_available
-                    ? `Nouvelle commande : Table ${table?.number}`
-                    : `Ajouter à la table ${table?.number} : les nouveaux articles seront ajoutés à la commande en cours`}
-                </span>
-              </div>
-            );
-          })()}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
         </div>
+      )}
 
-        {/* Menu Items */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Articles du menu & Promotions</h3>
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
+          <CheckCircle size={20} />
+          Order created successfully!
+        </div>
+      )}
 
-          {/* Search */}
-          <div className="relative mb-6">
-            <input
-              type="text"
-              placeholder="Rechercher des produits ou des promotions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm"
-            />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Table Selection & Menu Items */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Table Selection */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <TableIcon size={20} />
+                Select Table
+              </h3>
+              <label className="flex items-center gap-2 cursor-pointer bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+                <input
+                  type="checkbox"
+                  checked={isImported}
+                  onChange={(e) => {
+                    setIsImported(e.target.checked);
+                    if (e.target.checked) setSelectedTable(null);
+                  }}
+                  className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
+                />
+                <span className="text-sm font-semibold text-blue-700">Imported Order (No Table)</span>
+              </label>
+            </div>
 
-          {/* Promotions (Boxes) Section */}
-          {boxes.length > 0 && (
-            <div className="mb-8">
-              <h4 className="text-lg font-bold text-blue-800 mb-4 bg-blue-50 p-2 rounded flex items-center gap-2">
-                <ShoppingCart size={18} className="text-blue-600" />
-                Combos & Boîtes
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {boxes.map((promo) => (
-                  <div key={promo.id} className="border-2 border-blue-200 bg-blue-50 rounded-lg p-4 hover:shadow-md transition-shadow relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl">
-                      BOÎTE
-                    </div>
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-bold text-blue-900">{promo.name}</h4>
-                        <p className="text-sm text-blue-700 mt-1 line-clamp-2">{promo.description}</p>
+            {!isImported ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {tables.map((table) => (
+                  <button
+                    key={table.id}
+                    onClick={() => setSelectedTable(table.id)}
+                    className={`p-4 rounded-lg border-2 transition-all ${selectedTable === table.id
+                      ? 'border-orange-500 bg-orange-50 shadow-md transform scale-105 z-10'
+                      : !table.is_available
+                        ? 'border-red-500 bg-red-50 hover:bg-red-100 hover:border-red-600'
+                        : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50'
+                      }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-bold text-lg">Table {table.number}</div>
+                      <div className="text-sm mt-1">
+                        {table.is_available
+                          ? <span className="text-green-600">Available</span>
+                          : <span className="text-red-600 font-semibold">Occupied (Add Items)</span>}
                       </div>
-                      <span className="font-bold text-blue-600 text-lg">
-                        {Number(promo.value).toFixed(2)} DA
-                      </span>
                     </div>
-
-                    <button
-                      onClick={() => addPromotionToCart(promo)}
-                      className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
-                    >
-                      Ajouter la boîte
-                    </button>
-                  </div>
+                  </button>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="bg-blue-50 border border-blue-100 p-8 rounded-lg text-center">
+                <p className="text-blue-700 font-medium">Imported order mode active. No table selection required.</p>
+                <p className="text-blue-600 text-sm mt-1">Order will be marked as "Imported" in the administration.</p>
+              </div>
+            )}
 
-          <h4 className="text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-2 rounded">Tous les produits</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-            {filteredMenuItems.map((item) => {
-              const { originalPrice, bestPrice } = getItemPriceInfo(item);
-              const hasDiscount = bestPrice < originalPrice;
-
+            {!isImported && selectedTable && (() => {
+              const table = tables.find(t => t.id === selectedTable);
               return (
-                <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-semibold text-gray-800">{item.name}</h4>
-                      {item.description && (
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      {hasDiscount && (
-                        <div className="text-xs text-gray-400 line-through">
-                          {originalPrice.toFixed(2)} DA
-                        </div>
-                      )}
-                      <span className={`font-bold ${hasDiscount ? 'text-red-500' : 'text-orange-600'}`}>
-                        {bestPrice.toFixed(2)} DA
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Sizes */}
-                  {item.sizes && item.sizes.length > 0 ? (
-                    <div className="space-y-2 mt-3">
-                      {item.sizes.map((size) => {
-                        const { originalPrice: sOrig, bestPrice: sBest } = getItemPriceInfo(item, size.id);
-                        const sDiscount = sBest < sOrig;
-
-                        return (
-                          <div key={size.id} className="flex justify-between items-center">
-                            <span className="text-sm text-gray-700">{size.size}</span>
-                            <div className="flex items-center gap-3">
-                              <div className="text-right">
-                                {sDiscount && (
-                                  <div className="text-[10px] text-gray-400 line-through">
-                                    {sOrig.toFixed(2)} DA
-                                  </div>
-                                )}
-                                <span className={`font-semibold ${sDiscount ? 'text-red-500' : 'text-gray-800'}`}>
-                                  {sBest.toFixed(2)} DA
-                                </span>
-                              </div>
-                              <button
-                                onClick={() => addToCart(item, size.id)}
-                                className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
-                              >
-                                Ajouter
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => addToCart(item)}
-                      className="w-full mt-3 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                    >
-                      Ajouter au panier
-                    </button>
-                  )}
+                <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${table?.is_available
+                  ? 'bg-orange-50 text-orange-800 border border-orange-100'
+                  : 'bg-red-50 text-red-800 border border-red-200 animate-pulse'
+                  }`}>
+                  <TableIcon size={18} />
+                  <span className="font-bold">
+                    {table?.is_available
+                      ? `New Order: Table ${table?.number}`
+                      : `Appeding to Table ${table?.number}: New items will be added to the current open order`}
+                  </span>
                 </div>
               );
-            })}
+            })()}
           </div>
 
-          {filteredMenuItems.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              Aucun article du menu trouvé
+          {/* Menu Items */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Menu Items & Promotions</h3>
+
+            {/* Search */}
+            <div className="relative mb-6">
+              <input
+                type="text"
+                placeholder="Search products or promotions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm"
+              />
             </div>
-          )}
+
+            {/* Promotions (Boxes) Section */}
+            {boxes.length > 0 && (
+              <div className="mb-8">
+                <h4 className="text-lg font-bold text-blue-800 mb-4 bg-blue-50 p-2 rounded flex items-center gap-2">
+                  <ShoppingCart size={18} className="text-blue-600" />
+                  Combos & Boxes
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {boxes.map((promo) => (
+                    <div key={promo.id} className="border-2 border-blue-200 bg-blue-50 rounded-lg p-4 hover:shadow-md transition-shadow relative overflow-hidden">
+                      <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl">
+                        BOX
+                      </div>
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-bold text-blue-900">{promo.name}</h4>
+                          <p className="text-sm text-blue-700 mt-1 line-clamp-2">{promo.description}</p>
+                        </div>
+                        <span className="font-bold text-blue-600 text-lg">
+                          {Number(promo.value).toFixed(2)} DA
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => addPromotionToCart(promo)}
+                        className="w-full mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
+                      >
+                        Add Box
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <h4 className="text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-2 rounded">All Products</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+              {filteredMenuItems.map((item) => {
+                const { originalPrice, bestPrice } = getItemPriceInfo(item);
+                const hasDiscount = bestPrice < originalPrice;
+
+                return (
+                  <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="font-semibold text-gray-800">{item.name}</h4>
+                        {item.description && (
+                          <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        {hasDiscount && (
+                          <div className="text-xs text-gray-400 line-through">
+                            {originalPrice.toFixed(2)} DA
+                          </div>
+                        )}
+                        <span className={`font-bold ${hasDiscount ? 'text-red-500' : 'text-orange-600'}`}>
+                          {bestPrice.toFixed(2)} DA
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Sizes */}
+                    {item.sizes && item.sizes.length > 0 ? (
+                      <div className="space-y-2 mt-3">
+                        {item.sizes.map((size) => {
+                          const { originalPrice: sOrig, bestPrice: sBest } = getItemPriceInfo(item, size.id);
+                          const sDiscount = sBest < sOrig;
+
+                          return (
+                            <div key={size.id} className="flex justify-between items-center">
+                              <span className="text-sm text-gray-700">{size.size}</span>
+                              <div className="flex items-center gap-3">
+                                <div className="text-right">
+                                  {sDiscount && (
+                                    <div className="text-[10px] text-gray-400 line-through">
+                                      {sOrig.toFixed(2)} DA
+                                    </div>
+                                  )}
+                                  <span className={`font-semibold ${sDiscount ? 'text-red-500' : 'text-gray-800'}`}>
+                                    {sBest.toFixed(2)} DA
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => addToCart(item, size.id)}
+                                  className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
+                                >
+                                  Add
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => addToCart(item)}
+                        className="w-full mt-3 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                      >
+                        Add to Cart
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {filteredMenuItems.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                No menu items found
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Cart */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-lg shadow p-6 sticky top-4">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Cart</h3>
+
+            {cart.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <ShoppingCart size={48} className="mx-auto mb-2 opacity-50" />
+                <p>Cart is empty</p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
+                  {cart.map((item, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-800">{item.name}</div>
+                          {item.sizeName && (
+                            <div className="text-sm text-gray-600">Size: {item.sizeName}</div>
+                          )}
+                          <div className="text-sm text-gray-600">
+                            {item.price.toFixed(2)} DA × {item.quantity}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateQuantity(index, -1)}
+                            className="p-1 rounded hover:bg-gray-100"
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <span className="font-semibold">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(index, 1)}
+                            className="p-1 rounded hover:bg-gray-100"
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                        <span className="font-bold text-orange-600">
+                          {item.total.toFixed(2)} DA
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-lg font-semibold">Total:</span>
+                    <span className="text-2xl font-bold text-orange-600">
+                      {cartTotal.toFixed(2)} DA
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleSubmit}
+                    disabled={(!isImported && !selectedTable) || cart.length === 0 || submitting}
+                    className="w-full px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Creating Order...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart size={20} />
+                        Create Order
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
