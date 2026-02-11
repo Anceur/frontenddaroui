@@ -139,231 +139,223 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
   return (
     <div className="bg-gray-50 pb-8">
       <div
-        className={`
-          mx-2 mt-3 sm:mx-4 sm:mt-4
-          rounded-3xl overflow-hidden shadow-2xl relative
-          text-white
-          h-[180px] md:h-auto
-          ${mobileSlideIndex === 0 ? 'bg-[#3A2C1C]' : 'bg-transparent'}
-          md:bg-[#3A2C1C]
-        `}
-      >
-        {(mobileSlideIndex === 0 || typeof window !== 'undefined' && window.innerWidth >= 768) && (
-          <div className="absolute inset-0 opacity-25">
-            <img
-              src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200"
-              alt="fond nourriture"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-
-        <div
           className={`
-            relative flex items-center justify-between gap-6
-            flex-wrap sm:flex-nowrap
-            h-full
-            ${mobileSlideIndex === 0 ? 'px-4 sm:px-8 py-6 sm:py-10' : 'p-0'}
-            md:px-8 md:py-10
+            mx-2 mt-3 sm:mx-4 sm:mt-4
+            rounded-3xl overflow-hidden shadow-2xl relative
+            text-white
+            h-[180px] md:h-auto
+            ${mobileSlideIndex === 0 ? 'bg-[#3A2C1C]' : 'bg-transparent'}
+            md:bg-[#3A2C1C]
           `}
         >
-          <div className={`flex items-center gap-4 z-10 ${mobileSlideIndex !== 0 && hasPromotions ? 'hidden' : 'flex'} md:flex`}>
-            <div
-              className="
-                w-16 h-16 sm:w-20 sm:h-20
-                rounded-full bg-[#392c1c]
-                flex items-center justify-center
-                shadow-lg overflow-hidden
-              "
-            >
+          {(mobileSlideIndex === 0 || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
+            <div className="absolute inset-0 opacity-25">
               <img
-                  src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo%20(2).webp?alt=media&token=d8d493fa-55c4-4780-ba54-0fa6fa8bbd45"
-                alt="logo"
-                className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
+                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200"
+                alt="fond nourriture"
+                className="w-full h-full object-cover"
               />
             </div>
+          )}
 
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black mb-1">
-                Nostalgie
-              </h1>
-              <p className="text-xs sm:text-sm text-indigo-200">
-                Toujours frais par Daroui Market
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:flex z-10">
-            <div
-              className="
-                overflow-hidden relative
-                w-48 h-56
-                bg-[#FF5C5C]
-                rounded-xl
-                text-white
-                flex flex-col
-                justify-between
-                items-center
-                p-3
-                shadow-xl
-              "
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="xMidYMid meet"
-                className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-32 h-32 stroke-current"
-              >
-                <path
-                  strokeWidth="7"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  fill="none"
-                  d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
-                />
-              </svg>
-
-              <div className="z-10 text-center">
-                <p className="text-sm font-extrabold uppercase tracking-wider">
-                  {current?.promotion_type === "percentage" ? "Remise" : "Offre"}
-                </p>
-                <p className="text-[10px] opacity-90">
-                  Limitée
-                </p>
-              </div>
-
-              <h2 className="z-10 text-xs font-semibold text-center px-1 leading-tight">
-                {current?.name}
-              </h2>
-
-              <span className="z-10 font-extrabold text-5xl -skew-x-12 -skew-y-12">
-                {current?.promotion_type === "percentage"
-                  ? `${parseInt(current.value)}%`
-                  : `${current?.value} DA`}
-              </span>
-
-              <button
-                onClick={() => current && handleAction(current)}
-                disabled={isAdding}
+          <div
+            className={`
+              relative flex items-center justify-between gap-6
+              flex-wrap sm:flex-nowrap
+              h-full
+              ${mobileSlideIndex === 0 ? 'px-4 sm:px-8 py-6 sm:py-10' : 'p-0'}
+              md:px-8 md:py-10
+            `}
+          >
+            {/* Logo + title always visible */}
+            <div className="flex items-center gap-4 z-10 md:flex">
+              <div
                 className="
-                  z-10 text-xs
-                  font-bold px-3 py-1.5
-                  bg-white text-[#FF5C5C]
-                  hover:bg-[#3A2C1C] hover:text-white
-                  rounded
+                  w-16 h-16 sm:w-20 sm:h-20
+                  rounded-full bg-[#392c1c]
+                  flex items-center justify-center
+                  shadow-lg overflow-hidden
                 "
               >
-                {isAdding ? "Ajouté" : "Acheter"}
-              </button>
+                <img
+                  src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo%20(2).webp?alt=media&token=d8d493fa-55c4-4780-ba54-0fa6fa8bbd45"
+                  alt="logo"
+                  className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
+                />
+              </div>
 
-              <p className="z-10 text-[9px] opacity-80">
-                *Offre limitée
-              </p>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black mb-1">Nostalgie</h1>
+                <p className="text-xs sm:text-sm text-indigo-200">
+                  Toujours frais par Daroui Market
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="md:hidden z-10 w-full h-full flex items-center justify-center">
-            {mobileSlideIndex > 0 && hasPromotions ? (
-              <div className="relative w-full h-full overflow-hidden rounded-xl">
-                <AnimatePresence initial={false} custom={direction}>
-                  {promotions[mobileSlideIndex - 1] && (
-                    <motion.div
-                      key={`promo-${mobileSlideIndex}`}
-                      custom={direction}
-                      variants={variants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      className="absolute w-full h-full"
-                    >
-                      <div
-                        className="
-                          overflow-hidden relative
-                          w-full h-full
-                          bg-[#FF5C5C]
-                          rounded-xl
-                          text-white
-                          flex flex-col
-                          justify-between
-                          items-center
-                          p-4
-                          shadow-xl
-                        "
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 100 100"
-                          preserveAspectRatio="xMidYMid meet"
-                          className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-40 h-40 stroke-current"
-                        >
-                          <path
-                            strokeWidth="7"
-                            strokeLinejoin="round"
-                            strokeLinecap="round"
-                            fill="none"
-                            d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
-                          />
-                        </svg>
-
-                        <div className="z-10 text-center">
-                          <p className="text-base font-extrabold uppercase tracking-wider">
-                            {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
-                              ? "Remise"
-                              : "Offre"}
-                          </p>
-                          <p className="text-xs opacity-90">
-                            Offre limitée
-                          </p>
-                        </div>
-
-                        <h2 className="z-10 text-sm font-semibold text-center px-2 leading-tight">
-                          {promotions[mobileSlideIndex - 1].name}
-                        </h2>
-
-                        <span className="z-10 font-extrabold text-6xl -skew-x-12 -skew-y-12">
-                          {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
-                            ? `${parseInt(promotions[mobileSlideIndex - 1].value)}%`
-                            : `${promotions[mobileSlideIndex - 1].value} DA`}
-                        </span>
-
-                        <button
-                          onClick={() => handleAction(promotions[mobileSlideIndex - 1])}
-                          disabled={isAdding}
-                          className="
-                            z-10 text-sm
-                            font-bold px-4 py-2
-                            bg-white text-[#FF5C5C]
-                            hover:bg-[#3A2C1C] hover:text-white
-                            rounded
-                            transition-colors
-                          "
-                        >
-                          {isAdding ? "Ajouté" : "Acheter maintenant"}
-                        </button>
-
-                        <p className="z-10 text-[10px] opacity-80">
-                          *Offre limitée
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
-                  {[...Array(promotions.length + 1)].map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        mobileSlideIndex === idx ? "bg-white w-6" : "bg-white/50"
-                      }`}
+            {/* Desktop Card */}
+            {current?.promotion_type && (
+              <div className="hidden md:flex z-10">
+                <div
+                  className="
+                    overflow-hidden relative
+                    w-48 h-56
+                    bg-[#FF5C5C]
+                    rounded-xl
+                    text-white
+                    flex flex-col
+                    justify-between
+                    items-center
+                    p-3
+                    shadow-xl
+                  "
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="xMidYMid meet"
+                    className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-32 h-32 stroke-current"
+                  >
+                    <path
+                      strokeWidth="7"
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                      fill="none"
+                      d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
                     />
-                  ))}
+                  </svg>
+
+                  <div className="z-10 text-center">
+                    <p className="text-sm font-extrabold uppercase tracking-wider">
+                      {current?.promotion_type === "percentage" ? "Remise" : "Offre"}
+                    </p>
+                    <p className="text-[10px] opacity-90">*Offre limitée</p>
+                  </div>
+
+                  <h2 className="z-10 text-xs font-semibold text-center px-1 leading-tight">
+                    {current?.name}
+                  </h2>
+
+                  <span className="z-10 font-extrabold text-5xl -skew-x-12 -skew-y-12">
+                    {current?.promotion_type === "percentage"
+                      ? `${parseInt(current.value)}%`
+                      : `${current?.value} DA`}
+                  </span>
+
+                  <button
+                    onClick={() => current && handleAction(current)}
+                    disabled={isAdding}
+                    className="
+                      z-10 text-xs
+                      font-bold px-3 py-1.5
+                      bg-white text-[#FF5C5C]
+                      hover:bg-[#3A2C1C] hover:text-white
+                      rounded
+                    "
+                  >
+                    {isAdding ? "Ajouté" : "Acheter"}
+                  </button>
                 </div>
               </div>
-            ) : null}
+            )}
+
+            {/* Mobile Card */}
+            {promotions[mobileSlideIndex - 1]?.promotion_type && (
+              <div className="md:hidden z-10 w-full h-full flex items-center justify-center">
+                <div className="relative w-full h-full overflow-hidden rounded-xl">
+                  <AnimatePresence initial={false} custom={direction}>
+                    {promotions[mobileSlideIndex - 1] && (
+                      <motion.div
+                        key={`promo-${mobileSlideIndex}`}
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        className="absolute w-full h-full"
+                      >
+                        <div
+                          className="
+                            overflow-hidden relative
+                            w-full h-full
+                            bg-[#FF5C5C]
+                            rounded-xl
+                            text-white
+                            flex flex-col
+                            justify-between
+                            items-center
+                            p-4
+                            shadow-xl
+                          "
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 100 100"
+                            preserveAspectRatio="xMidYMid meet"
+                            className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-40 h-40 stroke-current"
+                          >
+                            <path
+                              strokeWidth="7"
+                              strokeLinejoin="round"
+                              strokeLinecap="round"
+                              fill="none"
+                              d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
+                            />
+                          </svg>
+
+                          <div className="z-10 text-center">
+                            <p className="text-base font-extrabold uppercase tracking-wider">
+                              {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
+                                ? "Remise"
+                                : "Offre"}
+                            </p>
+                            <p className="text-xs opacity-90">*Offre limitée</p>
+                          </div>
+
+                          <h2 className="z-10 text-sm font-semibold text-center px-2 leading-tight">
+                            {promotions[mobileSlideIndex - 1].name}
+                          </h2>
+
+                          <span className="z-10 font-extrabold text-6xl -skew-x-12 -skew-y-12">
+                            {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
+                              ? `${parseInt(promotions[mobileSlideIndex - 1].value)}%`
+                              : `${promotions[mobileSlideIndex - 1].value} DA`}
+                          </span>
+
+                          <button
+                            onClick={() => handleAction(promotions[mobileSlideIndex - 1])}
+                            disabled={isAdding}
+                            className="
+                              z-10 text-sm
+                              font-bold px-4 py-2
+                              bg-white text-[#FF5C5C]
+                              hover:bg-[#3A2C1C] hover:text-white
+                              rounded
+                              transition-colors
+                            "
+                          >
+                            {isAdding ? "Ajouté" : "Acheter maintenant"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
+                    {[...Array(promotions.length + 1)].map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          mobileSlideIndex === idx ? "bg-white w-6" : "bg-white/50"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+
 
       <div className="px-4 mt-6">
         <div className="flex gap-3 overflow-x-auto lg:justify-center pb-4 scrollbar-hide snap-x snap-mandatory">
