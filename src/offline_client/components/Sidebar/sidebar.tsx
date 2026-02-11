@@ -376,12 +376,11 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
 
           </div>
         </div>
-      </div>
 
 
       {/* CATÉGORIES */}
       <div className="px-4 mt-6">
-        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+        <div className="flex gap-3 overflow-x-auto lg:grid lg:grid-cols-8 lg:overflow-visible pb-4 scrollbar-hide snap-x snap-mandatory">
           {categories.map((category) => (
             <button
               key={category.id}
