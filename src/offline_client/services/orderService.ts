@@ -22,22 +22,13 @@ export interface OrderSubmissionData {
 
 export class OrderService {
   private static securityToken: SecurityToken | null = null;
-  private static tokenTimestamp: number = 0;
 
   /**
-   * Get security token (with caching to avoid too many requests)
+   * Get security token (fresh token for every order)
    */
   static async getSecurityToken(): Promise<SecurityToken> {
-    const now = Date.now();
-    // Cache token for 30 seconds
-    if (this.securityToken && (now - this.tokenTimestamp) < 30000) {
-      return this.securityToken;
-    }
-
     try {
-      console.log('OrderService - Fetching security token...');
       this.securityToken = await getSecurityToken();
-      this.tokenTimestamp = now;
       console.log('OrderService - Security token fetched successfully');
       return this.securityToken;
     } catch (error) {
@@ -58,13 +49,14 @@ export class OrderService {
       try {
         securityToken = await this.getSecurityToken();
 
-        // Ensure minimum time has passed (3 seconds) since token generation
+        // Ensure minimum time has passed (0.5 seconds) since token generation
+        // This matches the updated backend security checks
         if (securityToken) {
           const timeSinceToken = (Date.now() / 1000) - securityToken.timestamp;
-          if (timeSinceToken < 3) {
+          if (timeSinceToken < 0.5) {
             // Wait for remaining time
-            const waitTime = (3 - timeSinceToken) * 1000;
-            await new Promise(resolve => setTimeout(resolve, waitTime));
+            const waitTime = (0.5 - timeSinceToken) * 1000;
+            await new Promise(resolve => setTimeout(resolve, Math.max(0, waitTime)));
           }
         }
       } catch (tokenError) {
@@ -88,9 +80,16 @@ export class OrderService {
         security_token: securityToken,
       };
 
-      return await createOrder(orderData);
+      const response = await createOrder(orderData);
+      
+      // Clear token after successful submission to ensure next order gets a fresh one
+      this.securityToken = null;
+      
+      return response;
     } catch (error: any) {
       console.error('OrderService - Error submitting order:', error);
+      // Also clear token on error to allow retry with fresh token if needed
+      this.securityToken = null;
       throw error;
     }
   }
