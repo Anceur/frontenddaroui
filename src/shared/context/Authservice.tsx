@@ -39,7 +39,7 @@ export default function AuthService({ children }: Props) {
     const fetchAuth = async () => {
       try {
         setloading(true)
-        await axios.get(`${API}/is-authenticated`, { withCredentials: true })
+        await axios.get(`${API}/is-authenticated/`, { withCredentials: true })
         setIsAuthenticated(true)
         setloading(false)
       } catch (err) {
@@ -95,7 +95,7 @@ useEffect(() => {
     try {
       // Call your backend endpoint that verifies if the access token is still valid
       // Silent check - no loading state to avoid UI interruptions
-      await axios.get(`${API}/is-authenticated`, { withCredentials: true })
+      await axios.get(`${API}/is-authenticated/`, { withCredentials: true })
       // If valid → do nothing
     } catch (err) {
       console.warn("Access token expired or invalid.")
