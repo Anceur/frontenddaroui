@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutDashboard, ShoppingCart, Package, Users, BarChart3, X, Ruler, Cookie, History, Table, UtensilsCrossed, Bell, Warehouse, Building2, Star, Activity, DollarSign, TrendingUp, Tag, Clock } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, BarChart3, X, Ruler, Cookie, History, Table, Bell, Warehouse, Building2, Star, Activity, DollarSign, TrendingUp, Tag, Clock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NostalgieSidebarProps {
@@ -203,7 +203,7 @@ export default function NostalgieSidebar({ isMobileOpen = false, onMobileClose }
         </div>
 
         {/* Navigation Items */}
-        <nav className="py-3 px-2 overflow-y-auto overflow-x-hidden" style={{ height: 'calc(100vh - 96px)' }}>
+        <nav className="py-3 pl-2 pr-3 overflow-y-auto overflow-x-hidden sidebar-scrollbar" style={{ height: 'calc(100vh - 96px)' }}>
           <ul className="space-y-0.5">
             {menuItems.map((item) => {
               const Icon = item.icon;
