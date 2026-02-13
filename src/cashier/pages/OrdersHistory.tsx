@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, Filter, Printer, Eye, ShoppingCart, Loader2, Search } from 'lucide-react';
 import { getOrderHistory, getOrderDetails, type OrderHistoryResponse } from '../../shared/api/cashier';
@@ -10,7 +9,7 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
         const printWindow = window.open('', '_blank', 'width=400,height=600');
         if (printWindow) {
             const itemsHtml = (order.items || []).map((item: any) => {
-                let name = 'Item';
+                let name = 'Article';
                 let price = '0.00';
                 let qty = 1;
                 let size = '';
@@ -18,7 +17,7 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
                 if (typeof item === 'string') {
                     name = item;
                 } else if (item && typeof item === 'object') {
-                    name = item.name || item.item?.name || 'Item';
+                    name = item.name || item.item?.name || 'Article';
                     qty = Number(item.quantity || 1);
                     let unitPrice = 0;
                     if (item.price !== undefined && item.price !== null) {
@@ -48,20 +47,20 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
 
             const customerName = order.loyalCustomer?.name || order.customer || '';
             const customerInfo = customerName ? `<p><strong>Client:</strong> ${customerName}</p>` : '';
-            const phoneInfo = order.phone ? `<p><strong>Phone:</strong> ${order.phone}</p>` : '';
+            const phoneInfo = order.phone ? `<p><strong>Téléphone:</strong> ${order.phone}</p>` : '';
             const loyalCustomerInfo = order.loyalCustomer ? `
-        <p><strong>⭐ Loyal Customer:</strong> ${order.loyalCustomer.name}</p>
-        <p><strong>Loyalty Card:</strong> ${order.loyalCustomer.loyaltyCardNumber || order.loyalCustomer.loyalty_card_number || 'N/A'}</p>
+        <p><strong>⭐ Client Fidèle:</strong> ${order.loyalCustomer.name}</p>
+        <p><strong>Carte Fidélité:</strong> ${order.loyalCustomer.loyaltyCardNumber || order.loyalCustomer.loyalty_card_number || 'N/A'}</p>
       ` : '';
-            const addressInfo = order.address ? `<p><strong>Address:</strong> ${order.address}</p>` : '';
-            const tableInfo = order.is_imported ? '<p><strong>Source:</strong> Imported Order</p>' : (order.tableNumber || order.table?.number || order.table) ? `<p><strong>Table:</strong> ${order.tableNumber || order.table?.number || order.table}</p>` : '';
+            const addressInfo = order.address ? `<p><strong>Adresse:</strong> ${order.address}</p>` : '';
+            const tableInfo = order.is_imported ? '<p><strong>Source:</strong> Commande Importée</p>' : (order.tableNumber || order.table?.number || order.table) ? `<p><strong>Table:</strong> ${order.tableNumber || order.table?.number || order.table}</p>` : '';
             const typeInfo = order.order_type || order.orderType ? `<p><strong>Type:</strong> ${(order.order_type || order.orderType).charAt(0).toUpperCase() + (order.order_type || order.orderType).slice(1)}</p>` : '';
             const notesHtml = order.notes ? `<div class="notes"><strong>NOTE:</strong> ${order.notes}</div>` : '';
 
             printWindow.document.write(`
         <html>
           <head>
-            <title>Receipt #${order.id}</title>
+            <title>Reçu #${order.id}</title>
             <style>
               @page { margin: 0; }
               body { font-family: 'Courier New', monospace; padding: 20px; width: 300px; margin: 0 auto; color: #000; }
@@ -83,20 +82,20 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
             </style>
           </head>
           <body>
-            <div class="header"><h1 class="title">RESTAURANT</h1><p class="subtitle">Receipt / Ticket</p></div>
+            <div class="header"><h1 class="title">RESTAURANT</h1><p class="subtitle">Reçu / Ticket</p></div>
             <div class="info">
-                <p><strong>Order:</strong> ${order.id}</p>
-                <p><strong>Date:</strong> ${new Date(order.created_at || Date.now()).toLocaleString()}</p>
+                <p><strong>Commande:</strong> ${order.id}</p>
+                <p><strong>Date:</strong> ${new Date(order.created_at || Date.now()).toLocaleString('fr-FR')}</p>
                 ${customerInfo}${phoneInfo}${loyalCustomerInfo}${addressInfo}${tableInfo}${typeInfo}
             </div>
             ${notesHtml}
-            <table><thead><tr><th class="qty">Qty</th><th class="item">Item</th><th class="price">Price</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+            <table><thead><tr><th class="qty">Qté</th><th class="item">Article</th><th class="price">Prix</th></tr></thead><tbody>${itemsHtml}</tbody></table>
             <div class="totals">
-                <div class="row"><span>Subtotal</span><span>${Number(order.subtotal || order.total).toFixed(2)} DA</span></div>
-                ${order.tax_amount ? `<div class="row"><span>Tax</span><span>${Number(order.tax_amount).toFixed(2)} DA</span></div>` : ''}
+                <div class="row"><span>Sous-total</span><span>${Number(order.subtotal || order.total).toFixed(2)} DA</span></div>
+                ${order.tax_amount ? `<div class="row"><span>Taxe</span><span>${Number(order.tax_amount).toFixed(2)} DA</span></div>` : ''}
                 <div class="row grand-total"><span>TOTAL</span><span>${Number(order.total).toFixed(2)} DA</span></div>
             </div>
-            <div class="footer"><p>Thank you for your visit!</p><p>See you soon!</p></div>
+            <div class="footer"><p>Merci pour votre visite !</p><p>À bientôt !</p></div>
             <script>window.onload = function() { window.print(); }</script>
           </body>
         </html>
@@ -108,10 +107,10 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4">
-                <div className="mb-6"><h3 className="text-xl font-bold text-gray-800 text-center">Print Receipt</h3></div>
+                <div className="mb-6"><h3 className="text-xl font-bold text-gray-800 text-center">Imprimer le Reçu</h3></div>
                 <div className="flex flex-col gap-3">
-                    <button onClick={handlePrint} className="w-full bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700"><Printer size={20} /><span>Print Receipt</span></button>
-                    <button onClick={onClose} className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200">Close</button>
+                    <button onClick={handlePrint} className="w-full bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700"><Printer size={20} /><span>Imprimer le Reçu</span></button>
+                    <button onClick={onClose} className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200">Fermer</button>
                 </div>
             </div>
         </div>
@@ -148,37 +147,37 @@ export default function OrdersHistory() {
             const order = await getOrderDetails(orderType, orderId);
             setReceiptOrder(order);
         } catch (e) {
-            alert('Failed to load order details for printing');
+            alert('Échec du chargement des détails de la commande pour l\'impression');
         }
     };
 
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h2 className="text-3xl font-bold text-gray-800">Order History</h2>
+                <h2 className="text-3xl font-bold text-gray-800">Historique des Commandes</h2>
 
                 <div className="flex bg-white rounded-lg shadow p-2 gap-2 flex-wrap">
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-semibold text-gray-600">Year:</label>
+                        <label className="text-sm font-semibold text-gray-600">Année :</label>
                         <select value={year} onChange={e => setYear(e.target.value)} className="border rounded px-2 py-1">
                             {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
                     </div>
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-semibold text-gray-600">Month:</label>
+                        <label className="text-sm font-semibold text-gray-600">Mois :</label>
                         <select value={month} onChange={e => setMonth(e.target.value)} className="border rounded px-2 py-1">
-                            {Array.from({ length: 12 }, (_, i) => i + 1).map(m => <option key={m} value={m}>{new Date(0, m - 1).toLocaleString('default', { month: 'short' })}</option>)}
+                            {Array.from({ length: 12 }, (_, i) => i + 1).map(m => <option key={m} value={m}>{new Date(0, m - 1).toLocaleString('fr-FR', { month: 'short' })}</option>)}
                         </select>
                     </div>
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-semibold text-gray-600">Day:</label>
+                        <label className="text-sm font-semibold text-gray-600">Jour :</label>
                         <select value={day} onChange={e => setDay(e.target.value)} className="border rounded px-2 py-1">
-                            <option value="">All</option>
+                            <option value="">Tous</option>
                             {Array.from({ length: 31 }, (_, i) => i + 1).map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                     </div>
                     <button onClick={fetchHistory} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1 rounded flex items-center gap-2">
-                        <Search size={16} /> Filter
+                        <Search size={16} /> Filtrer
                     </button>
                 </div>
             </div>
@@ -190,7 +189,7 @@ export default function OrdersHistory() {
                     {/* Online Orders */}
                     {history?.online_orders && history.online_orders.length > 0 && (
                         <div>
-                            <h3 className="text-xl font-semibold mb-4 text-blue-600 flex items-center gap-2"><ShoppingCart size={20} /> Online Orders ({history.online_orders.length})</h3>
+                            <h3 className="text-xl font-semibold mb-4 text-blue-600 flex items-center gap-2"><ShoppingCart size={20} /> Commandes en Ligne ({history.online_orders.length})</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {history.online_orders.map((order: any) => (
                                     <OrderCard key={order.id} order={order} type="online" onPrint={() => handlePrintRequest('online', order.id)} />
@@ -202,7 +201,7 @@ export default function OrdersHistory() {
                     {/* Offline Orders */}
                     {history?.offline_orders && history.offline_orders.length > 0 && (
                         <div>
-                            <h3 className="text-xl font-semibold mb-4 text-amber-600 flex items-center gap-2"><ShoppingCart size={20} /> Offline Orders ({history.offline_orders.length})</h3>
+                            <h3 className="text-xl font-semibold mb-4 text-amber-600 flex items-center gap-2"><ShoppingCart size={20} /> Commandes sur Place ({history.offline_orders.length})</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {history.offline_orders.map((order: any) => (
                                     <OrderCard key={order.id} order={order} type="offline" onPrint={() => handlePrintRequest('offline', order.id)} />
@@ -214,7 +213,7 @@ export default function OrdersHistory() {
                     {(!history?.online_orders?.length && !history?.offline_orders?.length) && (
                         <div className="text-center py-12 text-gray-500 bg-white rounded shadow">
                             <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                            <p>No orders found for this date.</p>
+                            <p>Aucune commande trouvée pour cette date.</p>
                         </div>
                     )}
                 </div>
@@ -233,17 +232,17 @@ function OrderCard({ order, type, onPrint }: { order: any, type: 'online' | 'off
                 <span className={`text-xs px-2 py-1 rounded font-semibold ${order.status === 'Served' || order.status === 'Delivered' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>{order.status}</span>
             </div>
             <div className="mb-3 text-sm text-gray-600 space-y-1">
-                <p>{new Date(order.created_at).toLocaleTimeString()}</p>
+                <p>{new Date(order.created_at).toLocaleTimeString('fr-FR')}</p>
                 {type === 'online' ? (
-                    <p className="font-medium">{order.customer || 'Unknown'}</p>
+                    <p className="font-medium">{order.customer || 'Inconnu'}</p>
                 ) : (
-                    <p className="font-medium">{order.is_imported ? 'Imported' : `Table ${order.table?.number || order.table_id}`}</p>
+                    <p className="font-medium">{order.is_imported ? 'Importée' : `Table ${order.table?.number || order.table_id}`}</p>
                 )}
                 <p className="font-bold text-lg text-orange-600">{Number(order.total).toFixed(2)} DA</p>
             </div>
             <div className="flex gap-2">
                 <button onClick={onPrint} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded flex items-center justify-center gap-2 transition-colors">
-                    <Printer size={16} /> Print Ticket
+                    <Printer size={16} /> Imprimer le Ticket
                 </button>
             </div>
         </div>

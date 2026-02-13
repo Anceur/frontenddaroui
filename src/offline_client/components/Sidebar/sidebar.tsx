@@ -141,7 +141,6 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
 
   return (
     <div className="bg-gray-50 pb-8">
-
       {/* ================= HEADER CARD - HAUTEUR FIXE POUR MOBILE UNIQUEMENT ================= */}
       <div
         className={`
@@ -154,7 +153,7 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
         `}
       >
         {/* IMAGE DE FOND - Seulement sur le premier slide mobile, toujours sur desktop */}
-        {(mobileSlideIndex === 0 || typeof window !== 'undefined' && window.innerWidth >= 768) && (
+        {(mobileSlideIndex === 0 || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
           <div className="absolute inset-0 opacity-25">
             <img
               src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200"
@@ -186,7 +185,7 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
               "
             >
               <img
-                  src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo%20(2).webp?alt=media&token=d8d493fa-55c4-4780-ba54-0fa6fa8bbd45"
+                src="https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Flogo%20(2).webp?alt=media&token=d8d493fa-55c4-4780-ba54-0fa6fa8bbd45"
                 alt="logo"
                 className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
               />
@@ -203,12 +202,11 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
             </div>
           </div>
 
-          {/* ========== DROITE : SLIDER MOBILE / CARTE DESKTOP ========== */}
-    
-          {/* DESKTOP : Affiche une seule carte promo */}
-          <div className="hidden md:flex z-10">
-            <div
-              className="
+          {/* ================= CARTE PROMO ================= */}
+          {/* Desktop Card */}
+          {current?.promotion_type && (
+            <div className="hidden md:flex z-10">
+              <div className="
                 overflow-hidden relative
                 w-48 h-56
                 bg-[#FF5C5C]
@@ -219,162 +217,145 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
                 items-center
                 p-3
                 shadow-xl
-              "
-            >
-              {/* SVG DECORATION */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="xMidYMid meet"
-                className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-32 h-32 stroke-current"
-              >
-                <path
-                  strokeWidth="7"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  fill="none"
-                  d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
-                />
-              </svg>
+              ">
+                {/* SVG DECORATION */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="xMidYMid meet"
+                  className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-32 h-32 stroke-current"
+                >
+                  <path
+                    strokeWidth="7"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    fill="none"
+                    d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
+                  />
+                </svg>
 
-              {/* TYPE */}
-              <div className="z-10 text-center">
-                <p className="text-sm font-extrabold uppercase tracking-wider">
+                {/* TYPE */}
+                <div className="z-10 text-center">
+                  <p className="text-sm font-extrabold uppercase tracking-wider">
+                    {current?.promotion_type === "percentage" ? "Remise" : "Offre"}
+                  </p>
+                  <p className="text-[10px] opacity-90">*Limité</p>
+                </div>
+
+                {/* NOM */}
+                <h2 className="z-10 text-xs font-semibold text-center px-1 leading-tight">
+                  {current?.name}
+                </h2>
+
+                {/* VALEUR */}
+                <span className="z-10 font-extrabold text-5xl -skew-x-12 -skew-y-12">
                   {current?.promotion_type === "percentage"
-                    ? "Remise"
-                    : "Offre"}
-                </p>
-                <p className="text-[10px] opacity-90">
-                  Limitée
-                </p>
+                    ? `${parseInt(current.value)}%`
+                    : `${current?.value} DA`}
+                </span>
+
+                {/* BOUTON */}
+                <button
+                  onClick={() => current && handleAction(current)}
+                  disabled={isAdding}
+                  className="
+                    z-10 text-xs
+                    font-bold px-3 py-1.5
+                    bg-white text-[#FF5C5C]
+                    hover:bg-[#3A2C1C] hover:text-white
+                    rounded
+                  "
+                >
+                  {isAdding ? "Ajouté" : "Acheter"}
+                </button>
               </div>
-
-              {/* NOM */}
-              <h2 className="z-10 text-xs font-semibold text-center px-1 leading-tight">
-                {current?.name}
-              </h2>
-
-              {/* VALEUR */}
-              <span className="z-10 font-extrabold text-5xl -skew-x-12 -skew-y-12">
-                {current?.promotion_type === "percentage"
-                  ? `${parseInt(current.value)}%`
-                  : `${current?.value} DA`}
-              </span>
-
-              {/* BOUTON */}
-              <button
-                onClick={() => current && handleAction(current)}
-                disabled={isAdding}
-                className="
-                  z-10 text-xs
-                  font-bold px-3 py-1.5
-                  bg-white text-[#FF5C5C]
-                  hover:bg-[#3A2C1C] hover:text-white
-                  rounded
-                "
-              >
-                {isAdding ? "Ajouté" : "Acheter"}
-              </button>
-
-              {/* FOOTER */}
-              <p className="z-10 text-[9px] opacity-80">
-                *Limité
-              </p>
             </div>
-          </div>
+          )}
 
-          {/* MOBILE : Premier slide montre logo/slogan, ensuite cartes promo - HAUTEUR FIXE */}
-          <div className="md:hidden z-10 w-full h-full flex items-center justify-center">
-            {mobileSlideIndex > 0 && hasPromotions ? (
+          {/* Mobile Card */}
+          {promotions[mobileSlideIndex - 1]?.promotion_type && (
+            <div className="md:hidden z-10 w-full h-full flex items-center justify-center">
               <div className="relative w-full h-full overflow-hidden rounded-xl">
                 <AnimatePresence initial={false} custom={direction}>
-                  {promotions[mobileSlideIndex - 1] && (
-                    <motion.div
-                      key={`promo-${mobileSlideIndex}`}
-                      custom={direction}
-                      variants={variants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      className="absolute w-full h-full"
-                    >
-                      <div
+                  <motion.div
+                    key={`promo-${mobileSlideIndex}`}
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    className="absolute w-full h-full"
+                  >
+                    <div className="
+                      overflow-hidden relative
+                      w-full h-full
+                      bg-[#FF5C5C]
+                      rounded-xl
+                      text-white
+                      flex flex-col
+                      justify-between
+                      items-center
+                      p-4
+                      shadow-xl
+                    ">
+                      {/* SVG DECORATION */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="xMidYMid meet"
+                        className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-40 h-40 stroke-current"
+                      >
+                        <path
+                          strokeWidth="7"
+                          strokeLinejoin="round"
+                          strokeLinecap="round"
+                          fill="none"
+                          d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
+                        />
+                      </svg>
+
+                      {/* TYPE */}
+                      <div className="z-10 text-center">
+                        <p className="text-base font-extrabold uppercase tracking-wider">
+                          {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
+                            ? "Remise"
+                            : "Offre"}
+                        </p>
+                        <p className="text-xs opacity-90">Temps Limité</p>
+                      </div>
+
+                      {/* NOM */}
+                      <h2 className="z-10 text-sm font-semibold text-center px-2 leading-tight">
+                        {promotions[mobileSlideIndex - 1].name}
+                      </h2>
+
+                      {/* VALEUR */}
+                      <span className="z-10 font-extrabold text-6xl -skew-x-12 -skew-y-12">
+                        {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
+                          ? `${parseInt(promotions[mobileSlideIndex - 1].value)}%`
+                          : `${promotions[mobileSlideIndex - 1].value} DA`}
+                      </span>
+
+                      {/* BOUTON */}
+                      <button
+                        onClick={() => handleAction(promotions[mobileSlideIndex - 1])}
+                        disabled={isAdding}
                         className="
-                          overflow-hidden relative
-                          w-full h-full
-                          bg-[#FF5C5C]
-                          rounded-xl
-                          text-white
-                          flex flex-col
-                          justify-between
-                          items-center
-                          p-4
-                          shadow-xl
+                          z-10 text-sm
+                          font-bold px-4 py-2
+                          bg-white text-[#FF5C5C]
+                          hover:bg-[#3A2C1C] hover:text-white
+                          rounded
+                          transition-colors
                         "
                       >
-                        {/* SVG DECORATION */}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 100 100"
-                          preserveAspectRatio="xMidYMid meet"
-                          className="absolute opacity-20 -rotate-12 -bottom-10 -right-10 w-40 h-40 stroke-current"
-                        >
-                          <path
-                            strokeWidth="7"
-                            strokeLinejoin="round"
-                            strokeLinecap="round"
-                            fill="none"
-                            d="M65.8,46.1V30.3a15.8,15.8,0,1,0-31.6,0V46.1M22.4,38.2H77.6l4,47.3H18.4Z"
-                          />
-                        </svg>
+                        {isAdding ? "Ajouté" : "Acheter Maintenant"}
+                      </button>
 
-                        {/* TYPE */}
-                        <div className="z-10 text-center">
-                          <p className="text-base font-extrabold uppercase tracking-wider">
-                            {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
-                              ? "Remise"
-                              : "Offre"}
-                          </p>
-                          <p className="text-xs opacity-90">
-                            Temps Limité
-                          </p>
-                        </div>
-
-                        {/* NOM */}
-                        <h2 className="z-10 text-sm font-semibold text-center px-2 leading-tight">
-                          {promotions[mobileSlideIndex - 1].name}
-                        </h2>
-
-                        {/* VALEUR */}
-                        <span className="z-10 font-extrabold text-6xl -skew-x-12 -skew-y-12">
-                          {promotions[mobileSlideIndex - 1].promotion_type === "percentage"
-                            ? `${parseInt(promotions[mobileSlideIndex - 1].value)}%`
-                            : `${promotions[mobileSlideIndex - 1].value} DA`}
-                        </span>
-
-                        {/* BOUTON */}
-                        <button
-                          onClick={() => handleAction(promotions[mobileSlideIndex - 1])}
-                          disabled={isAdding}
-                          className="
-                            z-10 text-sm
-                            font-bold px-4 py-2
-                            bg-white text-[#FF5C5C]
-                            hover:bg-[#3A2C1C] hover:text-white
-                            rounded
-                            transition-colors
-                          "
-                        >
-                          {isAdding ? "Ajouté" : "Acheter Maintenant"}
-                        </button>
-
-                        {/* FOOTER */}
-                        <p className="z-10 text-[10px] opacity-80">
-                          *Offre Limitée
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
+                      {/* FOOTER */}
+                      <p className="z-10 text-[10px] opacity-80">*Offre Limitée</p>
+                    </div>
+                  </motion.div>
                 </AnimatePresence>
 
                 {/* Indicateurs du slider */}
@@ -389,15 +370,14 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
                   ))}
                 </div>
               </div>
-            ) : null}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-
       {/* CATÉGORIES */}
       <div className="px-4 mt-6">
-        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+        <div className="flex gap-3 overflow-x-auto lg:grid lg:grid-cols-8 lg:overflow-visible pb-4 scrollbar-hide snap-x snap-mandatory">
           {categories.map((category) => (
             <button
               key={category.id}
