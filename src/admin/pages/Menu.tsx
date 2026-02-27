@@ -38,7 +38,7 @@ export default function MenuProducts() {
   });
 
 
-  const categories = ['All', 'burger', 'pizza', 'sandwich', 'plat', 'tacos', 'desserts', 'drinks'];
+  const categories = ['All', 'burger', 'pizza', 'sandwich', 'plat', 'tacos', 'desserts', 'drinks', 'cafétéria', 'crêpes', 'entrées'];
 
   const categoryLabels: Record<string, string> = {
     'All': 'Tous',
@@ -49,6 +49,9 @@ export default function MenuProducts() {
     'tacos': 'Tacos',
     'desserts': 'Desserts',
     'drinks': 'Boissons',
+    'cafétéria': 'Cafétéria',
+    'crêpes': 'Crêpes',
+    'entrées': 'Entrées',
   };
 
   // Fetch menu items
