@@ -11,6 +11,7 @@ import Analytics from "./pages/Analytics";
 import ChangePasswordPage from "./pages/ChangePassword";
 import IngredientsManagement from "./pages/Ingredients";
 import MenuItemSizesManagement from "./pages/MenuItemSizes";
+import MenuItemExtrasManagement from "./pages/MenuItemExtras";
 import IngredientTracesManagement from "./pages/IngredientTraces";
 import IngredientStockManagement from "./pages/IngredientStock";
 import TablesManagement from "./pages/Tables";
@@ -54,6 +55,7 @@ function AdminApp() {
             <Route path="/tables" element={<TablesManagement />} />
             <Route path="menu" element={<MenuProducts />} />
             <Route path="menu-item-sizes" element={<MenuItemSizesManagement />} />
+            <Route path="menu-item-extras" element={<MenuItemExtrasManagement />} />
             <Route path="ingredients" element={<IngredientsManagement />} />
             <Route path="ingredient-stock" element={<IngredientStockManagement />} />
             <Route path="ingredient-traces" element={<IngredientTracesManagement />} />

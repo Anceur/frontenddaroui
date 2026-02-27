@@ -5,6 +5,18 @@ import './TableOrder.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://backenddaroui.onrender.com/api';
 
+interface MenuItemSize {
+  id: number;
+  size: string;
+  price: number;
+}
+
+interface MenuItemExtra {
+  id: number;
+  name: string;
+  price: number;
+}
+
 interface MenuItem {
   id: number;
   name: string;
@@ -13,12 +25,7 @@ interface MenuItem {
   category: string;
   image: string | null;
   sizes: MenuItemSize[];
-}
-
-interface MenuItemSize {
-  id: number;
-  size: string;
-  price: number;
+  extras?: MenuItemExtra[];
 }
 
 interface CartItem {
@@ -29,6 +36,7 @@ interface CartItem {
   notes: string;
   item_id: number;
   size_id?: number;
+  extras?: MenuItemExtra[];
 }
 
 interface TableSession {
@@ -154,9 +162,51 @@ export default function TableOrder() {
         quantity: 1,
         notes: '',
         item_id: item.id,
-        size_id: size?.id
+        size_id: size?.id,
+        extras: [],
       }]);
     }
+  };
+
+  const toggleExtra = (cartItemId: string, extra: MenuItemExtra, checked: boolean) => {
+    setCart(current =>
+      current.map(ci => {
+        if (ci.id !== cartItemId) return ci;
+        const existingExtras = ci.extras || [];
+        let newExtras: MenuItemExtra[];
+
+        if (checked) {
+          if (existingExtras.some(e => e.id === extra.id)) {
+            return ci;
+          }
+          newExtras = [...existingExtras, extra];
+        } else {
+          newExtras = existingExtras.filter(e => e.id !== extra.id);
+        }
+
+        return { ...ci, extras: newExtras };
+      })
+    );
+  };
+
+  const getCartItemUnitPrice = (item: CartItem) => {
+    const menuItem = menuItems.find(mi => mi.id === item.item_id);
+    if (!menuItem) {
+      return item.price * 1;
+    }
+
+    let basePrice = menuItem.price;
+    if (item.size_id && menuItem.sizes && menuItem.sizes.length > 0) {
+      const size = menuItem.sizes.find(s => s.id === item.size_id);
+      if (size) {
+        basePrice = size.price;
+      }
+    }
+
+    const extrasTotal =
+      item.extras?.reduce((sum, extra) => sum + extra.price, 0) ?? 0;
+
+    return basePrice + extrasTotal;
   };
 
   const updateQuantity = (id: string, delta: number) => {
@@ -180,7 +230,10 @@ export default function TableOrder() {
   };
 
   const calculateTotal = () => {
-    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return cart.reduce((sum, item) => {
+      const unitPrice = getCartItemUnitPrice(item);
+      return sum + unitPrice * item.quantity;
+    }, 0);
   };
 
   const submitOrder = async () => {
@@ -204,7 +257,8 @@ export default function TableOrder() {
           item_id: item.item_id,
           size_id: item.size_id,
           quantity: item.quantity,
-          notes: item.notes
+          notes: item.notes,
+          extras: item.extras?.map(extra => extra.id) ?? [],
         })),
         notes: orderNotes
       };
@@ -344,16 +398,42 @@ export default function TableOrder() {
                       </button>
                     </div>
                     
-                    <div className="cart-item-controls">
+                      <div className="cart-item-controls">
                       <div className="quantity-controls">
                         <button onClick={() => updateQuantity(item.id, -1)}>-</button>
                         <span>{item.quantity}</span>
                         <button onClick={() => updateQuantity(item.id, 1)}>+</button>
                       </div>
                       <span className="cart-item-price">
-                        {(item.price * item.quantity).toFixed(2)} DA
+                        {(getCartItemUnitPrice(item) * item.quantity).toFixed(2)} DA
                       </span>
                     </div>
+
+                    {(() => {
+                      const menuItem = menuItems.find(mi => mi.id === item.item_id);
+                      if (!menuItem || !menuItem.extras || menuItem.extras.length === 0) {
+                        return null;
+                      }
+                      return (
+                        <div className="cart-item-extras">
+                          <div className="extras-label">Extras:</div>
+                          <div className="extras-options">
+                            {menuItem.extras.map(extra => (
+                              <label key={extra.id} className="extra-option">
+                                <input
+                                  type="checkbox"
+                                  checked={!!item.extras?.some(e => e.id === extra.id)}
+                                  onChange={e =>
+                                    toggleExtra(item.id, extra, e.target.checked)
+                                  }
+                                />
+                                {extra.name} (+{extra.price} DA)
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     <input
                       type="text"

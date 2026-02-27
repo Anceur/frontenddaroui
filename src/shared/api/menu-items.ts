@@ -12,6 +12,12 @@ export type MenuItem = {
   category: string;
   image?: string | null;
   featured?: boolean;
+  extras?: Array<{
+    id: number;
+    name: string;
+    price: number;
+    cost_price?: number;
+  }>;
   sizes?: Array<{
     id: number;
     size: string;

@@ -543,9 +543,18 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="font-bold text-xl text-gray-800 leading-tight">{item.name}</h3>
                   </div>
-                  <p className="text-gray-500 text-sm mb-6 line-clamp-2 min-h-[40px] italic">
+                  <p className="text-gray-500 text-sm mb-2 line-clamp-2 min-h-[40px] italic">
                     {item.description || 'Une recette secrète de Nostalgie...'}
                   </p>
+
+                  {item.extras && item.extras.length > 0 && (
+                    <div className="mb-4 text-xs text-gray-600">
+                      <span className="font-semibold text-gray-700">Suppléments:&nbsp;</span>
+                      {item.extras
+                        .map(extra => `${extra.name} (+${Number(extra.price).toFixed(0)} DA)`)
+                        .join(', ')}
+                    </div>
+                  )}
 
                   <div className="flex justify-between items-center pt-5 border-t border-gray-50">
                     <span className="text-2xl font-bold text-orange-600">
@@ -809,6 +818,28 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     </div>
                   </div>
                 </div>
+
+                {/* Existing extras preview (read-only) */}
+                {editingItem && editingItem.extras && editingItem.extras.length > 0 && (
+                  <div className="md:col-span-2 space-y-2">
+                    <h3 className="text-sm font-semibold text-gray-700">
+                      Suppléments configurés pour ce produit
+                    </h3>
+                    <ul className="text-xs text-gray-600 space-y-1">
+                      {editingItem.extras.map(extra => (
+                        <li key={extra.id} className="flex items-center justify-between">
+                          <span>{extra.name}</span>
+                          <span className="font-semibold text-orange-600">
+                            +{Number(extra.price).toFixed(0)} DA
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="text-[11px] text-gray-400">
+                      Ces suppléments apparaissent sur l&apos;interface client et sont ajoutés au prix de base.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-4 pt-6 border-t border-gray-100">

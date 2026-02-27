@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutDashboard, ShoppingCart, Package, Users, BarChart3, X, Ruler, Cookie, History, Table, Bell, Warehouse, Building2, Star, Activity, DollarSign, TrendingUp, Tag, Clock } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, BarChart3, X, Ruler, Cookie, History, Table, Bell, Warehouse, Building2, Star, Activity, DollarSign, TrendingUp, Tag, Clock, PlusCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NostalgieSidebarProps {
@@ -58,6 +58,7 @@ export default function NostalgieSidebar({ isMobileOpen = false, onMobileClose }
     { id: 'tables', icon: Table, label: 'Tables', path: '/tables', badge: null },
     { id: 'products', icon: Package, label: 'Menu et produits', path: '/menu', badge: null },
     { id: 'menu-item-sizes', icon: Ruler, label: 'Tailles des articles', path: '/menu-item-sizes', badge: null },
+    { id: 'menu-item-extras', icon: PlusCircle, label: 'Suppléments des articles', path: '/menu-item-extras', badge: null },
     { id: 'ingredients', icon: Cookie, label: 'Ingrédients', path: '/ingredients', badge: null },
     { id: 'ingredient-stock', icon: Warehouse, label: "Stock d'ingrédients", path: '/ingredient-stock', badge: null },
     { id: 'ingredient-traces', icon: History, label: 'Traçabilité des ingrédients', path: '/ingredient-traces', badge: null },
