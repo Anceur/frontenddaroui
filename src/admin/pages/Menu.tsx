@@ -473,7 +473,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 </div>
 
       {/* Category Tabs */}
-      <div className="mb-8 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="mb-8 overflow-x-auto pb-2">
         <div className="flex space-x-3 min-w-max">
           {categories.map((category) => {
             const isActive = activeTab === category;

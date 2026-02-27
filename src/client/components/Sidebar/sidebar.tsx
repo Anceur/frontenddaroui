@@ -7,15 +7,20 @@ import type { Promotion } from "../../lib/api"
 import { useCart } from "../../context/CartContext"
 
 const categories = [
-  { id: "popular", label: "Tout", image: "/images/all.png" },
-  { id: "burger", label: "Burger", image: "/images/Barger.png" },
-  { id: "sandwich", label: "Sandwich", image: "/images/sndwich.png" },
-  { id: "pizza", label: "Pizza", image: "/images/pizza.png" },
-  { id: "plat", label: "Plat", image: "/images/plat.png" },
-  { id: "tacos", label: "Tacos", image: "/images/tacos.png" },
-  { id: "desserts", label: "Desserts", image: "/images/dessert.png" },
-  { id: "drinks", label: "Boissons", image: "/images/drinks.png" },
+  { id: "popular", label: "Tous", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fall%20(1).webp?alt=media&token=c4f96695-f9bb-445b-9499-fd2b9033563d" },
+  { id: "burger", label: "Burger", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2FBarger%20(1).webp?alt=media&token=d5c84efd-9c80-44a5-b21b-ea1015f5f377" },
+  { id: "sandwich", label: "Sandwich", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fsndwich%20(1).webp?alt=media&token=1cee50e7-107f-489e-99bf-d6d6a1b2b646" },
+  { id: "pizza", label: "Pizza", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fpizza%20(1).webp?alt=media&token=0595101d-21a7-4be6-a685-d7a985f39551" },
+  { id: "plat", label: "Plat", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fplat%20(1).webp?alt=media&token=8175ab02-3ae2-4396-bfe0-c5b441378db0" },
+  { id: "tacos", label: "Tacos", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Ftacos%20(1).webp?alt=media&token=adc34345-19da-47a0-b26d-67be79d22620" },
+  { id: "desserts", label: "Desserts", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fdessert%20(1).webp?alt=media&token=cc358c46-3707-4ecd-b0d6-d0f0327ce499" },
+  { id: "drinks", label: "Boissons", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fdrinks%20(1).webp?alt=media&token=3c1ba8c4-b5db-40e4-b805-a17f3048b538" },
+ 
+  { id: "cafétéria", label: "Cafétéria", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Ft%C3%A9l%C3%A9charg%C3%A9%20(4).webp?alt=media&token=0ad73e9a-be82-40d1-9122-278a99bddac2" },
+  { id: "crêpes", label: "Crêpes", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Ft%C3%A9l%C3%A9charg%C3%A9%20(5).webp?alt=media&token=c834f7ab-26bc-4d56-9e4b-5129fe262704" },
+  { id: "entrées", label: "Entrées", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2FBURRATA%20BRUSCHETTA.webp?alt=media&token=7407b328-0b4c-483a-8e84-8cef077b43d5" },
 ]
+
 
 type Props = {
   onSelectCategory: (categoryId: string) => void

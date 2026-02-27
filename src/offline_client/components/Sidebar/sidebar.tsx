@@ -15,7 +15,12 @@ const categories = [
   { id: "tacos", label: "Tacos", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Ftacos%20(1).webp?alt=media&token=adc34345-19da-47a0-b26d-67be79d22620" },
   { id: "desserts", label: "Desserts", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fdessert%20(1).webp?alt=media&token=cc358c46-3707-4ecd-b0d6-d0f0327ce499" },
   { id: "drinks", label: "Boissons", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Fdrinks%20(1).webp?alt=media&token=3c1ba8c4-b5db-40e4-b805-a17f3048b538" },
+ 
+  { id: "cafétéria", label: "Cafétéria", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Ft%C3%A9l%C3%A9charg%C3%A9%20(4).webp?alt=media&token=0ad73e9a-be82-40d1-9122-278a99bddac2" },
+  { id: "crêpes", label: "Crêpes", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2Ft%C3%A9l%C3%A9charg%C3%A9%20(5).webp?alt=media&token=c834f7ab-26bc-4d56-9e4b-5129fe262704" },
+  { id: "entrées", label: "Entrées", image: "https://firebasestorage.googleapis.com/v0/b/daroui.firebasestorage.app/o/imageapp%2FBURRATA%20BRUSCHETTA.webp?alt=media&token=7407b328-0b4c-483a-8e84-8cef077b43d5" },
 ]
+
 
 type Props = {
   onSelectCategory: (categoryId: string) => void
