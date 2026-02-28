@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './TableOrder.css';
@@ -224,6 +224,40 @@ export default function TableOrder() {
 
   const categories = ['all', ...Array.from(new Set(menuItems.map(item => item.category)))];
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragged, setDragged] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragged(false);
+    if (scrollRef.current) {
+      setStartX(e.pageX - scrollRef.current.offsetLeft);
+      setScrollLeft(scrollRef.current.scrollLeft);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setDragged(true);
+    if (scrollRef.current) {
+      const x = e.pageX - scrollRef.current.offsetLeft;
+      const walk = (x - startX) * 2;
+      scrollRef.current.scrollLeft = scrollLeft - walk;
+    }
+  };
+
   const filteredMenuItems = selectedCategory === 'all'
     ? menuItems
     : menuItems.filter(item => item.category === selectedCategory);
@@ -276,12 +310,26 @@ export default function TableOrder() {
 
       <div className="table-order-content">
         <div className="menu-section">
-          <div className="category-filter">
+          <div 
+            className={`category-filter ${isDragging ? 'dragging' : ''}`}
+            ref={scrollRef}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+          >
             {categories.map(category => (
               <button
                 key={category}
                 className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(category)}
+                onClick={(e) => {
+                  if (dragged) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  setSelectedCategory(category);
+                }}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </button>

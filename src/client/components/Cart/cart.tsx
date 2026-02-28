@@ -82,6 +82,15 @@ export default function CartDrawer({ isOpen, onClose, tableNumber }: CartDrawerP
                         <h3 className="font-semibold text-gray-800 mb-1 text-sm sm:text-base truncate">
                           {item.name}
                         </h3>
+                        {item.extras && item.extras.length > 0 && (
+                          <div className="mb-2">
+                            {item.extras.map(e => (
+                              <p key={e.id} className="text-xs text-gray-500">
+                                + {e.name}
+                              </p>
+                            ))}
+                          </div>
+                        )}
                         <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">
                           {item.price.toFixed(2)} DA × {item.quantity}
                         </p>

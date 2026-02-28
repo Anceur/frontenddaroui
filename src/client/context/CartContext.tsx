@@ -1,13 +1,21 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState } from "react"
+import type { ReactNode } from "react"
 
-interface CartItem {
+export interface CartItemExtra {
+  id: number | string
+  name: string
+  price: number | string
+}
+
+export interface CartItem {
   id: string
   name: string
   price: number
   image?: string
   quantity: number
+  extras?: CartItemExtra[]
 }
 
 interface CartContextType {

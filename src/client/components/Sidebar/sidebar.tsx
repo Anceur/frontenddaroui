@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Timer, Tag, Flame, Check, ChevronLeft, ChevronRight, Package } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import type { Promotion } from "../../lib/api"
@@ -35,6 +35,40 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
   const [direction, setDirection] = useState(0)
   const [mobileSlideIndex, setMobileSlideIndex] = useState(0)
   const { addToCart } = useCart()
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragged, setDragged] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    setDragged(false)
+    if (scrollRef.current) {
+      setStartX(e.pageX - scrollRef.current.offsetLeft)
+      setScrollLeft(scrollRef.current.scrollLeft)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return
+    e.preventDefault()
+    setDragged(true)
+    if (scrollRef.current) {
+      const x = e.pageX - scrollRef.current.offsetLeft
+      const walk = (x - startX) * 2
+      scrollRef.current.scrollLeft = scrollLeft - walk
+    }
+  }
 
   useEffect(() => {
     if (promotions.length <= 1) return
@@ -363,11 +397,25 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
 
 
       <div className="px-4 mt-6">
-        <div className="flex gap-3 overflow-x-auto lg:grid lg:grid-cols-8 lg:overflow-visible pb-4 scrollbar-hide snap-x snap-mandatory">
+        <div 
+          ref={scrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab cursor-default'}`}
+        >
           {categories.map((category) => (
             <button
               key={category.id}
-              onClick={() => handleCategoryClick(category.id)}
+              onClick={(e) => {
+                if (dragged) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  return
+                }
+                handleCategoryClick(category.id)
+              }}
               className={`
                 flex-shrink-0 w-28 h-36 sm:w-36 sm:h-44 rounded-2xl 
                 flex flex-col items-center justify-center gap-2 

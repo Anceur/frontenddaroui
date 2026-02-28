@@ -121,10 +121,24 @@
   display: flex;
   gap: 10px;
   margin-bottom: 30px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 5px;
+  cursor: grab;
+}
+
+.category-filter:active {
+  cursor: grabbing;
+}
+
+.category-filter::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .category-btn {
+  flex-shrink: 0;
   padding: 10px 20px;
   border: 2px solid #667eea;
   background: white;

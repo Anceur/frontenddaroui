@@ -15,6 +15,11 @@ export interface MenuItem {
     size: string;
     price: string | number;
   }>;
+  extras?: Array<{
+    id: number;
+    name: string;
+    price: string | number;
+  }>;
 }
 
 /**

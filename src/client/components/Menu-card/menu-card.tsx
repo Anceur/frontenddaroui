@@ -8,6 +8,12 @@ interface MenuItemSize {
   price: number | string
 }
 
+export interface MenuItemExtra {
+  id: number | string
+  name: string
+  price: number | string
+}
+
 interface MenuItem {
   id: number | string
   name: string
@@ -19,6 +25,7 @@ interface MenuItem {
   featured?: boolean
   tags?: string[]
   sizes?: MenuItemSize[]
+  extras?: MenuItemExtra[]
 }
 
 const categoryColors: Record<string, { bg: string; text: string }> = {
@@ -40,8 +47,17 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(
     hasOnlyDefaultSize ? "M" : null
   )
+  const [selectedExtras, setSelectedExtras] = useState<MenuItemExtra[]>([])
   const [isAdding, setIsAdding] = useState(false)
   const { addToCart } = useCart()
+
+  const toggleExtra = (extra: MenuItemExtra) => {
+    setSelectedExtras(prev => 
+      prev.some(e => e.id === extra.id)
+        ? prev.filter(e => e.id !== extra.id)
+        : [...prev, extra]
+    )
+  }
 
   const activePromo = useMemo(() => {
     if (selectedSize && item.sizes) {
@@ -70,33 +86,45 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
       if (sizeOption) basePrice = Number(sizeOption.price)
     }
 
+    let finalPrice = basePrice;
     if (activePromo) {
       if (activePromo.promotion_type === "percentage") {
-        return basePrice * (1 - parseFloat(activePromo.value) / 100)
+        finalPrice = basePrice * (1 - parseFloat(activePromo.value) / 100)
       } else if (activePromo.promotion_type === "fixed_amount") {
-        return Math.max(0, basePrice - parseFloat(activePromo.value))
+        finalPrice = Math.max(0, basePrice - parseFloat(activePromo.value))
       }
     }
-    return basePrice
+    
+    const extrasPrice = selectedExtras.reduce((sum, extra) => sum + Number(extra.price), 0)
+    return finalPrice + extrasPrice
   }
 
   const getOriginalPrice = () => {
+    let basePrice = Number(item.price)
     if (item.sizes && selectedSize) {
       const sizeOption = item.sizes.find(s => s.size === selectedSize)
-      return sizeOption ? Number(sizeOption.price) : Number(item.price)
+      if (sizeOption) basePrice = Number(sizeOption.price)
     }
-    return Number(item.price)
+    const extrasPrice = selectedExtras.reduce((sum, extra) => sum + Number(extra.price), 0)
+    return basePrice + extrasPrice
   }
 
   const handleAddToCart = () => {
     if (item.sizes && item.sizes.length > 1 && !selectedSize) return
     setIsAdding(true)
+    
+    // Sort extras so same combinations have same id
+    const extrasKey = selectedExtras.length > 0 
+      ? "-" + selectedExtras.map(e => e.id).sort().join("-")
+      : ""
+
     addToCart({
-      id: String(item.id) + (selectedSize || ""),
-      name: item.name,
+      id: String(item.id) + (selectedSize ? `-${selectedSize}` : "") + extrasKey,
+      name: item.name + (selectedSize && item.sizes && item.sizes.length > 1 ? ` (${selectedSize})` : ""),
       price: getCurrentPrice(),
       image: item.image || undefined,
       quantity: 1,
+      extras: selectedExtras,
     })
     setTimeout(() => setIsAdding(false), 600)
   }
@@ -182,6 +210,31 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
                     {Number(sizeOption.price).toFixed(0)} DA
                   </div>
                 </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Extras */}
+        {item.extras && item.extras.length > 0 && (
+          <div className="mb-4">
+            <p className="text-xs font-semibold text-gray-400 mb-2.5 uppercase tracking-wider">
+              Suppléments
+            </p>
+            <div className="flex flex-col gap-2">
+              {item.extras.map(extra => (
+                <label key={extra.id} className="flex items-center justify-between p-2 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedExtras.some(e => e.id === extra.id)}
+                      onChange={() => toggleExtra(extra)}
+                      className="w-4 h-4 text-amber-500 rounded border-gray-300 focus:ring-amber-500 cursor-pointer"
+                    />
+                    <span className="text-sm font-medium text-gray-700">{extra.name}</span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">+{Number(extra.price).toFixed(0)} DA</span>
+                </label>
               ))}
             </div>
           </div>
