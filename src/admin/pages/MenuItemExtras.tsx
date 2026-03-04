@@ -20,7 +20,8 @@ export default function MenuItemExtrasManagement() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingExtra, setEditingExtra] = useState<MenuItemExtra | null>(null);
-  const [formData, setFormData] = useState<CreateMenuItemExtraData>({
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [formData, setFormData] = useState<Omit<CreateMenuItemExtraData, 'menu_item_id'> & { menu_item_id: number }>({
     menu_item_id: 0,
     name: '',
     price: 0,
@@ -28,6 +29,9 @@ export default function MenuItemExtrasManagement() {
   });
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
+  // Get unique categories from menu items
+  const categories = [...new Set(menuItems.map((item) => item.category))].sort();
 
   const fetchData = async () => {
     try {
@@ -60,8 +64,8 @@ export default function MenuItemExtrasManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.menu_item_id === 0) {
-      setError('Veuillez sélectionner un article du menu');
+    if (!selectedCategory && !editingExtra) {
+      setError('Veuillez sélectionner une catégorie');
       return;
     }
     if (!formData.name.trim()) {
@@ -71,15 +75,37 @@ export default function MenuItemExtrasManagement() {
     try {
       setSubmitting(true);
       setError(null);
+
       if (editingExtra) {
+        // تعديل supplément واحد فقط
         await updateMenuItemExtra(editingExtra.id, {
           name: formData.name,
           price: formData.price,
           cost_price: formData.cost_price,
         });
       } else {
-        await createMenuItemExtra(formData);
+        // إضافة supplément على كل منتجات الفئة المختارة
+        const itemsInCategory = menuItems.filter(
+          (item) => item.category === selectedCategory
+        );
+
+        if (itemsInCategory.length === 0) {
+          setError('Aucun article trouvé dans cette catégorie');
+          return;
+        }
+
+        await Promise.all(
+          itemsInCategory.map((item) =>
+            createMenuItemExtra({
+              menu_item_id: item.id,
+              name: formData.name,
+              price: formData.price,
+              cost_price: formData.cost_price,
+            })
+          )
+        );
       }
+
       resetForm();
       await fetchData();
     } catch (err: any) {
@@ -113,6 +139,7 @@ export default function MenuItemExtrasManagement() {
 
   const resetForm = () => {
     setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0 });
+    setSelectedCategory('');
     setEditingExtra(null);
     setIsModalOpen(false);
   };
@@ -192,6 +219,7 @@ export default function MenuItemExtrasManagement() {
           <button
             onClick={() => {
               setEditingExtra(null);
+              setSelectedCategory('');
               setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0 });
               setIsModalOpen(true);
             }}
@@ -221,6 +249,7 @@ export default function MenuItemExtrasManagement() {
           <button
             onClick={() => {
               setEditingExtra(null);
+              setSelectedCategory('');
               setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0 });
               setIsModalOpen(true);
             }}
@@ -324,29 +353,42 @@ export default function MenuItemExtrasManagement() {
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-5">
-              {/* Product selector */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
-                  Article parent <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    required
-                    className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-bold text-gray-700 appearance-none cursor-pointer"
-                    value={formData.menu_item_id}
-                    onChange={(e) => setFormData({ ...formData, menu_item_id: parseInt(e.target.value) })}
-                    disabled={!!editingExtra}
-                  >
-                    <option value={0}>Sélectionner un produit...</option>
-                    {menuItems.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 pointer-events-none" />
+
+              {/* Category selector - only shown when adding new */}
+              {!editingExtra && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
+                    Catégorie <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      required
+                      className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-bold text-gray-700 appearance-none cursor-pointer"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                      <option value="">Sélectionner une catégorie...</option>
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 pointer-events-none" />
+                  </div>
+
+                  {/* Show how many items will be affected */}
+                  {selectedCategory && (
+                    <p className="text-xs text-orange-500 font-semibold ml-1">
+                      ✓ Ce supplément sera ajouté à{' '}
+                      <span className="font-bold">
+                        {menuItems.filter((i) => i.category === selectedCategory).length}
+                      </span>{' '}
+                      article(s) de la catégorie "{selectedCategory}"
+                    </p>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Extra name */}
               <div className="space-y-2">
