@@ -113,7 +113,6 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
     if (item.sizes && item.sizes.length > 1 && !selectedSize) return
     setIsAdding(true)
     
-    // Sort extras so same combinations have same id
     const extrasKey = selectedExtras.length > 0 
       ? "-" + selectedExtras.map(e => e.id).sort().join("-")
       : ""
@@ -184,7 +183,7 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
 
         <p className="text-sm text-gray-500 leading-relaxed mb-4 line-clamp-2">
           {item.description ||
-            "Savourez notre spécialité préparée avec soin, à base d’ingrédients de qualité pour une expérience gustative nostalgique."}
+            "Savourez notre spécialité préparée avec soin, à base d'ingrédients de qualité pour une expérience gustative nostalgique."}
         </p>
 
         {/* Sizes */}
@@ -193,7 +192,6 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
             <p className="text-xs font-semibold text-gray-400 mb-2.5 uppercase tracking-wider">
               Choisir la taille
             </p>
-
             <div className="flex gap-2">
               {item.sizes.map(sizeOption => (
                 <button
@@ -215,38 +213,119 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
           </div>
         )}
 
-        {/* Extras */}
+        {/* ── Extras ── */}
         {item.extras && item.extras.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-semibold text-gray-400 mb-2.5 uppercase tracking-wider">
-              Suppléments
-            </p>
-            <div className="flex flex-col gap-2">
-              {item.extras.map(extra => (
-                <label key={extra.id} className="flex items-center justify-between p-2 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedExtras.some(e => e.id === extra.id)}
-                      onChange={() => toggleExtra(extra)}
-                      className="w-4 h-4 text-amber-500 rounded border-gray-300 focus:ring-amber-500 cursor-pointer"
-                    />
-                    <span className="text-sm font-medium text-gray-700">{extra.name}</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-900">+{Number(extra.price).toFixed(0)} DA</span>
-                </label>
-              ))}
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-base">✨</span>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                  Suppléments
+                </p>
+              </div>
+              {selectedExtras.length > 0 && (
+                <span
+                  className="text-xs font-bold px-2.5 py-1 rounded-full text-white"
+                  style={{ backgroundColor: "#fe9a00" }}
+                >
+                  {selectedExtras.length} choisi{selectedExtras.length > 1 ? "s" : ""}
+                </span>
+              )}
             </div>
+
+            {/* Extras grid */}
+            <div className="flex flex-col gap-2">
+              {item.extras.map(extra => {
+                const isSelected = selectedExtras.some(e => e.id === extra.id)
+                return (
+                  <button
+                    key={extra.id}
+                    type="button"
+                    onClick={() => toggleExtra(extra)}
+                    className={`
+                      w-full flex items-center justify-between
+                      px-3.5 py-2.5 rounded-xl
+                      border-2 transition-all duration-200
+                      text-left
+                      ${isSelected
+                        ? "border-amber-400 bg-amber-50 shadow-sm shadow-amber-100"
+                        : "border-gray-100 bg-white hover:border-amber-200 hover:bg-amber-50/40"
+                      }
+                    `}
+                  >
+                    {/* Left: checkbox + name */}
+                    <div className="flex items-center gap-2.5">
+                      {/* Custom checkbox */}
+                      <div
+                        className={`
+                          w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0
+                          border-2 transition-all duration-200
+                          ${isSelected
+                            ? "border-amber-500 bg-amber-500"
+                            : "border-gray-300 bg-white"
+                          }
+                        `}
+                      >
+                        {isSelected && (
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <span
+                        className={`text-sm font-semibold transition-colors ${
+                          isSelected ? "text-gray-900" : "text-gray-600"
+                        }`}
+                      >
+                        {extra.name}
+                      </span>
+                    </div>
+
+                    {/* Right: price pill */}
+                    <span
+                      className={`
+                        text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 transition-all
+                        ${isSelected
+                          ? "bg-amber-500 text-white"
+                          : "bg-gray-100 text-gray-500"
+                        }
+                      `}
+                    >
+                      +{Number(extra.price).toFixed(0)} DA
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Selected extras summary */}
+            {selectedExtras.length > 0 && (
+              <div className="mt-2.5 px-3 py-2 bg-amber-50 rounded-xl border border-amber-100 flex items-center justify-between">
+                <span className="text-xs text-amber-700 font-medium">
+                  {selectedExtras.map(e => e.name).join(", ")}
+                </span>
+                <span className="text-xs font-bold text-amber-600 flex-shrink-0 ml-2">
+                  +{selectedExtras.reduce((s, e) => s + Number(e.price), 0).toFixed(0)} DA
+                </span>
+              </div>
+            )}
           </div>
         )}
 
         <div className="flex-grow"></div>
-   {/*footer*/}
-        
+
+        {/* Footer */}
         <div className="pt-4 border-t border-gray-100">
           <div className="flex items-end justify-between gap-1">
 
-            {/* PRICE (FIXED HEIGHT) */}
+            {/* Price */}
             <div className="flex flex-col justify-end min-h-[72px] flex-shrink-0">
               {activePromo && (
                 <span className="text-sm text-gray-400 line-through font-semibold">
@@ -258,7 +337,7 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
               </div>
             </div>
 
-            {/* BUTTON (CHROME-COMPATIBLE) */}
+            {/* Button */}
             <button
               onClick={handleAddToCart}
               disabled={isButtonDisabled}
