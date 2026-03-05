@@ -254,9 +254,9 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
+            background: "linear-gradient(160deg, #fffbf2 0%, #fff8ed 100%)",
           }}
           className="absolute inset-0 rounded-2xl overflow-hidden shadow-xl flex flex-col h-full w-full"
-          style2={{ background: "linear-gradient(160deg, #fffbf2 0%, #fff8ed 100%)" }}
         >
           {/* Back header with item image blurred */}
           <div className="relative h-24 flex-shrink-0 overflow-hidden">
