@@ -49,6 +49,7 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
   )
   const [selectedExtras, setSelectedExtras] = useState<MenuItemExtra[]>([])
   const [isAdding, setIsAdding] = useState(false)
+  const [isFlipped, setIsFlipped] = useState(false)
   const { addToCart } = useCart()
 
   const toggleExtra = (extra: MenuItemExtra) => {
@@ -215,27 +216,81 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
           </div>
         )}
 
-        {/* Extras */}
+        {/* Extras Section with Flip Card */}
         {item.extras && item.extras.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-semibold text-gray-400 mb-2.5 uppercase tracking-wider">
-              Suppléments
-            </p>
-            <div className="flex flex-col gap-2">
-              {item.extras.map(extra => (
-                <label key={extra.id} className="flex items-center justify-between p-2 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedExtras.some(e => e.id === extra.id)}
-                      onChange={() => toggleExtra(extra)}
-                      className="w-4 h-4 text-amber-500 rounded border-gray-300 focus:ring-amber-500 cursor-pointer"
-                    />
-                    <span className="text-sm font-medium text-gray-700">{extra.name}</span>
+            <button
+              onClick={() => setIsFlipped(!isFlipped)}
+              className="w-full text-xs font-semibold text-gray-400 mb-2.5 uppercase tracking-wider flex items-center justify-between hover:text-gray-600 transition-colors"
+            >
+              <span>Suppléments</span>
+              <span className="text-sm transform transition-transform duration-300" style={{ transform: isFlipped ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                ▼
+              </span>
+            </button>
+            
+            {/* Flip Card Container */}
+            <div 
+              className="relative transition-all duration-500 transform-gpu"
+              style={{ 
+                perspective: '1000px',
+                minHeight: isFlipped ? 'auto' : '48px'
+              }}
+            >
+              {/* Front of card (hidden when flipped) */}
+              <div
+                className={`w-full transition-all duration-500 transform-gpu ${
+                  isFlipped ? 'opacity-0 absolute pointer-events-none' : 'opacity-100'
+                }`}
+                style={{ 
+                  backfaceVisibility: 'hidden',
+                  transform: isFlipped ? 'rotateX(180deg)' : 'rotateX(0deg)'
+                }}
+              >
+                <div className="flex flex-wrap gap-2">
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-gray-700 flex items-center gap-2">
+                    <span className="text-amber-500">✨</span>
+                    Cliquez pour voir les suppléments
+                    <span className="text-xs text-gray-500">
+                      ({selectedExtras.length} sélectionné{selectedExtras.length !== 1 ? 's' : ''})
+                    </span>
                   </div>
-                  <span className="text-sm font-bold text-gray-900">+{Number(extra.price).toFixed(0)} DA</span>
-                </label>
-              ))}
+                </div>
+              </div>
+
+              {/* Back of card (supplements list) */}
+              <div
+                className={`w-full transition-all duration-500 transform-gpu ${
+                  !isFlipped ? 'opacity-0 absolute pointer-events-none' : 'opacity-100'
+                }`}
+                style={{ 
+                  backfaceVisibility: 'hidden',
+                  transform: !isFlipped ? 'rotateX(-180deg)' : 'rotateX(0deg)'
+                }}
+              >
+                <div className="flex flex-col gap-2">
+                  {item.extras.map(extra => (
+                    <label key={extra.id} className="flex items-center justify-between p-2 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedExtras.some(e => e.id === extra.id)}
+                          onChange={() => toggleExtra(extra)}
+                          className="w-4 h-4 text-amber-500 rounded border-gray-300 focus:ring-amber-500 cursor-pointer"
+                        />
+                        <span className="text-sm font-medium text-gray-700">{extra.name}</span>
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">+{Number(extra.price).toFixed(0)} DA</span>
+                    </label>
+                  ))}
+                  <button
+                    onClick={() => setIsFlipped(false)}
+                    className="text-xs text-amber-600 hover:text-amber-700 font-medium py-1"
+                  >
+                    ← Retour
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
