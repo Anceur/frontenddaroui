@@ -121,18 +121,13 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
     isAdding || (item.sizes && item.sizes.length > 1 && !selectedSize)
 
   return (
-    /* Perspective wrapper — gives depth to the 3‑D flip */
     <div style={{ perspective: "1200px" }} className="w-full h-full">
-      {/*
-        Inner container: this is the element that actually rotates.
-        We use an inline style for rotateY because Tailwind's arbitrary
-        value support for transforms is inconsistent across versions.
-      */}
       <div
-        className="relative w-full h-full transition-transform duration-700"
+        className="relative w-full h-full"
         style={{
           transformStyle: "preserve-3d",
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
           minHeight: "520px",
         }}
       >
@@ -221,20 +216,35 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
             {item.extras && item.extras.length > 0 && (
               <button
                 onClick={() => setIsFlipped(true)}
-                className="mb-4 w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 border-amber-200 bg-amber-50 hover:bg-amber-100 hover:border-amber-400 transition-all group"
+                className="mb-4 w-full flex flex-col px-4 py-3 rounded-xl border-2 border-amber-200 bg-amber-50 hover:bg-amber-100 hover:border-amber-400 transition-all group text-left"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-amber-500 text-base">✨</span>
-                  <span className="text-sm font-semibold text-gray-700">Suppléments</span>
-                  {selectedExtras.length > 0 && (
-                    <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                      {selectedExtras.length}
-                    </span>
-                  )}
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-500 text-base">✨</span>
+                    <span className="text-sm font-semibold text-gray-700">Suppléments</span>
+                    {selectedExtras.length > 0 && (
+                      <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        {selectedExtras.length}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-amber-500 font-bold text-lg group-hover:translate-x-1 transition-transform">
+                    →
+                  </span>
                 </div>
-                <span className="text-amber-500 font-bold text-lg group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
+                {/* Selected extras chips summary */}
+                {selectedExtras.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {selectedExtras.map(e => (
+                      <span
+                        key={e.id}
+                        className="bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold px-2 py-0.5 rounded-full"
+                      >
+                        {e.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </button>
             )}
 
@@ -301,57 +311,62 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
             </button>
           </div>
 
-          {/* Extras list */}
-          <div className="flex-grow overflow-y-auto px-5 py-4 flex flex-col gap-2">
+          {/* Extras list — no flex-grow so height wraps content */}
+          <div className="px-5 pt-4 pb-2 flex flex-col gap-2.5">
             {item.extras && item.extras.map(extra => {
               const checked = selectedExtras.some(e => e.id === extra.id)
               return (
                 <label
                   key={extra.id}
-                  className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
                     checked
-                      ? "border-amber-400 bg-amber-50"
-                      : "border-gray-200 bg-white hover:border-amber-200 hover:bg-amber-50/40"
+                      ? "border-amber-400 bg-amber-50 shadow-sm"
+                      : "border-gray-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                      checked ? "border-amber-500 bg-amber-500" : "border-gray-300"
-                    }`}>
+                    {/* Custom checkbox */}
+                    <div
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                        checked
+                          ? "border-amber-500 bg-amber-500 scale-110"
+                          : "border-gray-300 bg-white"
+                      }`}
+                    >
                       {checked && (
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
                     </div>
-                    <span className="text-sm font-semibold text-gray-800">{extra.name}</span>
+                    <span className={`text-sm font-bold tracking-wide uppercase ${checked ? "text-gray-900" : "text-gray-600"}`}>
+                      {extra.name}
+                    </span>
                   </div>
-                  <span className="text-sm font-bold text-amber-600 ml-2 flex-shrink-0">
+                  <span className={`text-sm font-bold ml-2 flex-shrink-0 ${checked ? "text-amber-600" : "text-gray-400"}`}>
                     +{Number(extra.price).toFixed(0)} DA
                   </span>
-                  {/* Hidden real checkbox for accessibility */}
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggleExtra(extra)}
-                    className="sr-only"
-                  />
+                  <input type="checkbox" checked={checked} onChange={() => toggleExtra(extra)} className="sr-only" />
                 </label>
               )
             })}
           </div>
 
+          {/* Spacer pushes footer to bottom */}
+          <div className="flex-grow" />
+
           {/* Footer */}
-          <div className="px-5 py-4 border-t border-gray-100 bg-white flex-shrink-0">
-            <div className="flex items-center justify-between mb-3">
+          <div className="px-5 py-4 border-t border-gray-100 bg-white flex-shrink-0 rounded-b-2xl">
+            {/* Extras total line */}
+            {selectedExtras.length > 0 && (
+              <p className="text-xs text-gray-400 mb-1">
+                {selectedExtras.length} supplément{selectedExtras.length !== 1 ? "s" : ""} · +{selectedExtras.reduce((s, e) => s + Number(e.price), 0).toFixed(0)} DA
+              </p>
+            )}
+            <div className="flex items-center justify-between">
               <div>
-                {selectedExtras.length > 0 && (
-                  <p className="text-xs text-gray-500">
-                    {selectedExtras.length} supplément{selectedExtras.length !== 1 ? "s" : ""} sélectionné{selectedExtras.length !== 1 ? "s" : ""}
-                  </p>
-                )}
                 {activePromo && (
-                  <span className="text-sm text-gray-400 line-through font-semibold">
+                  <span className="text-sm text-gray-400 line-through font-semibold block">
                     {getOriginalPrice().toFixed(0)} DA
                   </span>
                 )}
@@ -372,7 +387,7 @@ export default function MenuCard({ item, promotions }: MenuCardProps) {
                   rounded-2xl font-bold text-sm shadow-lg transition-all px-4
                   ${isButtonDisabled
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-[#fe9a00] text-white hover:brightness-110 hover:scale-105"
+                    : "bg-[#fe9a00] text-white hover:brightness-110 hover:scale-105 active:scale-95"
                   }
                 `}
               >
