@@ -174,6 +174,31 @@ export async function getOrderDetails(orderType: 'online' | 'offline', orderId: 
   }
 }
 
+// Update order details
+export async function updateOrder(orderType: 'online' | 'offline', orderId: number, data: { items?: any[], notes?: string }): Promise<any> {
+  try {
+    const response = await axios.patch(
+      `${API}/cashier/order-detail/`,
+      {
+        order_type: orderType,
+        order_id: orderId,
+        ...data
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error('Error updating order details:', error);
+    if (error.response) {
+      const errorMessage = error.response.data?.error || error.response.data?.detail || 'Failed to update order details';
+      throw new Error(errorMessage);
+    }
+    throw new Error('Network error: Failed to update order details');
+  }
+}
+
 // Update table occupancy status
 export async function updateTableOccupancy(tableId: number, isOccupied: boolean): Promise<any> {
   try {
@@ -207,6 +232,7 @@ export interface CreateOrderItem {
   size_id?: number | null;
   quantity: number;
   price?: number; // Optional price override
+  extras?: any[];
 }
 
 export interface CreateOrderRequest {
@@ -322,6 +348,7 @@ export interface ManualOnlineOrderData {
     size?: string;
     size_id?: number | null;
     quantity: number;
+    extras?: any[];
   }[];
   notes?: string;
   loyalty_number?: string;

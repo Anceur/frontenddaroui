@@ -8,6 +8,74 @@ interface CartItem extends CreateOrderItem {
   sizeName?: string;
   price: number;
   total: number;
+  extras?: any[];
+}
+
+interface ExtrasModalProps {
+  item: MenuItem;
+  sizeId?: number;
+  onClose: () => void;
+  onAdd: (extras: any[]) => void;
+}
+
+function ExtrasModal({ item, sizeId, onClose, onAdd }: ExtrasModalProps) {
+  const [selectedExtras, setSelectedExtras] = useState<any[]>([]);
+
+  const toggleExtra = (extra: any) => {
+    if (selectedExtras.find(e => e.id === extra.id)) {
+      setSelectedExtras(selectedExtras.filter(e => e.id !== extra.id));
+    } else {
+      setSelectedExtras([...selectedExtras, extra]);
+    }
+  };
+
+  const totalExtras = selectedExtras.reduce((sum, e) => sum + Number(e.price), 0);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in duration-200">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-gray-800">Suppléments pour {item.name}</h3>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
+            <X size={20} className="text-gray-400" />
+          </button>
+        </div>
+        
+        <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+          {item.extras && item.extras.length > 0 ? (
+            item.extras.map(extra => (
+              <label key={extra.id} className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedExtras.find(e => e.id === extra.id) ? 'border-orange-500 bg-orange-50' : 'border-gray-100 hover:border-orange-200'}`}>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={!!selectedExtras.find(e => e.id === extra.id)}
+                    onChange={() => toggleExtra(extra)}
+                    className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500"
+                  />
+                  <span className="font-semibold text-gray-700">{extra.name}</span>
+                </div>
+                <span className="font-bold text-orange-600">+{Number(extra.price).toFixed(2)} DA</span>
+              </label>
+            ))
+          ) : (
+            <p className="text-center text-gray-500 py-4">Aucun supplément disponible</p>
+          )}
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+          <div className="text-sm text-gray-500">
+            Total suppléments: <span className="font-bold text-orange-600">{totalExtras.toFixed(2)} DA</span>
+          </div>
+          <button
+            onClick={() => onAdd(selectedExtras)}
+            className="px-6 py-2 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 shadow-lg shadow-orange-500/30 transition-all hover:-translate-y-0.5"
+          >
+            Ajouter au panier
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function ManualOrderEntry() {
@@ -22,6 +90,7 @@ export default function ManualOrderEntry() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isImported, setIsImported] = useState(false);
+  const [pendingItemForExtras, setPendingItemForExtras] = useState<{ item: MenuItem, sizeId?: number } | null>(null);
 
   // Fetch tables and menu items
   useEffect(() => {
@@ -93,18 +162,31 @@ export default function ManualOrderEntry() {
   };
 
   // Add item to cart
-  const addToCart = (item: MenuItem, sizeId?: number, overridePrice?: number, promoName?: string) => {
+  const addToCart = (item: MenuItem, sizeId?: number, overridePrice?: number, promoName?: string, selectedExtras?: any[]) => {
+    // If item has extras and they haven't been selected yet, show modal
+    if (item.extras && item.extras.length > 0 && !selectedExtras && !promoName) {
+      setPendingItemForExtras({ item, sizeId });
+      return;
+    }
+
     const { originalPrice, bestPrice, applicablePromo } = getItemPriceInfo(item, sizeId);
 
     // Priority: 1. Manual override (combos), 2. Best Promo Price, 3. Original Price
-    const price = overridePrice !== undefined ? overridePrice : bestPrice;
+    const basePrice = overridePrice !== undefined ? overridePrice : bestPrice;
+    const extrasTotal = selectedExtras ? selectedExtras.reduce((sum, e) => sum + Number(e.price), 0) : 0;
+    const price = basePrice + extrasTotal;
 
     const size = sizeId ? item.sizes?.find(s => s.id === sizeId) : null;
     const sizeName = size ? size.size : undefined;
 
-    // Add promo tag to name if it's a discount or combo
+    // Add promo tag and extras to name if applicable
     const effectivePromoName = promoName || (bestPrice < originalPrice ? applicablePromo?.name : undefined);
-    const displayName = effectivePromoName ? `[${effectivePromoName}] ${item.name}` : item.name;
+    let displayName = effectivePromoName ? `[${effectivePromoName}] ${item.name}` : item.name;
+    
+    if (selectedExtras && selectedExtras.length > 0) {
+      const extraNames = selectedExtras.map(e => e.name).join(', ');
+      displayName += ` (+ ${extraNames})`;
+    }
 
     const existingItemIndex = cart.findIndex(
       cartItem => cartItem.item_id === item.id &&
@@ -128,7 +210,8 @@ export default function ManualOrderEntry() {
         name: displayName,
         sizeName,
         price,
-        total: price
+        total: price,
+        extras: selectedExtras || []
       };
       setCart([...cart, newItem]);
     }
@@ -225,7 +308,8 @@ export default function ManualOrderEntry() {
         item_id: item.item_id,
         size_id: item.size_id,
         quantity: item.quantity,
-        price: item.price // Send our calculated price (especially for promotions)
+        price: item.price, // Send our calculated price (especially for promotions)
+        extras: item.extras
       }));
 
       await createOfflineOrder({
@@ -281,10 +365,22 @@ export default function ManualOrderEntry() {
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 flex items-center gap-2">
-          <CheckCircle size={20} />
-          Commande créée avec succès !
+        <div className="fixed bottom-8 right-8 bg-green-500 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom duration-300 z-50">
+          <CheckCircle size={24} />
+          <span className="font-bold text-lg">Commande créée avec succès !</span>
         </div>
+      )}
+
+      {pendingItemForExtras && (
+        <ExtrasModal
+          item={pendingItemForExtras.item}
+          sizeId={pendingItemForExtras.sizeId}
+          onClose={() => setPendingItemForExtras(null)}
+          onAdd={(extras) => {
+            addToCart(pendingItemForExtras.item, pendingItemForExtras.sizeId, undefined, undefined, extras);
+            setPendingItemForExtras(null);
+          }}
+        />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

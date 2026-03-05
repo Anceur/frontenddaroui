@@ -1,22 +1,197 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ShoppingCart, CheckCircle, RefreshCw, Loader2, Eye, Printer, X, Star, Package } from 'lucide-react';
-import { getPendingOrders, confirmOrder, declineOrder, getOrderDetails, type PendingOrdersResponse } from '../../shared/api/cashier';
+import { ShoppingCart, CheckCircle, RefreshCw, Loader2, Eye, Printer, X, Star, Package, Edit3, Save, Plus, Minus, Trash2, Search } from 'lucide-react';
+import { getPendingOrders, confirmOrder, declineOrder, getOrderDetails, updateOrder, type PendingOrdersResponse } from '../../shared/api/cashier';
+import { getMenuItems } from '../../shared/api/menu-items';
 
 interface OrderDetailModalProps {
   order: any;
   orderType: 'online' | 'offline';
   isOpen: boolean;
   onClose: () => void;
+  handleConfirm: (orderType: 'online' | 'offline', orderId: number) => void;
+  handleDecline: (orderType: 'online' | 'offline', orderId: number) => void;
 }
 
-function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModalProps) {
+function OrderDetailModal({ order, orderType, isOpen, onClose, handleConfirm, handleDecline }: OrderDetailModalProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editItems, setEditItems] = useState<any[]>([]);
+  const [editNotes, setEditNotes] = useState('');
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [loadingMenu, setLoadingMenu] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [pendingItemForExtras, setPendingItemForExtras] = useState<{ item: any, sizeId?: number } | null>(null);
+
+  // Normalize items for unified editing structure
+  const normalizeItems = useCallback((items: any[]) => {
+    return items.map(item => {
+      const itemId = item.item?.id || item.item_id || item.id;
+      const sizeId = item.size?.id || item.size_id || null;
+      const name = item.item?.name || item.name || (typeof item === 'string' ? item : 'Article');
+      const sizeName = item.size?.size || item.size;
+      
+      return {
+        item_id: itemId,
+        size_id: sizeId,
+        name: name,
+        sizeName: typeof sizeName === 'string' ? sizeName : (sizeName?.size || ''),
+        quantity: item.quantity || 1,
+        price: Number(item.price || 0),
+        notes: item.notes || '',
+        extras: item.extras || []
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (order && isOpen) {
+      setEditItems(normalizeItems(order.items || []));
+      setEditNotes(order.notes || '');
+      setIsEditing(false);
+    }
+  }, [order, isOpen, normalizeItems]);
+
+  const toggleEdit = async () => {
+    if (!isEditing) {
+      setIsEditing(true);
+      if (menuItems.length === 0) {
+        setLoadingMenu(true);
+        try {
+          const items = await getMenuItems();
+          setMenuItems(items);
+        } catch (err) {
+          console.error('Error fetching menu items:', err);
+        } finally {
+          setLoadingMenu(false);
+        }
+      }
+    } else {
+      setIsEditing(false);
+    }
+  };
+
+  const handleUpdateQuantity = (idx: number, delta: number) => {
+    const newItems = [...editItems];
+    newItems[idx].quantity = Math.max(1, newItems[idx].quantity + delta);
+    setEditItems(newItems);
+  };
+
+  const handleRemoveItem = (idx: number) => {
+    setEditItems(editItems.filter((_, i) => i !== idx));
+  };
+
+  const handleAddItem = (menuItem: any, sizeId?: number, selectedExtras?: any[]) => {
+    // If item has extras and they haven't been selected yet, show modal
+    if (menuItem.extras && menuItem.extras.length > 0 && !selectedExtras) {
+      setPendingItemForExtras({ item: menuItem, sizeId });
+      return;
+    }
+
+    const size = sizeId ? menuItem.sizes?.find((s: any) => s.id === sizeId) : null;
+    const extrasTotal = selectedExtras ? selectedExtras.reduce((sum, e) => sum + Number(e.price), 0) : 0;
+    
+    let displayName = menuItem.name;
+    if (selectedExtras && selectedExtras.length > 0) {
+      const extraNames = selectedExtras.map(e => e.name).join(', ');
+      displayName += ` (+ ${extraNames})`;
+    }
+
+    const newItem = {
+      item_id: menuItem.id,
+      size_id: sizeId || null,
+      name: displayName,
+      sizeName: size ? size.size : '',
+      quantity: 1,
+      price: (size ? Number(size.price) : Number(menuItem.price)) + extrasTotal,
+      notes: '',
+      extras: selectedExtras || []
+    };
+    setEditItems([...editItems, newItem]);
+  };
+
+  const handleSave = async () => {
+    if (editItems.length === 0) {
+      alert('La commande doit contenir au moins un article');
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      await updateOrder(orderType, order.id, {
+        items: editItems,
+        notes: editNotes
+      });
+      setIsEditing(false);
+      // Success - alert is simple but maybe we should use a toast later
+      alert('Commande mise à jour');
+      // No need to close, just show updated data (user can confirm now)
+      // Actually we should probably trigger a refresh of the order data from parent
+      // but the interval might catch it.
+      onClose();
+    } catch (err: any) {
+      alert(err.message || 'Échec de la mise à jour');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!isOpen || !order) return null;
+
+  const filteredMenu = menuItems.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const calculateSubtotal = () => {
+      return editItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  };
+
+  const currentTotal = orderType === 'online' 
+    ? calculateSubtotal() + Number(order.tax_amount || 100)
+    : calculateSubtotal();
+
+  const ExtrasModal = ({ item, sizeId, onClose, onAdd }: any) => {
+    const [selectedExtras, setSelectedExtras] = useState<any[]>([]);
+    const toggleExtra = (extra: any) => {
+      if (selectedExtras.find(e => e.id === extra.id)) {
+        setSelectedExtras(selectedExtras.filter(e => e.id !== extra.id));
+      } else {
+        setSelectedExtras([...selectedExtras, extra]);
+      }
+    };
+    const totalExtras = selectedExtras.reduce((sum, e) => sum + Number(e.price), 0);
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-gray-800">Suppléments pour {item.name}</h3>
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full"><X size={20} className="text-gray-400" /></button>
+          </div>
+          <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+            {item.extras.map((extra: any) => (
+              <label key={extra.id} className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedExtras.find(e => e.id === extra.id) ? 'border-orange-500 bg-orange-50' : 'border-gray-100 hover:border-orange-200'}`}>
+                <div className="flex items-center gap-3">
+                  <input type="checkbox" checked={!!selectedExtras.find(e => e.id === extra.id)} onChange={() => toggleExtra(extra)} className="w-5 h-5 text-orange-600 rounded" />
+                  <span className="font-semibold text-gray-700">{extra.name}</span>
+                </div>
+                <span className="font-bold text-orange-600">+{Number(extra.price).toFixed(2)} DA</span>
+              </label>
+            ))}
+          </div>
+          <div className="mt-6 pt-4 border-t flex items-center justify-between">
+            <div className="text-sm text-gray-500 font-bold">Total: {totalExtras.toFixed(2)} DA</div>
+            <button onClick={() => onAdd(selectedExtras)} className="px-6 py-2 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600">Ajouter</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 border-b-2 border-gray-100 flex justify-between items-start z-10">
+        <div className="sticky top-0 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-6 border-b-2 border-gray-100 flex justify-between items-start z-10 shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <div className="p-2 bg-orange-100 rounded-lg">
@@ -32,124 +207,244 @@ function OrderDetailModal({ order, orderType, isOpen, onClose }: OrderDetailModa
               </p>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X size={24} className="text-gray-400" />
-          </button>
+          <div className="flex items-center gap-2">
+            {!isEditing ? (
+              <button
+                onClick={toggleEdit}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition-all border border-blue-200"
+              >
+                <Edit3 size={18} />
+                Modifier
+              </button>
+            ) : (
+              <button
+                onClick={toggleEdit}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-all border border-gray-200"
+              >
+                Annuler
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X size={24} className="text-gray-400" />
+            </button>
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Customer Info (Online Orders) */}
-          {orderType === 'online' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Client</p>
-                <p className="font-semibold text-gray-800">{order.customer}</p>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Téléphone</p>
-                <p className="font-semibold text-gray-800">{order.phone}</p>
-              </div>
-              {order.address && (
-                <div className="bg-gray-50 rounded-xl p-4 md:col-span-2">
-                  <p className="text-xs text-gray-500 uppercase font-bold mb-1">Adresse</p>
-                  <p className="font-semibold text-gray-800">{order.address}</p>
-                </div>
-              )}
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Type de Commande</p>
-                <p className="font-semibold text-gray-800 capitalize">{order.order_type || order.orderType}</p>
-              </div>
-              {order.table_number && (
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 uppercase font-bold mb-1">Numéro de Table</p>
-                  <p className="font-semibold text-gray-800">{order.table_number}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Notes */}
-          {order.notes && (
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-              <p className="text-xs text-blue-700 uppercase font-bold mb-2">Notes Spéciales</p>
-              <p className="font-semibold text-gray-800">{order.notes}</p>
-            </div>
-          )}
-
-          {/* Items */}
-          <div>
-            <p className="text-xs text-gray-500 uppercase font-bold mb-3">Articles de la Commande</p>
-            <div className="space-y-2">
-              {orderType === 'online' && order.items && Array.isArray(order.items) ? (
-                order.items.map((item: any, idx: number) => (
-                  <div key={idx} className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-                    <div>
-                      <p className="font-bold text-gray-800">{item.name || item}</p>
-                      {item.quantity && <p className="text-sm text-gray-600">Qté: {item.quantity}</p>}
-                    </div>
-                    {item.price && <p className="text-lg font-bold text-orange-600">{Number(item.price).toFixed(2)} DA</p>}
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className={`grid ${isEditing ? 'grid-cols-1 lg:grid-cols-2 lg:gap-8' : 'grid-cols-1 gap-6'}`}>
+            
+            {/* Left Column: Order details & Current Items */}
+            <div className="space-y-6">
+               {/* Customer Info (Online Orders) */}
+               {orderType === 'online' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Client</p>
+                    <p className="font-semibold text-gray-800">{order.customer}</p>
                   </div>
-                ))
-              ) : orderType === 'offline' && order.items && Array.isArray(order.items) ? (
-                order.items.map((item: any, idx: number) => (
-                  <div key={idx} className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
-                    <div>
-                      <p className="font-bold text-gray-800">{item.item?.name || item.name}</p>
-                      <div className="flex gap-3 mt-1">
-                        {item.size && <p className="text-xs text-gray-600 bg-white px-2 py-1 rounded">Taille: {item.size.size || item.size}</p>}
-                        <p className="text-xs text-gray-600 bg-white px-2 py-1 rounded">Qté: {item.quantity}</p>
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">Téléphone</p>
+                    <p className="font-semibold text-gray-800">{order.phone}</p>
+                  </div>
+                  {order.address && (
+                    <div className="bg-gray-50 rounded-xl p-4 md:col-span-2">
+                      <p className="text-xs text-gray-500 uppercase font-bold mb-1">Adresse</p>
+                      <p className="font-semibold text-gray-800">{order.address}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Notes Section */}
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                <p className="text-xs text-blue-700 uppercase font-bold mb-2">Notes Spéciales</p>
+                {isEditing ? (
+                  <textarea
+                    value={editNotes}
+                    onChange={(e) => setEditNotes(e.target.value)}
+                    className="w-full bg-white border border-blue-300 rounded-lg p-3 text-gray-800 font-medium focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Instructions spéciales..."
+                    rows={2}
+                  />
+                ) : (
+                  <p className="font-semibold text-gray-800">{order.notes || 'Aucune note'}</p>
+                )}
+              </div>
+
+              {/* Items List */}
+              <div>
+                <p className="text-xs text-gray-500 uppercase font-bold mb-3">Articles de la Commande</p>
+                <div className="space-y-3">
+                  {editItems.map((item, idx) => (
+                    <div key={idx} className={`bg-gray-50 rounded-2xl p-4 transition-all border-2 ${isEditing ? 'border-blue-100 hover:border-blue-300' : 'border-transparent'}`}>
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-bold text-gray-800 text-lg">{item.name}</p>
+                          {item.sizeName && (
+                            <span className="inline-block bg-white text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 mt-1">
+                              Taille: {item.sizeName}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xl font-black text-orange-600">{(item.price * item.quantity).toFixed(2)} DA</p>
                       </div>
-                    </div>
-                    <p className="text-lg font-bold text-orange-600">{Number(item.price).toFixed(2)} DA</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-center py-4">Aucun article trouvé</p>
-              )}
-            </div>
-          </div>
 
-          {/* Totals */}
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 space-y-3 border-2 border-orange-200">
-            {orderType === 'online' ? (
-              <>
+                      {isEditing && (
+                        <div className="flex items-center justify-between mt-4 border-t border-blue-100 pt-4">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => handleUpdateQuantity(idx, -1)}
+                              className="p-2 bg-white border-2 border-blue-200 rounded-xl text-blue-600 hover:bg-blue-50"
+                            >
+                              <Minus size={18} />
+                            </button>
+                            <span className="text-xl font-bold min-w-[2rem] text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => handleUpdateQuantity(idx, 1)}
+                              className="p-2 bg-white border-2 border-blue-200 rounded-xl text-blue-600 hover:bg-blue-50"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => handleRemoveItem(idx)}
+                            className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 border-2 border-red-100"
+                          >
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Totals */}
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 space-y-3 border-2 border-orange-200">
                 <div className="flex justify-between items-center text-gray-700">
-                  <span className="font-semibold">Sous-total (Hors Taxe)</span>
-                  <span className="text-xl font-bold">{Number(order.subtotal || (Number(order.total) - Number(order.tax_amount || 0))).toFixed(2)} DA</span>
+                  <span className="font-semibold">Sous-total</span>
+                  <span className="text-xl font-bold">{calculateSubtotal().toFixed(2)} DA</span>
                 </div>
-                <div className="flex justify-between items-center text-gray-600">
-                  <span className="font-medium">Taxe</span>
-                  <span className="font-bold">{Number(order.tax_amount || 0).toFixed(2)} DA</span>
-                </div>
+                {orderType === 'online' && (
+                   <div className="flex justify-between items-center text-gray-600">
+                    <span className="font-medium">Taxe</span>
+                    <span className="font-bold">{Number(order.tax_amount || 100).toFixed(2)} DA</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center pt-3 border-t-2 border-orange-300 text-orange-700">
-                  <span className="text-lg font-bold">Total (TTC)</span>
-                  <span className="text-2xl font-bold">{Number(order.total).toFixed(2)} DA</span>
+                  <span className="text-lg font-bold">Total Final</span>
+                  <span className="text-2xl font-black">{currentTotal.toFixed(2)} DA</span>
                 </div>
-              </>
-            ) : (
-              <div className="flex justify-between items-center text-orange-700">
-                <span className="text-lg font-bold">Total</span>
-                <span className="text-2xl font-bold">{Number(order.total).toFixed(2)} DA</span>
+              </div>
+            </div>
+
+            {/* Right Column: Menu Item Selector (Editing Mode ONLY) */}
+            {isEditing && (
+              <div className="space-y-6 mt-8 lg:mt-0 lg:border-l lg:pl-8 border-gray-100">
+                <div>
+                  <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Plus className="text-blue-600" size={20} />
+                    Ajouter des Articles
+                  </h4>
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                      type="text"
+                      placeholder="Rechercher dans le menu..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-2xl focus:border-blue-300 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    {loadingMenu ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="animate-spin text-blue-500" />
+                      </div>
+                    ) : filteredMenu.map(menuItem => (
+                      <div key={menuItem.id} className="bg-white border-2 border-gray-50 rounded-2xl p-3 hover:border-blue-100 transition-all shadow-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-gray-800">{menuItem.name}</span>
+                          {!menuItem.sizes || menuItem.sizes.length === 0 ? (
+                            <button
+                              onClick={() => handleAddItem(menuItem)}
+                              className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          ) : null}
+                        </div>
+                        {menuItem.sizes && menuItem.sizes.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                             {menuItem.sizes.map((size: any) => (
+                               <div key={size.id} className="flex justify-between items-center bg-gray-50/50 p-2 rounded-lg">
+                                 <span className="text-sm font-medium text-gray-600">{size.size} - {Number(size.price).toFixed(2)} DA</span>
+                                 <button
+                                  onClick={() => handleAddItem(menuItem, size.id)}
+                                  className="p-1 px-3 bg-white border border-blue-200 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-50"
+                                >
+                                  + Ajouter
+                                </button>
+                               </div>
+                             ))}
+                          </div>
+                        )}
+                        {!menuItem.sizes || menuItem.sizes.length === 0 ? (
+                           <p className="text-sm text-gray-500 mt-1">{Number(menuItem.price).toFixed(2)} DA</p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>
-
-          {/* Status & Timestamp */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Statut</p>
-              <p className="font-semibold capitalize text-gray-800">{order.status}</p>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase font-bold mb-1">Créé le</p>
-              <p className="font-semibold text-gray-800">{new Date(order.created_at).toLocaleString('fr-FR')}</p>
-            </div>
-          </div>
         </div>
+
+        {/* Footer Actions */}
+        <div className="p-6 border-t-2 border-gray-100 bg-gray-50/50 shrink-0">
+          {isEditing ? (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-xl shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 active:scale-95"
+            >
+              {saving ? <Loader2 className="animate-spin" /> : <Save size={24} />}
+              Enregistrer les Modifications
+            </button>
+          ) : (
+             <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => handleDecline(orderType, order.id)}
+                  className="py-4 bg-red-50 text-red-600 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-red-100"
+                >
+                  Refuser
+                </button>
+                <button
+                  onClick={() => handleConfirm(orderType, order.id)}
+                  className="py-4 bg-green-500 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-green-600 shadow-lg shadow-green-500/20"
+                >
+                  Confirmer la Commande
+                </button>
+             </div>
+          )}
+        </div>
+
+        {pendingItemForExtras && (
+          <ExtrasModal
+            item={pendingItemForExtras.item}
+            sizeId={pendingItemForExtras.sizeId}
+            onClose={() => setPendingItemForExtras(null)}
+            onAdd={(extras: any[]) => {
+              handleAddItem(pendingItemForExtras.item, pendingItemForExtras.sizeId, extras);
+              setPendingItemForExtras(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -186,6 +481,11 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
               : item.size.size
                 ? `<br/><small>(${item.size.size})</small>`
                 : '';
+          }
+          
+          if (item.extras && Array.isArray(item.extras) && item.extras.length > 0) {
+            const extraNames = item.extras.map((e: any) => e.name).join(', ');
+            size += `<br/><small>+ ${extraNames}</small>`;
           }
         }
 
@@ -665,6 +965,8 @@ export default function PendingOrders() {
           orderType={selectedOrder.type}
           isOpen={true}
           onClose={() => setSelectedOrder(null)}
+          handleConfirm={handleConfirm}
+          handleDecline={handleDecline}
         />
       )}
 
