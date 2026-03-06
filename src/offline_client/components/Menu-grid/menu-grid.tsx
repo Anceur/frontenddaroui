@@ -20,7 +20,7 @@ interface MenuGridProps {
 
 export default function MenuGrid({ items, promotions }: MenuGridProps) {
   return (
-    <main className="bg-gradient-to-br min-h-screen py-4 md:py-10 flex-1 overflow-y-auto">
+    <main className="bg-gradient-to-br py-4 md:py-10 flex-1">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl">
         {items.length === 0 ? (
           <div className="text-center py-16 md:py-24 px-4">

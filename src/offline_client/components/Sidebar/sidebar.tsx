@@ -179,8 +179,61 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
   }
 
   return (
-    <div className="bg-gray-50 pb-8">
-      {/* ================= HEADER CARD - HAUTEUR FIXE POUR MOBILE UNIQUEMENT ================= */}
+    <div className="bg-gray-50 pb-8 flex flex-col">
+      {/* ================= CATÉGORIES STICKY ================= */}
+      <div className="sticky top-20 md:top-24 z-30 bg-gray-50/95 backdrop-blur-md px-4 py-3 shadow-sm border-b border-gray-100">
+        <div 
+          ref={scrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className={`flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab cursor-default'}`}
+        >
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={(e) => {
+                if (dragged) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  return
+                }
+                handleCategoryClick(category.id)
+              }}
+              className={`
+                flex-shrink-0 w-24 h-28 sm:w-32 sm:h-36 rounded-2xl 
+                flex flex-col items-center justify-center gap-1.5 
+                transition-all duration-300 snap-center 
+                ${
+                  selectedCategory === category.id
+                    ? "bg-[#3A2C1C] text-white shadow-lg"
+                    : "bg-white border border-gray-200 text-[#3A2C1C] hover:bg-[#F5E6D3] hover:scale-105"
+                }
+              `}
+            >
+              <div
+                className={`
+                  w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center 
+                  transition-transform duration-300
+                  ${selectedCategory === category.id ? "scale-110" : "scale-100"}
+                `}
+              >
+                <img
+                  src={category.image}
+                  alt={category.label}
+                  className="w-full h-full object-contain drop-shadow-sm"
+                />
+              </div>
+              <span className="font-bold text-[11px] sm:text-sm px-2 text-center leading-tight">
+                {category.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ================= HEADER CARD (BANNER) ================= */}
       <div
         className={`
           mx-2 mt-3 sm:mx-4 sm:mt-4
@@ -414,74 +467,6 @@ export default function RestaurantLayout({ onSelectCategory, onClose, promotions
         </div>
       </div>
 
-      {/* CATÉGORIES */}
-      <div className="px-4 mt-6">
-        <div 
-          ref={scrollRef}
-          onMouseDown={handleMouseDown}
-          onMouseLeave={handleMouseLeave}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab cursor-default'}`}
-        >
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={(e) => {
-                if (dragged) {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  return
-                }
-                handleCategoryClick(category.id)
-              }}
-              className={`
-                flex-shrink-0 w-28 h-36 sm:w-36 sm:h-44 rounded-2xl 
-                flex flex-col items-center justify-center gap-2 
-                transition-all duration-300 snap-center 
-                ${
-                  selectedCategory === category.id
-                    ? "bg-[#3A2C1C] text-white"
-                    : "bg-[#F5E6D3] text-[#3A2C1C] hover:scale-105"
-                }
-              `}
-            >
-              {/* IMAGE */}
-              <div
-                className={`
-                  w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center 
-                  transition-transform duration-300
-                  ${
-                    selectedCategory === category.id
-                      ? "scale-110"
-                      : "scale-100"
-                  }
-                `}
-              >
-                <img
-                  src={category.image}
-                  alt={category.label}
-                  className="w-full h-full object-contain drop-shadow-md"
-                />
-              </div>
-
-              {/* LABEL */}
-              <span
-                className={`
-                  font-bold text-sm sm:text-base px-2 text-center leading-tight
-                  ${
-                    selectedCategory === category.id
-                      ? "text-white"
-                      : "text-[#3A2C1C]"
-                  }
-                `}
-              >
-                {category.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

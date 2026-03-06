@@ -75,7 +75,7 @@ export default function HomePage() {
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <div className="overflow-hidden">
+      <div className="flex-1">
         <Sidebar
           onSelectCategory={(category) => {
             setSelectedCategory(category)
