@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutDashboard, ShoppingCart, Package, Users, BarChart3, X, Ruler, Cookie, History, Table, Bell, Warehouse, Building2, Star, Activity, DollarSign, TrendingUp, Tag, Clock, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Users, BarChart3, X, Ruler, Cookie, History, Table, Bell, Warehouse, Building2, Star, Activity, DollarSign, TrendingUp, Tag, Clock, PlusCircle, Layers } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NostalgieSidebarProps {
@@ -65,6 +65,7 @@ export default function NostalgieSidebar({ isMobileOpen = false, onMobileClose }
     { id: 'suppliers', icon: Building2, label: 'Fournisseurs', path: '/suppliers', badge: null },
     { id: 'analytics', icon: BarChart3, label: 'Analyses', path: '/analytics', badge: null },
     { id: 'movement', icon: Activity, label: 'Mouvement des produits', path: '/movement', badge: null },
+    { id: 'supplements-movement', icon: Layers, label: 'Traçabilité des suppléments', path: '/supplements-movement', badge: null },
     { id: 'expenses', icon: DollarSign, label: 'Dépenses', path: '/expenses', badge: null },
     { id: 'earnings', icon: TrendingUp, label: 'Gains', path: '/earnings', badge: null },
     { id: 'staff', icon: Users, label: 'Personnel', path: '/staff', badge: null },

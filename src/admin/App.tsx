@@ -21,6 +21,7 @@ import SuppliersManagement from "./pages/Suppliers";
 import SupplierHistoryManagement from "./pages/SupplierHistory";
 import LoyalCustomersManagement from "./pages/LoyalCustomers";
 import MenuItemMovement from "./pages/MenuItemMovement";
+import SupplementsMovement from "./pages/SupplementsMovement";
 import ExpensesDashboard from "./pages/Expenses";
 import EarningsDashboard from "./pages/Earnings";
 
@@ -67,6 +68,7 @@ function AdminApp() {
             <Route path="supplier-history" element={<SupplierHistoryManagement />} />
             <Route path="loyal-customers" element={<LoyalCustomersManagement />} />
             <Route path="movement" element={<MenuItemMovement />} />
+            <Route path="supplements-movement" element={<SupplementsMovement />} />
             <Route path="expenses" element={<ExpensesDashboard />} />
             <Route path="earnings" element={<EarningsDashboard />} />
             <Route path="promotions" element={<Promotions />} />

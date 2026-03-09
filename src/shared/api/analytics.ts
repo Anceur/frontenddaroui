@@ -68,4 +68,36 @@ export async function getMenuItemMovement(startDate?: string, endDate?: string):
   }
 }
 
+export type ExtrasMovement = {
+  id: string;
+  name: string;
+  price: number;
+  menu_item_name: string;
+  menu_item_id: number | null;
+  today: number;
+  month: number;
+  year: number;
+  period: number;
+  revenue_today: number;
+  revenue_month: number;
+  revenue_year: number;
+  revenue_period: number;
+};
 
+// Get extras/supplements movement statistics
+export async function getExtrasMovement(startDate?: string, endDate?: string): Promise<ExtrasMovement[]> {
+  try {
+    let url = `${API}/analytics/extras-movement/`;
+    if (startDate && endDate) {
+      url += `?start_date=${startDate}&end_date=${endDate}`;
+    }
+    const response = await axios.get<ExtrasMovement[]>(url, { withCredentials: true });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching extras movement:', error);
+    if (error.response) {
+      throw new Error(error.response.data?.error || error.response.data?.detail || 'Failed to fetch extras movement data');
+    }
+    throw new Error('Network error: Failed to fetch extras movement data');
+  }
+}
