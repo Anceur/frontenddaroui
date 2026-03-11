@@ -9,10 +9,13 @@ import {
 import { getMenuItems } from '../../shared/api/menu-items';
 import type { MenuItemExtra, CreateMenuItemExtraData } from '../../shared/api/menu-item-extras';
 import type { MenuItem } from '../../shared/api/menu-items';
+import { getIngredients } from '../../shared/api/ingredients';
+import type { Ingredient } from '../../shared/api/ingredients';
 
 export default function MenuItemExtrasManagement() {
   const [extras, setExtras] = useState<MenuItemExtra[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -21,11 +24,20 @@ export default function MenuItemExtrasManagement() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingExtra, setEditingExtra] = useState<MenuItemExtra | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [formData, setFormData] = useState<Omit<CreateMenuItemExtraData, 'menu_item_id'> & { menu_item_id: number }>({
+  const [formData, setFormData] = useState<{
+    menu_item_id: number;
+    name: string;
+    price: number | string;
+    cost_price: number | string;
+    ingredient: number | null;
+    ingredient_quantity: number | string | null;
+  }>({
     menu_item_id: 0,
     name: '',
     price: 0,
     cost_price: 0,
+    ingredient: null,
+    ingredient_quantity: null,
   });
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -37,12 +49,14 @@ export default function MenuItemExtrasManagement() {
     try {
       setLoading(true);
       setError(null);
-      const [extrasData, itemsData] = await Promise.all([
+      const [extrasData, itemsData, ingredientsData] = await Promise.all([
         getMenuItemExtras(),
         getMenuItems(),
+        getIngredients(),
       ]);
       setExtras(extrasData);
       setMenuItems(itemsData);
+      setIngredients(ingredientsData.filter(i => i.is_supplement));
     } catch (err: any) {
       setError(err.message || 'Échec du chargement des données');
     } finally {
@@ -80,8 +94,10 @@ export default function MenuItemExtrasManagement() {
         // تعديل supplément واحد فقط
         await updateMenuItemExtra(editingExtra.id, {
           name: formData.name,
-          price: formData.price,
-          cost_price: formData.cost_price,
+          price: Number(formData.price),
+          cost_price: Number(formData.cost_price),
+          ingredient: formData.ingredient,
+          ingredient_quantity: formData.ingredient_quantity !== null ? Number(formData.ingredient_quantity) : null,
         });
       } else {
         // إضافة supplément على كل منتجات الفئة المختارة
@@ -99,8 +115,10 @@ export default function MenuItemExtrasManagement() {
             createMenuItemExtra({
               menu_item_id: item.id,
               name: formData.name,
-              price: formData.price,
-              cost_price: formData.cost_price,
+              price: Number(formData.price),
+              cost_price: Number(formData.cost_price),
+              ingredient: formData.ingredient,
+              ingredient_quantity: formData.ingredient_quantity !== null ? Number(formData.ingredient_quantity) : null,
             })
           )
         );
@@ -122,6 +140,8 @@ export default function MenuItemExtrasManagement() {
       name: extra.name,
       price: extra.price,
       cost_price: extra.cost_price || 0,
+      ingredient: extra.ingredient || null,
+      ingredient_quantity: extra.ingredient_quantity !== undefined && extra.ingredient_quantity !== null ? extra.ingredient_quantity : null,
     });
     setIsModalOpen(true);
   };
@@ -138,7 +158,7 @@ export default function MenuItemExtrasManagement() {
   };
 
   const resetForm = () => {
-    setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0 });
+    setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0, ingredient: null, ingredient_quantity: null });
     setSelectedCategory('');
     setEditingExtra(null);
     setIsModalOpen(false);
@@ -220,7 +240,7 @@ export default function MenuItemExtrasManagement() {
             onClick={() => {
               setEditingExtra(null);
               setSelectedCategory('');
-              setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0 });
+              setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0, ingredient: null, ingredient_quantity: null });
               setIsModalOpen(true);
             }}
             className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl text-white font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:-translate-y-0.5 transition-all w-full lg:w-auto whitespace-nowrap overflow-hidden relative group"
@@ -250,7 +270,7 @@ export default function MenuItemExtrasManagement() {
             onClick={() => {
               setEditingExtra(null);
               setSelectedCategory('');
-              setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0 });
+              setFormData({ menu_item_id: 0, name: '', price: 0, cost_price: 0, ingredient: null, ingredient_quantity: null });
               setIsModalOpen(true);
             }}
             className="mt-6 px-6 py-3 rounded-xl text-white font-bold shadow-lg shadow-orange-500/20 transition-all"
@@ -337,7 +357,7 @@ export default function MenuItemExtrasManagement() {
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50 p-4 transition-all animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-orange-50 overflow-hidden">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full border border-orange-50 overflow-hidden max-h-[90vh] flex flex-col">
             <div className="p-8 border-b border-gray-50 bg-gradient-to-r from-orange-50/50 to-transparent flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white rounded-xl shadow-sm">
@@ -352,7 +372,7 @@ export default function MenuItemExtrasManagement() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-5">
+            <form onSubmit={handleSubmit} className="p-8 space-y-5 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-200">
 
               {/* Category selector - only shown when adding new */}
               {!editingExtra && (
@@ -418,7 +438,7 @@ export default function MenuItemExtrasManagement() {
                     step="1"
                     className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-bold text-orange-600 text-lg"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="100"
                   />
                 </div>
@@ -431,15 +451,71 @@ export default function MenuItemExtrasManagement() {
                     min="0"
                     step="0.01"
                     className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-bold text-gray-500"
-                    value={formData.cost_price || 0}
-                    onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) || 0 })}
+                    value={formData.cost_price ?? 0}
+                    onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })}
                     placeholder="0.00"
                   />
                 </div>
               </div>
 
+              {/* Linked Ingredient */}
+              <div className="space-y-4 pt-4 border-t border-gray-100">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
+                    Ingrédient d'inventaire lié
+                  </label>
+                  <div className="relative">
+                    <select
+                      className="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-bold text-gray-700 appearance-none cursor-pointer"
+                      value={formData.ingredient || ''}
+                      onChange={(e) => setFormData({ ...formData, ingredient: e.target.value ? Number(e.target.value) : null })}
+                    >
+                      <option value="">-- Aucun ingrédient lié --</option>
+                      {ingredients.map((ing) => (
+                        <option key={ing.id} value={ing.id}>
+                          {ing.name} ({ing.unit})
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 pointer-events-none" />
+                  </div>
+                  <p className="text-xs text-gray-500 ml-1">Associez un ingrédient pour mettre à jour le stock automatiquement.</p>
+                </div>
+
+                {formData.ingredient && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">
+                      Quantité utilisée <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        required={!!formData.ingredient}
+                        min="0"
+                        step="0.01"
+                        className="flex-1 px-5 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-orange-500/10 focus:bg-white transition-all outline-none font-bold text-gray-700 text-lg"
+                        value={formData.ingredient_quantity ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                            setFormData({ 
+                              ...formData, 
+                              ingredient_quantity: val === '' ? null : val 
+                            });
+                          }
+                        }}
+                        placeholder="Ex: 50"
+                      />
+                      <span className="font-bold text-gray-400 bg-gray-50 px-5 py-4 rounded-2xl border border-transparent">
+                        {ingredients.find((i) => i.id === formData.ingredient)?.unit || ''}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Preview */}
-              {formData.name && formData.price > 0 && (
+              {formData.name && Number(formData.price) > 0 && (
                 <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100">
                   <p className="text-xs text-orange-500 font-bold uppercase tracking-widest mb-1">Aperçu</p>
                   <p className="text-sm font-bold text-gray-700">

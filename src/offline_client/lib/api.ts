@@ -2,6 +2,12 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://backenddaroui.onrender.com';
 
+export interface MenuItemExtra {
+  id: number;
+  name: string;
+  price: string | number;
+}
+
 export interface MenuItem {
   id: number;
   name: string;
@@ -15,6 +21,7 @@ export interface MenuItem {
     size: string;
     price: string | number;
   }>;
+  extras?: MenuItemExtra[];
 }
 
 /**

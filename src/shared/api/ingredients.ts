@@ -13,18 +13,21 @@ export type Ingredient = {
   stock?: number;
   reorder_level?: number;
   is_low_stock?: boolean;
+  is_supplement?: boolean;
 };
 
 export type CreateIngredientData = {
   name: string;
   unit: string;
   supplier_ids?: number[];
+  is_supplement?: boolean;
 };
 
 export type UpdateIngredientData = {
   name?: string;
   unit?: string;
   supplier_ids?: number[];
+  is_supplement?: boolean;
 };
 
 // Get all ingredients

@@ -10,6 +10,8 @@ export type MenuItemExtra = {
   name: string;
   price: number;
   cost_price?: number;
+  ingredient?: number | null;
+  ingredient_quantity?: number | null;
 };
 
 export type CreateMenuItemExtraData = {
@@ -17,12 +19,16 @@ export type CreateMenuItemExtraData = {
   name: string;
   price: number;
   cost_price?: number;
+  ingredient?: number | null;
+  ingredient_quantity?: number | null;
 };
 
 export type UpdateMenuItemExtraData = {
   name?: string;
   price?: number;
   cost_price?: number;
+  ingredient?: number | null;
+  ingredient_quantity?: number | null;
 };
 
 // Get all extras, optionally filtered by menu item

@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
 
 interface CartItem {
   id: string
@@ -8,6 +8,7 @@ interface CartItem {
   price: number
   image?: string
   quantity: number
+  extras?: any[]
 }
 
 interface CartContextType {

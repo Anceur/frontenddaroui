@@ -16,6 +16,7 @@ export default function IngredientsManagement() {
     name: '',
     unit: 'kg',
     supplier_ids: [],
+    is_supplement: false,
   });
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -73,7 +74,7 @@ export default function IngredientsManagement() {
       }
 
       // Reset form and close modal
-      setFormData({ name: '', unit: 'kg', supplier_ids: [] });
+      setFormData({ name: '', unit: 'kg', supplier_ids: [], is_supplement: false });
       setEditingIngredient(null);
       setIsModalOpen(false);
 
@@ -94,6 +95,7 @@ export default function IngredientsManagement() {
       name: ingredient.name,
       unit: ingredient.unit,
       supplier_ids: ingredient.supplier_ids || [],
+      is_supplement: ingredient.is_supplement || false,
     });
     setIsModalOpen(true);
   };
@@ -114,7 +116,7 @@ export default function IngredientsManagement() {
   // Open modal for new ingredient
   const openNewModal = () => {
     setEditingIngredient(null);
-    setFormData({ name: '', unit: 'kg', supplier_ids: [] });
+    setFormData({ name: '', unit: 'kg', supplier_ids: [], is_supplement: false });
     setIsModalOpen(true);
   };
 
@@ -238,9 +240,16 @@ export default function IngredientsManagement() {
                       </span>
                     </td>
                     <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6 whitespace-nowrap">
-                      <span className="px-4 py-1.5 bg-gray-100 rounded-full text-[10px] font-bold uppercase text-gray-500 tracking-tighter ring-1 ring-inset ring-gray-200/50">
-                        {ingredient.unit}
-                      </span>
+                      <div className="flex flex-col gap-2">
+                        <span className="px-4 py-1.5 bg-gray-100 rounded-full text-[10px] font-bold uppercase text-gray-500 tracking-tighter ring-1 ring-inset ring-gray-200/50 self-start">
+                          {ingredient.unit}
+                        </span>
+                        {ingredient.is_supplement && (
+                          <span className="px-3 py-1 bg-orange-100 text-orange-600 rounded-lg text-[10px] font-bold tracking-widest self-start">
+                            SUPPLÉMENT
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 lg:py-6">
                       <div className="flex flex-wrap gap-2">
@@ -361,6 +370,19 @@ export default function IngredientsManagement() {
                   </div>
                 </div>
                 <p className="text-[10px] text-gray-400 font-bold px-1 italic">Associer les matériaux aux fournisseurs enregistrés</p>
+              </div>
+
+              <div className="flex items-center gap-3 p-4 bg-orange-50/50 rounded-xl border border-orange-100 mt-4">
+                <input
+                  type="checkbox"
+                  id="is-supplement-check"
+                  className="w-5 h-5 rounded border-orange-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
+                  checked={formData.is_supplement || false}
+                  onChange={(e) => setFormData({ ...formData, is_supplement: e.target.checked })}
+                />
+                <label htmlFor="is-supplement-check" className="text-sm font-semibold text-orange-800 cursor-pointer select-none">
+                  Cet ingrédient est un supplément (vendu en tant qu'extra)
+                </label>
               </div>
 
              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
