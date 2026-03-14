@@ -10,6 +10,7 @@ export interface OrderSubmissionData {
     name: string;
     price: number;
     quantity: number;
+    extras?: { id: number | string; name: string; price: number | string }[];
   }>;
   subtotal: number;
   tax_amount: number;

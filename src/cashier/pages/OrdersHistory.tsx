@@ -36,8 +36,11 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
                     }
 
                     if (item.extras && Array.isArray(item.extras) && item.extras.length > 0) {
-                        const extraNames = item.extras.map((e: any) => e.name).join(', ');
-                        size += `<br/><small>+ ${extraNames}</small>`;
+                        item.extras.forEach((e: any) => {
+                            const extraUnitPrice = Number(e.price || 0);
+                            const extraTotalPrice = (extraUnitPrice * qty).toFixed(2);
+                            size += `<br/><small style="color:#d97706">  + ${e.name}: ${extraTotalPrice} DA</small>`;
+                        });
                     }
                 }
 
@@ -96,9 +99,26 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
             ${notesHtml}
             <table><thead><tr><th class="qty">Qté</th><th class="item">Article</th><th class="price">Prix</th></tr></thead><tbody>${itemsHtml}</tbody></table>
             <div class="totals">
-                <div class="row"><span>Sous-total</span><span>${Number(order.subtotal || order.total).toFixed(2)} DA</span></div>
-                ${order.tax_amount ? `<div class="row"><span>Taxe</span><span>${Number(order.tax_amount).toFixed(2)} DA</span></div>` : ''}
-                <div class="row grand-total"><span>TOTAL</span><span>${Number(order.total).toFixed(2)} DA</span></div>
+                ${(() => {
+                  const itemsArray = order.items || [];
+                  const computedSubtotal = itemsArray.reduce((s, it) => {
+                    if (typeof it === 'string') return s;
+                    const unitPrice = Number(it.price || it.item?.price || 0);
+                    const qty = Number(it.quantity || 1);
+                    const extrasSum = (it.extras && Array.isArray(it.extras))
+                      ? it.extras.reduce((es, e) => es + Number(e.price || 0), 0)
+                      : 0;
+                    return s + (unitPrice + extrasSum) * qty;
+                  }, 0);
+                  const subtotalToShow = Number(order.subtotal || computedSubtotal);
+                  const livraison = Number(order.tax_amount || 0);
+                  const correctTotal = subtotalToShow + livraison;
+                  return `
+                    <div class="row"><span>Sous-total</span><span>${subtotalToShow.toFixed(2)} DA</span></div>
+                    ${livraison > 0 ? '<div class="row"><span>🚚 Livraison</span><span>' + livraison.toFixed(2) + ' DA</span></div>' : ''}
+                    <div class="row grand-total"><span>TOTAL</span><span>${correctTotal.toFixed(2)} DA</span></div>
+                  `;
+                })()}
             </div>
             <div class="footer"><p>Merci pour votre visite !</p><p>À bientôt !</p></div>
             <script>window.onload = function() { window.print(); }</script>

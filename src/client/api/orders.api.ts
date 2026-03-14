@@ -8,6 +8,7 @@ export type CartItem = {
   price: number;
   quantity: number;
   image?: string;
+  extras?: { id: number | string; name: string; price: number | string }[];
 };
 
 export type SecurityToken = {

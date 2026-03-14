@@ -142,10 +142,13 @@ function OrderDetailModal({ order, orderType, isOpen, onClose, handleConfirm, ha
   );
 
   const calculateSubtotal = () => {
-      return editItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return editItems.reduce((sum, item) => {
+      const extrasTotal = (item.extras || []).reduce((eSum: number, e: any) => eSum + Number(e.price || 0), 0);
+      return sum + ((Number(item.price) + extrasTotal) * item.quantity);
+    }, 0);
   };
 
-  const currentTotal = orderType === 'online' 
+  const currentTotal = orderType === 'online'
     ? calculateSubtotal() + Number(order.tax_amount || 100)
     : calculateSubtotal();
 
@@ -283,18 +286,23 @@ function OrderDetailModal({ order, orderType, isOpen, onClose, handleConfirm, ha
                     <div key={idx} className={`bg-gray-50 rounded-2xl p-4 transition-all border-2 ${isEditing ? 'border-blue-100 hover:border-blue-300' : 'border-transparent'}`}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <p className="font-bold text-gray-800 text-lg">{item.name}</p>
+                           <p className="font-bold text-gray-800 text-lg">{item.name}</p>
                           {item.sizeName && (
                             <span className="inline-block bg-white text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 mt-1 mr-2">
                               Taille: {item.sizeName}
                             </span>
                           )}
                           {item.extras && item.extras.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1">
+                            <div className="mt-1 space-y-0.5">
                               {item.extras.map((extra: any, eIdx: number) => (
-                                <span key={eIdx} className="inline-block bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full border border-orange-200">
-                                  + {extra.name}
-                                </span>
+                                <div key={eIdx} className="flex items-center justify-between">
+                                  <span className="inline-block bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full border border-orange-200">
+                                    + {extra.name}
+                                  </span>
+                                  <span className="text-xs text-orange-600 font-semibold">
+                                    +{(Number(extra.price) * item.quantity).toFixed(2)} DA
+                                  </span>
+                                </div>
                               ))}
                             </div>
                           )}
@@ -338,10 +346,10 @@ function OrderDetailModal({ order, orderType, isOpen, onClose, handleConfirm, ha
                   <span className="font-semibold">Sous-total</span>
                   <span className="text-xl font-bold">{calculateSubtotal().toFixed(2)} DA</span>
                 </div>
-                {orderType === 'online' && (
+                {orderType === 'online' && Number(order.tax_amount || 0) > 0 && (
                    <div className="flex justify-between items-center text-gray-600">
-                    <span className="font-medium">Taxe</span>
-                    <span className="font-bold">{Number(order.tax_amount || 100).toFixed(2)} DA</span>
+                    <span className="font-medium">🚚 Livraison</span>
+                    <span className="font-bold">{Number(order.tax_amount).toFixed(2)} DA</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center pt-3 border-t-2 border-orange-300 text-orange-700">
@@ -493,8 +501,11 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
           }
           
           if (item.extras && Array.isArray(item.extras) && item.extras.length > 0) {
-            const extraNames = item.extras.map((e: any) => e.name).join(', ');
-            size += `<br/><small>+ ${extraNames}</small>`;
+            item.extras.forEach((e: any) => {
+              const extraUnitPrice = Number(e.price || 0);
+              const extraTotalPrice = (extraUnitPrice * qty).toFixed(2);
+              size += `<br/><small style="color:#d97706">  + ${e.name}: ${extraTotalPrice} DA</small>`;
+            });
           }
         }
 
@@ -578,20 +589,28 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
                 </tbody>
             </table>
             <div class="totals">
-                ${order.tax_amount ? `
-                <div class="row">
-                    <span>Sous-total</span>
-                    <span>${Number(order.subtotal || order.total).toFixed(2)} DA</span>
-                </div>
-                <div class="row">
-                    <span>Taxe</span>
-                    <span>${Number(order.tax_amount).toFixed(2)} DA</span>
-                </div>
-                ` : ''}
-                <div class="row grand-total">
-                    <span>TOTAL</span>
-                    <span>${Number(order.total).toFixed(2)} DA</span>
-                </div>
+                ${(() => {
+                  // Calculate subtotal from items (includes extras) if order.subtotal is available
+                  // Fall back to computing from items in the order
+                  const itemsArray = order.items || [];
+                  const computedSubtotal = itemsArray.reduce((s: number, it: any) => {
+                    if (typeof it === 'string') return s;
+                    const unitPrice = Number(it.price || it.item?.price || 0);
+                    const qty = Number(it.quantity || 1);
+                    const extrasSum = (it.extras && Array.isArray(it.extras))
+                      ? it.extras.reduce((es: number, e: any) => es + Number(e.price || 0), 0)
+                      : 0;
+                    return s + (unitPrice + extrasSum) * qty;
+                  }, 0);
+                  const subtotalToShow = Number(order.subtotal || computedSubtotal);
+                  const livraison = Number(order.tax_amount || 0);
+                  const correctTotal = subtotalToShow + livraison;
+                  return `
+                    <div class="row"><span>Sous-total</span><span>${subtotalToShow.toFixed(2)} DA</span></div>
+                    ${livraison > 0 ? `<div class="row"><span>🚚 Livraison</span><span>${livraison.toFixed(2)} DA</span></div>` : ''}
+                    <div class="row grand-total"><span>TOTAL</span><span>${correctTotal.toFixed(2)} DA</span></div>
+                  `;
+                })()}
             </div>
             <div class="footer">
                 <p>Merci pour votre visite !</p>

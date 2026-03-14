@@ -1,9 +1,15 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CheckCircle, AlertCircle, Loader2, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, CheckCircle, AlertCircle, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCart } from "../../context/CartContext";
 import { OrderService } from "../../services/orderService";
 import { getUserLocation } from "../../utils/location";
+
+interface DeliveryDetailsDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onBack: () => void;
+}
 
 export default function DeliveryDetailsDrawer({
   isOpen,
@@ -74,6 +80,7 @@ export default function DeliveryDetailsDrawer({
         name: item.name,
         price: item.price,
         quantity: item.quantity,
+        extras: item.extras || [],
       })),
       subtotal,
       tax_amount: taxAmount,
@@ -241,7 +248,16 @@ export default function DeliveryDetailsDrawer({
                               <div key={item.id} className="flex justify-between items-center text-sm">
                                 <div className="flex-1">
                                   <p className="font-medium text-gray-800">{item.name}</p>
-                                  <p className="text-gray-500 text-xs">
+                                  {item.extras && item.extras.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-0.5">
+                                      {item.extras.map((extra: any) => (
+                                        <span key={extra.id} className="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                          + {extra.name}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <p className="text-gray-500 text-xs mt-1">
                                     {item.price.toFixed(2)} DA × {item.quantity}
                                   </p>
                                 </div>
