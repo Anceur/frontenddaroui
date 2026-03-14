@@ -285,9 +285,18 @@ function OrderDetailModal({ order, orderType, isOpen, onClose, handleConfirm, ha
                         <div className="flex-1">
                           <p className="font-bold text-gray-800 text-lg">{item.name}</p>
                           {item.sizeName && (
-                            <span className="inline-block bg-white text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 mt-1">
+                            <span className="inline-block bg-white text-gray-600 text-xs px-2 py-1 rounded-md border border-gray-200 mt-1 mr-2">
                               Taille: {item.sizeName}
                             </span>
+                          )}
+                          {item.extras && item.extras.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {item.extras.map((extra: any, eIdx: number) => (
+                                <span key={eIdx} className="inline-block bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full border border-orange-200">
+                                  + {extra.name}
+                                </span>
+                              ))}
+                            </div>
                           )}
                         </div>
                         <p className="text-xl font-black text-orange-600">{(item.price * item.quantity).toFixed(2)} DA</p>

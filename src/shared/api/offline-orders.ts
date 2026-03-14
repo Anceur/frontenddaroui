@@ -18,6 +18,7 @@ export type OfflineOrderItem = {
   quantity: number;
   price: number;
   notes: string;
+  extras?: { id: number; name: string; price: number }[];
 };
 
 export type OfflineOrder = {

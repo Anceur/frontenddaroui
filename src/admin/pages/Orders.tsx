@@ -374,10 +374,20 @@ export default function OrdersManagement() {
                                 return <li key={idx}>• {item}</li>;
                               }
                               const detail = item as any;
+                              const extrasStr = detail.extras && Array.isArray(detail.extras) && detail.extras.length > 0
+                                ? ` (+ ${detail.extras.map((e: any) => e.name).join(', ')})`
+                                : '';
                               return (
-                                <li key={idx} className="flex justify-between">
-                                  <span>• {detail.name} {detail.size ? `[${detail.size}]` : ''}</span>
-                                  <span className="font-bold">x{detail.quantity || 1}</span>
+                                <li key={idx} className="flex flex-col">
+                                  <div className="flex justify-between">
+                                    <span>• {detail.name} {detail.size ? `[${detail.size}]` : ''}</span>
+                                    <span className="font-bold">x{detail.quantity || 1}</span>
+                                  </div>
+                                  {extrasStr && (
+                                    <span className="text-xs ml-3 text-orange-600 font-medium italic">
+                                      {extrasStr}
+                                    </span>
+                                  )}
                                 </li>
                               );
                             })}

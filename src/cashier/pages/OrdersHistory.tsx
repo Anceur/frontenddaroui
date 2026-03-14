@@ -34,6 +34,11 @@ function ReceiptModal({ order, isOpen, onClose }: { order: any; isOpen: boolean;
                                 ? `<br/><small>(${item.size.size})</small>`
                                 : '';
                     }
+
+                    if (item.extras && Array.isArray(item.extras) && item.extras.length > 0) {
+                        const extraNames = item.extras.map((e: any) => e.name).join(', ');
+                        size += `<br/><small>+ ${extraNames}</small>`;
+                    }
                 }
 
                 return `

@@ -181,20 +181,16 @@ export default function ManualOnlineOrder() {
     const size = sizeId ? item.sizes?.find(s => s.id === sizeId) : null;
     const sizeName = size ? size.size : undefined;
 
-    // Add promo tag and extras to name if applicable
+    // Add promo tag to name if applicable
     const effectivePromoName = promoName || (bestPrice < originalPrice ? applicablePromo?.name : undefined);
-    let displayName = effectivePromoName ? `[${effectivePromoName}] ${item.name}` : item.name;
-
-    if (selectedExtras && selectedExtras.length > 0) {
-      const extraNames = selectedExtras.map(e => e.name).join(', ');
-      displayName += ` (+ ${extraNames})`;
-    }
+    const displayName = effectivePromoName ? `[${effectivePromoName}] ${item.name}` : item.name;
 
     const existingItemIndex = cart.findIndex(
       cartItem => cartItem.item_id === item.id &&
         cartItem.size_id === (sizeId || null) &&
         cartItem.price === price &&
-        cartItem.name === displayName
+        cartItem.name === displayName &&
+        JSON.stringify(cartItem.extras) === JSON.stringify(selectedExtras || [])
     );
 
     if (existingItemIndex >= 0) {
@@ -577,6 +573,15 @@ export default function ManualOnlineOrder() {
                       <div className="flex-1">
                         <div className="font-medium text-gray-800">{item.name}</div>
                         {item.sizeName && <div className="text-xs text-gray-500">{item.sizeName}</div>}
+                        {item.extras && item.extras.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {item.extras.map((extra: any, eIdx: number) => (
+                              <span key={eIdx} className="inline-block bg-orange-100 text-orange-700 text-[9px] px-1.5 py-0.5 rounded cursor-default border border-orange-200">
+                                + {extra.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 mt-1">
                             <button onClick={() => updateQuantity(index, -1)} className="p-1 text-gray-500 hover:bg-gray-100 rounded"><Minus size={14}/></button>
                             <span className="text-sm font-semibold w-6 text-center">{item.quantity}</span>

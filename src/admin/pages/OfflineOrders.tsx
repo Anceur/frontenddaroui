@@ -273,14 +273,25 @@ export default function OfflineOrdersManagement() {
                         <h4 className="text-sm font-semibold text-gray-700 mb-2">Articles :</h4>
                         <div className="space-y-1">
                           {order.items.map((item, idx) => (
-                            <div key={idx} className="text-sm text-gray-600 flex items-center gap-2">
-                              <span>• {item.quantity}x {item.item.name}</span>
-                              {item.size && (
-                                <span className="text-xs px-2 py-0.5 rounded bg-gray-100">
-                                  {item.size.size}
-                                </span>
+                            <div key={idx} className="flex flex-col">
+                              <div className="text-sm text-gray-600 flex items-center gap-2">
+                                <span>• {item.quantity}x {item.item.name}</span>
+                                {item.size && (
+                                  <span className="text-xs px-2 py-0.5 rounded bg-gray-100">
+                                    {item.size.size}
+                                  </span>
+                                )}
+                                <span className="text-gray-400">- {Number(item.price).toFixed(2)} DA</span>
+                              </div>
+                              {item.extras && item.extras.length > 0 && (
+                                <div className="flex flex-wrap gap-1 ml-4 mt-0.5 mb-1">
+                                  {item.extras.map((extra: any, eIdx: number) => (
+                                    <span key={eIdx} className="text-[10px] text-orange-600 font-medium italic underline decoration-orange-200">
+                                      + {extra.name}
+                                    </span>
+                                  ))}
+                                </div>
                               )}
-                              <span className="text-gray-400">- {Number(item.price).toFixed(2)} DA</span>
                             </div>
                           ))}
                         </div>

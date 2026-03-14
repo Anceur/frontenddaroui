@@ -179,20 +179,16 @@ export default function ManualOrderEntry() {
     const size = sizeId ? item.sizes?.find(s => s.id === sizeId) : null;
     const sizeName = size ? size.size : undefined;
 
-    // Add promo tag and extras to name if applicable
+    // Add promo tag to name if applicable
     const effectivePromoName = promoName || (bestPrice < originalPrice ? applicablePromo?.name : undefined);
-    let displayName = effectivePromoName ? `[${effectivePromoName}] ${item.name}` : item.name;
-    
-    if (selectedExtras && selectedExtras.length > 0) {
-      const extraNames = selectedExtras.map(e => e.name).join(', ');
-      displayName += ` (+ ${extraNames})`;
-    }
+    const displayName = effectivePromoName ? `[${effectivePromoName}] ${item.name}` : item.name;
 
     const existingItemIndex = cart.findIndex(
       cartItem => cartItem.item_id === item.id &&
         cartItem.size_id === (sizeId || null) &&
         cartItem.price === price &&
-        cartItem.name === displayName
+        cartItem.name === displayName &&
+        JSON.stringify(cartItem.extras) === JSON.stringify(selectedExtras || [])
     );
 
     if (existingItemIndex >= 0) {
@@ -606,6 +602,15 @@ export default function ManualOrderEntry() {
                           <div className="font-medium text-gray-800">{item.name}</div>
                           {item.sizeName && (
                             <div className="text-sm text-gray-600">Taille : {item.sizeName}</div>
+                          )}
+                          {item.extras && item.extras.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {item.extras.map((extra: any, eIdx: number) => (
+                                <span key={eIdx} className="inline-block bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded cursor-default border border-orange-200">
+                                  + {extra.name}
+                                </span>
+                              ))}
+                            </div>
                           )}
                           <div className="text-sm text-gray-600">
                             {item.price.toFixed(2)} DA × {item.quantity}
